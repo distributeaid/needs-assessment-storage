@@ -63,10 +63,10 @@ export const backend = ({
   app.use(addVersion(version))
   app.use(addRequestId)
 
-  app.post('/auth/register', registerUser(omnibus, generateToken))
-  app.post('/auth/login', login(getAuthCookie))
-  app.get('/auth/cookie', cookieAuth, renewCookie(getAuthCookie))
-  app.delete('/auth/cookie', cookieAuth, deleteCookie)
+  app.post('/register', registerUser(omnibus, generateToken))
+  app.post('/login', login(getAuthCookie))
+  app.get('/cookie', cookieAuth, renewCookie(getAuthCookie))
+  app.delete('/cookie', cookieAuth, deleteCookie)
 
   app.use(compression())
 

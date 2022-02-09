@@ -12,10 +12,10 @@ import {
   cookieAuthStrategy,
   decodeAuthCookie,
 } from '../authenticateRequest.js'
-import { deleteCookie, renewCookie } from '../routes/cookie.js'
-import login from '../routes/login.js'
-import registerUser from '../routes/register.js'
-import { HTTPStatusCode } from './response/HttpStatusCode.js'
+import { HTTPStatusCode } from '../server/response/HttpStatusCode.js'
+import { deleteCookie, renewCookie } from './cookie.js'
+import login from './login.js'
+import registerUser from './register.js'
 
 jest.setTimeout(15 * 1000)
 
@@ -47,7 +47,7 @@ const parseCookie = (cookie: string) =>
 const email = `${v4()}@example.com`
 const omnibus = new EventEmitter()
 
-describe('User account API', () => {
+describe('Authentication API', () => {
   let app: Express
   let httpServer: Server
   let r: SuperTest<Test>
@@ -61,12 +61,12 @@ describe('User account API', () => {
     app.use(json())
     app.use(passport.initialize())
     app.post(
-      '/auth/register',
+      '/register',
       registerUser(omnibus, () => '123456'),
     )
-    app.post('/auth/login', login(getExpressCookie))
-    app.get('/auth/cookie', cookieAuth, renewCookie(getExpressCookie))
-    app.delete('/auth/cookie', cookieAuth, deleteCookie)
+    app.post('/login', login(getExpressCookie))
+    app.get('/cookie', cookieAuth, renewCookie(getExpressCookie))
+    app.delete('/cookie', cookieAuth, deleteCookie)
     httpServer = createServer(app)
     await new Promise<void>((resolve) =>
       httpServer.listen(8888, '127.0.0.1', undefined, resolve),
@@ -76,10 +76,10 @@ describe('User account API', () => {
   afterAll(async () => {
     httpServer.close()
   })
-  describe('/auth/register', () => {
+  describe('/register', () => {
     it('should register a new user account', async () => {
       await r
-        .post('/auth/register')
+        .post('/register')
         .set('Content-type', 'application/json; charset=utf-8')
         .send({
           email,
@@ -95,7 +95,7 @@ describe('User account API', () => {
       'should not allow to register with the same email (%s) twice',
       async (email) =>
         r
-          .post('/auth/register')
+          .post('/register')
           .set('Content-type', 'application/json; charset=utf-8')
           .send({
             email,
@@ -106,10 +106,10 @@ describe('User account API', () => {
           }),
     )
   })
-  describe('/auth/login', () => {
+  describe('/login', () => {
     it('should return a token on login', async () => {
       const res = await r
-        .post('/auth/login')
+        .post('/login')
         .send({
           email,
           token: '123456',
@@ -132,7 +132,7 @@ describe('User account API', () => {
     })
     it('should send cookie expiry time in the expires header', async () => {
       const res = await r
-        .post('/auth/login')
+        .post('/login')
         .send({
           email,
           token: '123456',
@@ -144,7 +144,7 @@ describe('User account API', () => {
     })
     it('should fail with invalid token', async () =>
       r
-        .post('/auth/login')
+        .post('/login')
         .send({
           email,
           token: '666666',
@@ -155,7 +155,7 @@ describe('User account API', () => {
         }))
     it('should fail with user not found', async () =>
       r
-        .post('/auth/login')
+        .post('/login')
         .send({
           email: 'foo@example.com',
           token: '123456',
@@ -172,7 +172,7 @@ describe('User account API', () => {
       ).toBe(false))
     it('should set the isAdmin flag in the cookie to true for admins', async () => {
       await r
-        .post('/auth/register')
+        .post('/register')
         .set('Content-type', 'application/json; charset=utf-8')
         .send({
           email: adminEmail,
@@ -180,7 +180,7 @@ describe('User account API', () => {
         .expect(HTTPStatusCode.Accepted)
 
       const res = await r
-        .post('/auth/login')
+        .post('/login')
         .send({
           email: adminEmail,
           token: '123456',
@@ -199,15 +199,15 @@ describe('User account API', () => {
       ).toBe(true)
     })
   })
-  describe('/auth/cookie', () => {
+  describe('/cookie', () => {
     it('should send a new cookie', async () =>
       r
-        .get('/auth/cookie')
+        .get('/cookie')
         .set('Cookie', [`${authCookieName}=${authCookie}`])
         .expect(HTTPStatusCode.NoContent))
     it('should send cookie expiry time in the expires header', async () => {
       const res = await r
-        .get('/auth/cookie')
+        .get('/cookie')
         .set('Cookie', [`${authCookieName}=${authCookie}`])
         .expect(HTTPStatusCode.NoContent)
       const expiresIn = new Date(res.headers['expires']).getTime() - Date.now()
@@ -216,7 +216,7 @@ describe('User account API', () => {
     })
     it('should delete a cookie', async () => {
       const res = await r
-        .delete('/auth/cookie')
+        .delete('/cookie')
         .set('Cookie', [`${authCookieName}=${authCookie}`])
         .expect(HTTPStatusCode.NoContent)
       const cookieInfo = parseCookie(res.header['set-cookie'][0] as string)
