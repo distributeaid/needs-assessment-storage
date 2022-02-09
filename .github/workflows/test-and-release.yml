@@ -3,6 +3,9 @@
 # see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 name: Test and Release
 
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 on: push
 
 jobs:
