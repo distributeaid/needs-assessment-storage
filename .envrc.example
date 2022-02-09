@@ -1,0 +1,16 @@
+# See https://direnv.net/ about how to use this file.
+
+# The URL of the web app, used to restrict CORS requests
+# export ORIGIN="http://localhost:8080"
+
+# Fill in to enable email sending
+# export SMTP_FROM=user@example.com
+# export SMTP_SERVER=example.com
+# export SMTP_USER=user@example.com
+# export SMTP_PASSWORD=secret
+# export SMTP_SECURE=false
+# export SMTP_PORT=587
+
+# Authentication settings
+# export COOKIE_SECRET=...
+# export ADMIN_EMAILS=...

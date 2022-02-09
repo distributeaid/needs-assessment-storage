@@ -1,0 +1,106 @@
+{
+  "name": "@distributeaid/needs-assessment-storage-backend",
+  "version": "0.0.0-development",
+  "description": "Storage for Needs Assessments.",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/distributeaid/needs-assessment-storage.git"
+  },
+  "bugs": {
+    "url": "https://github.com/distributeaid/needs-assessment-storage/issues"
+  },
+  "homepage": "https://github.com/distributeaid/needs-assessment-storage#readme",
+  "keywords": [
+    "distribute-aid",
+    "backend",
+    "needs-assessment"
+  ],
+  "scripts": {
+    "dev": "./node_modules/.bin/nodemon --optimize_for_size --max_old_space_size=920 --gc_interval=100 src/server/dev.ts",
+    "prod": "./node_modules/.bin/nodemon --optimize_for_size --max_old_space_size=920 --gc_interval=100 src/server/prod.ts",
+    "test": "jest --detectOpenHandles --runInBand",
+    "prepare": "husky install",
+    "prod:build": "npm run build",
+    "build": "tsc"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write",
+      "eslint --ext .js,.ts,.jsx,.tsx"
+    ],
+    "*.{md,json,yaml,yml,html}": [
+      "prettier --write"
+    ]
+  },
+  "author": "Distribute Aid | https://distributeaid.org/",
+  "license": "AGPL-3.0-only",
+  "dependencies": {
+    "@sinclair/typebox": "^0.23.3",
+    "ajv": "8.10.0",
+    "ajv-formats": "2.1.1",
+    "body-parser": "1.19.1",
+    "chalk": "5.0.0",
+    "compression": "1.7.4",
+    "cookie-parser": "1.4.6",
+    "cors": "2.8.5",
+    "express": "4.17.2",
+    "nodemailer": "6.7.2",
+    "nodemon": "2.0.15",
+    "passport": "0.5.2",
+    "passport-cookie": "1.0.9",
+    "uuid": "8.3.2"
+  },
+  "devDependencies": {
+    "@distributeaid/shared-config": "distributeaid/shared-config",
+    "@nordicsemiconductor/eslint-config-asset-tracker-cloud-typescript": "9.0.5",
+    "@swc/core": "1.2.138",
+    "@swc/jest": "0.2.17",
+    "@types/body-parser": "1.19.2",
+    "@types/compression": "1.7.2",
+    "@types/cookie-parser": "1.4.2",
+    "@types/cors": "^2.8.12",
+    "@types/express": "4.17.13",
+    "@types/jest": "27.4.0",
+    "@types/node": "17.0.16",
+    "@types/nodemailer": "6.4.4",
+    "@types/passport": "1.0.7",
+    "@types/supertest": "2.0.11",
+    "@types/uuid": "8.3.4",
+    "clever-tools": "2.9.0",
+    "commander": "9.0.0",
+    "eslint": "8.8.0",
+    "husky": "7.0.4",
+    "jest": "27.5.1",
+    "lint-staged": "12.3.3",
+    "prettier": "2.5.1",
+    "prettier-plugin-organize-imports": "2.3.4",
+    "regenerator-runtime": "0.13.9",
+    "supertest": "6.2.2",
+    "ts-node": "10.5.0",
+    "ts-node-dev": "1.1.8",
+    "typescript": "4.5.5"
+  },
+  "prettier": "@distributeaid/shared-config/.prettierrc",
+  "jest": {
+    "testRegex": ".+\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)sx?$": "@swc/jest"
+    },
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "globals": {
+      "ts-jest": {
+        "useESM": true
+      }
+    },
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    }
+  }
+}

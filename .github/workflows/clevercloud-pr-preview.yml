@@ -1,0 +1,208 @@
+name: PR-preview
+# This action creates and updates an instance on Clever Cloud for all PRs that
+# have the "cc-preview" label
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      restartApp:
+        description: 'Restart the application'
+        required: false
+        default: 'no'
+
+env:
+  CLEVER_TOKEN: ${{ secrets.CLEVER_TOKEN }}
+  CLEVER_SECRET: ${{ secrets.CLEVER_SECRET }}
+
+jobs:
+  app:
+    if: contains(github.event.pull_request.labels.*.name, 'cc-preview') || github.event_name == 'workflow_dispatch'
+    environment: cc-preview
+    runs-on: ubuntu-latest
+    name: Create the app name and check of app already exists
+    outputs:
+      name: ${{ steps.name.outputs.name }}
+      exists: ${{ steps.exists.outputs.exists }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+
+      - name: Keep npm cache around to speed up installs
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install NPM packages
+        run: npm ci
+
+      - name: Set app name
+        id: name
+        run: echo "::set-output name=name::needs-assessment-storage-pr${{ github.event.pull_request.number }}"
+
+      - name: Check if preview exists
+        id: exists
+        run: |
+          npx clever link -o ${{ secrets.CLEVER_ORG }} ${{ steps.name.outputs.name }} \
+          && echo "::set-output name=exists::true" \
+          || echo "::set-output name=exists::false"
+
+  create:
+    if: github.event.action != 'closed' && contains(github.event.pull_request.labels.*.name, 'cc-preview') && needs.app.outputs.exists == 'false'
+    runs-on: ubuntu-latest
+    environment: cc-preview
+    name: Create preview instance
+    needs:
+      - app
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Needed for deploy
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+
+      - name: Keep npm cache around to speed up installs
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install NPM packages
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Create the application
+        run: npx clever create -t node -o ${{ secrets.CLEVER_ORG }} ${{ needs.app.outputs.name }}
+
+      - name: Enable dedicated build instance
+        run: npx clever scale --build-flavor M
+
+      - name: Force HTTPs
+        run: npx clever config set force-https true
+
+      - name: Configure Node.js application settings
+        run: |
+          npx clever env set CC_NODE_DEV_DEPENDENCIES install
+          npx clever env set CC_POST_BUILD_HOOK 'npm run prod:build'
+          npx clever env set CC_RUN_COMMAND 'npm run prod'
+          npx clever env set NODE_ENV production
+          npx clever env set ORIGIN ${{ env.ORIGIN }}
+
+      - name: Configure email settings
+        run: |
+          npx clever env set SMTP_FROM ${{ secrets.SMTP_FROM }} # e.g. notification@needs-assessment-storage.distributeaid.dev
+          npx clever env set SMTP_USER ${{ secrets.SMTP_USER }}
+          npx clever env set SMTP_PASSWORD ${{ secrets.SMTP_PASSWORD }}
+          npx clever env set SMTP_PORT ${{ secrets.SMTP_PORT }} # e.g. 587
+          npx clever env set SMTP_SECURE ${{ secrets.SMTP_SECURE }} # e.g. false
+          npx clever env set SMTP_SERVER ${{ secrets.SMTP_SERVER }} # e.g. relay-de.smtp.net
+
+      - name: Deploy the application
+        run: npx clever deploy
+
+      - name: Add comment with preview URL to PR
+        run: |
+          curl \
+            -X POST \
+            ${{ github.event.pull_request.comments_url }} \
+            -H "Content-Type: application/json" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            --data '{ "body": "Preview available on ${{ env.ORIGIN }}" }'
+
+  update:
+    if: github.event.action != 'closed' && contains(github.event.pull_request.labels.*.name, 'cc-preview') && needs.app.outputs.exists == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: cc-preview
+    name: Update preview instance
+    needs:
+      - app
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Needed for deploy
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+
+      - name: Keep npm cache around to speed up installs
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install NPM packages
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Link application
+        run: npx clever link -o ${{ secrets.CLEVER_ORG }} ${{ needs.app.outputs.name }}
+
+      - name: Deploy the application
+        if: github.event.inputs.restartApp != 'yes'
+        run: npx clever deploy -f
+
+      - name: Restart the application
+        if: github.event.inputs.restartApp == 'yes'
+        run: npx clever restart
+
+      - name: Add comment with preview URL to PR
+        run: |
+          curl \
+            -X POST \
+            ${{ github.event.pull_request.comments_url }} \
+            -H "Content-Type: application/json" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            --data '{ "body": "Preview updated on ${{ env.ORIGIN }}" }'
+
+  delete:
+    if: github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'cc-preview') && needs.app.outputs.exists == 'true'
+    runs-on: ubuntu-latest
+    environment: cc-preview
+    name: Delete preview instance
+    needs:
+      - app
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+
+      - name: Keep npm cache around to speed up installs
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install NPM packages
+        run: npm ci
+
+      - name: Link application
+        run: npx clever link -o ${{ secrets.CLEVER_ORG }} ${{ needs.app.outputs.name }}
+
+      - name: Delete application
+        run: npx clever delete -a ${{ needs.app.outputs.name }}
+
+      - name: Add comment with preview URL to PR
+        run: |
+          curl \
+            -X POST \
+            ${{ github.event.pull_request.comments_url }} \
+            -H "Content-Type: application/json" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            --data '{ "body": "Preview instance deleted" }'

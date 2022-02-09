@@ -1,0 +1,13 @@
+{
+  "name": "Node.js",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "extensions": [
+    "esbenp.prettier-vscode",
+    "jpoissonnier.vscode-styled-components"
+  ],
+  "forwardPorts": [3000, 8080],
+  "postCreateCommand": "npm ci && npm run build",
+  "remoteUser": "vscode"
+}
