@@ -17,6 +17,7 @@
     "needs-assessment"
   ],
   "scripts": {
+    "start": "npm run dev",
     "dev": "./node_modules/.bin/nodemon --optimize_for_size --max_old_space_size=920 --gc_interval=100 src/server/dev.ts",
     "prod": "./node_modules/.bin/nodemon --optimize_for_size --max_old_space_size=920 --gc_interval=100 src/server/prod.ts",
     "test": "jest --detectOpenHandles --runInBand",

@@ -90,6 +90,9 @@ jobs:
       - name: Force HTTPs
         run: npx clever config set force-https true
 
+      - name: Determine frontend URL
+        run: echo "ORIGIN=https://`npx clever domain | tr -d ' \n'`" >> $GITHUB_ENV
+
       - name: Configure Node.js application settings
         run: |
           npx clever env set CC_NODE_DEV_DEPENDENCIES install

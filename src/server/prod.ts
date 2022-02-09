@@ -21,6 +21,8 @@ try {
   process.exit(1)
 }
 
+const port = parseInt(process.env.PORT ?? '8080', 10)
+
 const app = backend({
   omnibus,
   origin,
@@ -34,7 +36,7 @@ const app = backend({
 })
 
 const httpServer = createServer(app)
-const port = parseInt(process.env.PORT ?? '8080', 10)
+
 httpServer.listen(port, '0.0.0.0', (): void => {
   console.debug(`ℹ️ Listening on port:`, port)
   console.debug(`ℹ️ Origin:`, origin.toString())

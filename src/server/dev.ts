@@ -6,7 +6,8 @@ import { setUp as setUpEmails } from './feat/emails.js'
 
 const omnibus = new EventEmitter()
 
-const origin = new URL(process.env.ORIGIN ?? 'http://localhost:8080')
+const port = parseInt(process.env.PORT ?? '3000', 10)
+const origin = new URL(process.env.ORIGIN ?? `http://localhost:${port}`)
 
 const app = backend({
   omnibus,
@@ -22,7 +23,7 @@ const app = backend({
 })
 
 const httpServer = createServer(app)
-const port = parseInt(process.env.PORT ?? '3000', 10)
+
 httpServer.listen({ port }, (): void => {
   console.debug(`ℹ️ Listening on port:`, port)
   console.debug(`ℹ️ Origin:`, origin.toString())

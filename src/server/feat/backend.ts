@@ -12,6 +12,10 @@ import { addVersion } from '../../input-validation/addVersion.js'
 import { deleteCookie, renewCookie } from '../../routes/cookie.js'
 import login from '../../routes/login.js'
 import registerUser from '../../routes/register.js'
+import { schemaHandler } from '../../routes/schema/schema.js'
+import { form } from '../../schema/form.js'
+import { question } from '../../schema/question.js'
+import { section } from '../../schema/section.js'
 import { addRequestId } from '../addRequestId.js'
 
 export const backend = ({
@@ -63,10 +67,26 @@ export const backend = ({
   app.use(addVersion(version))
   app.use(addRequestId)
 
+  // Auth
   app.post('/register', registerUser(omnibus, generateToken))
   app.post('/login', login(getAuthCookie))
   app.get('/cookie', cookieAuth, renewCookie(getAuthCookie))
   app.delete('/cookie', cookieAuth, deleteCookie)
+
+  // Schemas
+  const schemaBaseURL = new URL('./schema/', origin)
+  app.get(
+    '/schema/form.schema.json',
+    schemaHandler(form({ baseURL: schemaBaseURL })),
+  )
+  app.get(
+    '/schema/section.schema.json',
+    schemaHandler(section({ baseURL: schemaBaseURL })),
+  )
+  app.get(
+    '/schema/question.schema.json',
+    schemaHandler(question({ baseURL: schemaBaseURL })),
+  )
 
   app.use(compression())
 
