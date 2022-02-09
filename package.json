@@ -28,6 +28,17 @@
     "node": ">=16.0.0",
     "npm": ">=8.0.0"
   },
+  "release": {
+    "branches": [
+      "saga"
+    ],
+    "remoteTags": true,
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/github"
+    ]
+  },
   "lint-staged": {
     "*.{ts,tsx}": [
       "prettier --write",
