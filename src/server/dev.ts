@@ -10,23 +10,23 @@ const port = parseInt(process.env.PORT ?? '3000', 10)
 const origin = new URL(process.env.ORIGIN ?? `http://localhost:${port}`)
 
 const app = backend({
-  omnibus,
-  cookieSecret: process.env.COOKIE_SECRET,
-  cookieLifetimeSeconds:
-    process.env.COOKIE_LIFETIME_SECONDS === undefined
-      ? 1800
-      : parseInt(process.env.COOKIE_LIFETIME_SECONDS, 10),
-  origin,
-  version: 'development',
-  generateToken: () => '123456',
-  adminEmails: (process.env.ADMIN_EMAILS ?? 'm@distributeaid.org').split(','),
+	omnibus,
+	cookieSecret: process.env.COOKIE_SECRET,
+	cookieLifetimeSeconds:
+		process.env.COOKIE_LIFETIME_SECONDS === undefined
+			? 1800
+			: parseInt(process.env.COOKIE_LIFETIME_SECONDS, 10),
+	origin,
+	version: 'development',
+	generateToken: () => '123456',
+	adminEmails: (process.env.ADMIN_EMAILS ?? 'm@distributeaid.org').split(','),
 })
 
 const httpServer = createServer(app)
 
 httpServer.listen({ port }, (): void => {
-  console.debug(`ℹ️ Listening on port:`, port)
-  console.debug(`ℹ️ Origin:`, origin.toString())
+	console.debug(`ℹ️ Listening on port:`, port)
+	console.debug(`ℹ️ Origin:`, origin.toString())
 })
 
 // Configure email sending

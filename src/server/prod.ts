@@ -11,35 +11,35 @@ const omnibus = new EventEmitter()
 
 let origin: URL
 try {
-  origin = new URL(process.env.ORIGIN ?? '')
+	origin = new URL(process.env.ORIGIN ?? '')
 } catch (err) {
-  console.error(
-    `Must set ORIGIN, current value is not a URL: "${process.env.ORIGIN}": ${
-      (err as Error).message
-    }!`,
-  )
-  process.exit(1)
+	console.error(
+		`Must set ORIGIN, current value is not a URL: "${process.env.ORIGIN}": ${
+			(err as Error).message
+		}!`,
+	)
+	process.exit(1)
 }
 
 const port = parseInt(process.env.PORT ?? '8080', 10)
 
 const app = backend({
-  omnibus,
-  origin,
-  version,
-  cookieSecret: process.env.COOKIE_SECRET,
-  cookieLifetimeSeconds:
-    process.env.COOKIE_LIFETIME_SECONDS !== undefined
-      ? parseInt(process.env.COOKIE_LIFETIME_SECONDS, 10)
-      : undefined,
-  adminEmails: (process.env.ADMIN_EMAILS ?? '').split(','),
+	omnibus,
+	origin,
+	version,
+	cookieSecret: process.env.COOKIE_SECRET,
+	cookieLifetimeSeconds:
+		process.env.COOKIE_LIFETIME_SECONDS !== undefined
+			? parseInt(process.env.COOKIE_LIFETIME_SECONDS, 10)
+			: undefined,
+	adminEmails: (process.env.ADMIN_EMAILS ?? '').split(','),
 })
 
 const httpServer = createServer(app)
 
 httpServer.listen(port, '0.0.0.0', (): void => {
-  console.debug(`ℹ️ Listening on port:`, port)
-  console.debug(`ℹ️ Origin:`, origin.toString())
+	console.debug(`ℹ️ Listening on port:`, port)
+	console.debug(`ℹ️ Origin:`, origin.toString())
 })
 
 // Configure email sending

@@ -8,8 +8,8 @@ on:
     branches:
       - saga
     paths:
-      - 'package.json'
-      - '.github/workflows/update-repo-info.yaml'
+      - "package.json"
+      - ".github/workflows/update-repo-info.yaml"
 
 jobs:
   update_repo_info:
@@ -28,10 +28,12 @@ jobs:
           gh --version
 
       - name: Sync repository description
-        run: gh repo edit --description "`cat package.json | jq -r '.description'`"
+        run:
+          gh repo edit --description "`cat package.json | jq -r '.description'`"
 
       - name: Sync repository topics
-        run: cat package.json | jq '.keywords[]' | xargs -I'{}' gh repo edit
+        run:
+          cat package.json | jq '.keywords[]' | xargs -I'{}' gh repo edit
           --add-topic {}
 
       - name: Sync homepage

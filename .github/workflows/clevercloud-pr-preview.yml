@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       restartApp:
-        description: 'Restart the application'
+        description: "Restart the application"
         required: false
-        default: 'no'
+        default: "no"
 
 env:
   CLEVER_TOKEN: ${{ secrets.CLEVER_TOKEN }}
@@ -17,7 +17,9 @@ env:
 
 jobs:
   app:
-    if: contains(github.event.pull_request.labels.*.name, 'cc-preview') || github.event_name == 'workflow_dispatch'
+    if:
+      contains(github.event.pull_request.labels.*.name, 'cc-preview') ||
+      github.event_name == 'workflow_dispatch'
     environment: cc-preview
     runs-on: ubuntu-latest
     name: Create the app name and check of app already exists
@@ -30,7 +32,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16.x'
+          node-version: "16.x"
 
       - name: Keep npm cache around to speed up installs
         uses: actions/cache@v2
@@ -43,7 +45,9 @@ jobs:
 
       - name: Set app name
         id: name
-        run: echo "::set-output name=name::needs-assessment-storage-pr${{ github.event.pull_request.number }}"
+        run:
+          echo "::set-output name=name::needs-assessment-storage-pr${{
+          github.event.pull_request.number }}"
 
       - name: Check if preview exists
         id: exists
@@ -53,7 +57,10 @@ jobs:
           || echo "::set-output name=exists::false"
 
   create:
-    if: github.event.action != 'closed' && contains(github.event.pull_request.labels.*.name, 'cc-preview') && needs.app.outputs.exists == 'false'
+    if:
+      github.event.action != 'closed' &&
+      contains(github.event.pull_request.labels.*.name, 'cc-preview') &&
+      needs.app.outputs.exists == 'false'
     runs-on: ubuntu-latest
     environment: cc-preview
     name: Create preview instance
@@ -67,7 +74,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16.x'
+          node-version: "16.x"
 
       - name: Keep npm cache around to speed up installs
         uses: actions/cache@v2
@@ -82,7 +89,9 @@ jobs:
         run: npm run build
 
       - name: Create the application
-        run: npx clever create -t node -o ${{ secrets.CLEVER_ORG }} ${{ needs.app.outputs.name }}
+        run:
+          npx clever create -t node -o ${{ secrets.CLEVER_ORG }} ${{
+          needs.app.outputs.name }}
 
       - name: Enable dedicated build instance
         run: npx clever scale --build-flavor M
@@ -91,7 +100,8 @@ jobs:
         run: npx clever config set force-https true
 
       - name: Determine frontend URL
-        run: echo "ORIGIN=https://`npx clever domain | tr -d ' \n'`" >> $GITHUB_ENV
+        run:
+          echo "ORIGIN=https://`npx clever domain | tr -d ' \n'`" >> $GITHUB_ENV
 
       - name: Configure Node.js application settings
         run: |
@@ -123,7 +133,11 @@ jobs:
             --data '{ "body": "Preview available on ${{ env.ORIGIN }}" }'
 
   update:
-    if: github.event.action != 'closed' && contains(github.event.pull_request.labels.*.name, 'cc-preview') && needs.app.outputs.exists == 'true' || github.event_name == 'workflow_dispatch'
+    if:
+      github.event.action != 'closed' &&
+      contains(github.event.pull_request.labels.*.name, 'cc-preview') &&
+      needs.app.outputs.exists == 'true' || github.event_name ==
+      'workflow_dispatch'
     runs-on: ubuntu-latest
     environment: cc-preview
     name: Update preview instance
@@ -137,7 +151,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16.x'
+          node-version: "16.x"
 
       - name: Keep npm cache around to speed up installs
         uses: actions/cache@v2
@@ -152,7 +166,9 @@ jobs:
         run: npm run build
 
       - name: Link application
-        run: npx clever link -o ${{ secrets.CLEVER_ORG }} ${{ needs.app.outputs.name }}
+        run:
+          npx clever link -o ${{ secrets.CLEVER_ORG }} ${{
+          needs.app.outputs.name }}
 
       - name: Deploy the application
         if: github.event.inputs.restartApp != 'yes'
@@ -172,7 +188,10 @@ jobs:
             --data '{ "body": "Preview updated on ${{ env.ORIGIN }}" }'
 
   delete:
-    if: github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'cc-preview') && needs.app.outputs.exists == 'true'
+    if:
+      github.event.action == 'closed' &&
+      contains(github.event.pull_request.labels.*.name, 'cc-preview') &&
+      needs.app.outputs.exists == 'true'
     runs-on: ubuntu-latest
     environment: cc-preview
     name: Delete preview instance
@@ -184,7 +203,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16.x'
+          node-version: "16.x"
 
       - name: Keep npm cache around to speed up installs
         uses: actions/cache@v2
@@ -196,7 +215,9 @@ jobs:
         run: npm ci
 
       - name: Link application
-        run: npx clever link -o ${{ secrets.CLEVER_ORG }} ${{ needs.app.outputs.name }}
+        run:
+          npx clever link -o ${{ secrets.CLEVER_ORG }} ${{
+          needs.app.outputs.name }}
 
       - name: Delete application
         run: npx clever delete -a ${{ needs.app.outputs.name }}

@@ -10,39 +10,39 @@ import { VerificationToken } from '../storage/VerificationToken.js'
 import { emailInput } from './register.js'
 
 const loginInput = Type.Object(
-  {
-    email: emailInput,
-    token: Type.String({ pattern: '^[0-9]{6}$', title: 'verification token' }),
-  },
-  { additionalProperties: false },
+	{
+		email: emailInput,
+		token: Type.String({ pattern: '^[0-9]{6}$', title: 'verification token' }),
+	},
+	{ additionalProperties: false },
 )
 
 const validateLoginInput = validateWithJSONSchema(loginInput)
 
 const login =
-  (authCookie: ExpressCookieForUserFn) =>
-  async (request: Request, response: Response): Promise<void> => {
-    const valid = validateLoginInput(trimAll(request.body))
-    if ('errors' in valid) {
-      return respondWithProblem(response, errorsToProblemDetail(valid.errors))
-    }
+	(authCookie: ExpressCookieForUserFn) =>
+	async (request: Request, response: Response): Promise<void> => {
+		const valid = validateLoginInput(trimAll(request.body))
+		if ('errors' in valid) {
+			return respondWithProblem(response, errorsToProblemDetail(valid.errors))
+		}
 
-    const email = valid.value.email.toLowerCase()
-    const token = VerificationToken.get({ email })
+		const email = valid.value.email.toLowerCase()
+		const token = VerificationToken.get({ email })
 
-    if (token !== valid.value.token) {
-      return respondWithProblem(response, {
-        title: `Invalid token ${valid.value.token} for email ${valid.value.email}!`,
-        status: HTTPStatusCode.Unauthorized,
-      })
-    }
-    // Generate new token
-    const [name, val, options] = authCookie(email)
-    response
-      .status(HTTPStatusCode.NoContent)
-      .cookie(name, val, options)
-      .header('Expires', options.expires.toString())
-      .end()
-  }
+		if (token !== valid.value.token) {
+			return respondWithProblem(response, {
+				title: `Invalid token ${valid.value.token} for email ${valid.value.email}!`,
+				status: HTTPStatusCode.Unauthorized,
+			})
+		}
+		// Generate new token
+		const [name, val, options] = authCookie(email)
+		response
+			.status(HTTPStatusCode.NoContent)
+			.cookie(name, val, options)
+			.header('Expires', options.expires.toString())
+			.end()
+	}
 
 export default login
