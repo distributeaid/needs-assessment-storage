@@ -12,14 +12,9 @@ export const validateWithFormSchema = ({
 }: {
 	baseURL: URL
 	version: string
-}): ((value: Record<string, any>) =>
-	| {
-			isValid: false
-			errors: ErrorObject[]
-	  }
-	| {
-			isValid: true
-	  }) => {
+}): ((value: Record<string, any>) => {
+	errors?: ErrorObject[]
+}) => {
 	const formSchema = form({ baseURL, version })
 	const ajv = new Ajv({
 		schemas: [
@@ -37,9 +32,9 @@ export const validateWithFormSchema = ({
 		const valid = validate?.(value)
 
 		if (valid !== true) {
-			return { isValid: false, errors: validate?.errors ?? [] }
+			return { errors: validate?.errors ?? [] }
 		}
 
-		return { isValid: true }
+		return {}
 	}
 }

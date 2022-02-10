@@ -1,6 +1,8 @@
 import EventEmitter from 'events'
 import { createServer } from 'http'
+import * as path from 'path'
 import { URL } from 'url'
+import { jsonFileStore } from '../storage/file.js'
 import { backend } from './feat/backend.js'
 import { setUp as setUpEmails } from './feat/emails.js'
 
@@ -20,6 +22,9 @@ const app = backend({
 	version: 'development',
 	generateToken: () => '123456',
 	adminEmails: (process.env.ADMIN_EMAILS ?? 'm@distributeaid.org').split(','),
+	formStorage: jsonFileStore({
+		directory: path.join(process.cwd(), 'storage', 'forms'),
+	}),
 })
 
 const httpServer = createServer(app)

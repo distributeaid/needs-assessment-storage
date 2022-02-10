@@ -1,6 +1,8 @@
 export enum HTTPStatusCode {
 	/** Use to indicate that the request was handled, the has immediate effect. */
 	OK = 200,
+	/** Use to indicate that the resource was created. Return an identifier for the resource. */
+	Created = 201,
 	/** Use to indicate that the request is handled, but the result might not be immediately visible (eventual consistency). */
 	Accepted = 202,
 	/** Use for empty responses. */

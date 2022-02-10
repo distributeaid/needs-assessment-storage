@@ -8,7 +8,6 @@ describe('validateWithFormSchema', () => {
 				version: '0.0.0-development',
 			})({ foo: 'bar' }),
 		).toMatchObject({
-			isValid: false,
 			errors: [
 				{
 					instancePath: '',

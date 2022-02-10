@@ -27,7 +27,7 @@ const login =
 			return respondWithProblem(response, errorsToProblemDetail(valid.errors))
 		}
 
-		const email = valid.value.email.toLowerCase()
+		const email = valid.value.email
 		const token = VerificationToken.get({ email })
 
 		if (token !== valid.value.token) {

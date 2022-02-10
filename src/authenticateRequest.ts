@@ -48,7 +48,9 @@ export const authCookie =
 			authCookieName,
 			JSON.stringify({
 				e: email,
-				a: adminEmails.includes(email.toLowerCase()),
+				a: adminEmails
+					.map((s) => s.toLowerCase())
+					.includes(email.toLowerCase()),
 			}),
 			{
 				signed: true,

@@ -5,7 +5,6 @@ import express, { Express } from 'express'
 import { createServer, Server } from 'http'
 import passport from 'passport'
 import request, { SuperTest, Test } from 'supertest'
-import { v4 } from 'uuid'
 import {
 	authCookie as getAuthCookie,
 	authCookieName,
@@ -13,6 +12,8 @@ import {
 	decodeAuthCookie,
 } from '../authenticateRequest.js'
 import { HTTPStatusCode } from '../server/response/HttpStatusCode.js'
+import { portForTest } from '../test/portForTest.js'
+import { ulid } from '../ulid.js'
 import { deleteCookie, renewCookie } from './cookie.js'
 import login from './login.js'
 import registerUser from './register.js'
@@ -44,15 +45,16 @@ const parseCookie = (cookie: string) =>
 			{} as Record<string, any>,
 		)
 
-const email = `${v4()}@example.com`
+const email = `${ulid()}@example.com`
 const omnibus = new EventEmitter()
+const port = portForTest(__filename)
 
 describe('Authentication API', () => {
 	let app: Express
 	let httpServer: Server
 	let r: SuperTest<Test>
 
-	const adminEmail = `some-admin${v4()}@example.com`
+	const adminEmail = `some-admin${ulid()}@example.com`
 	const getExpressCookie = getAuthCookie(1800, [adminEmail])
 	let authCookie: string
 	beforeAll(async () => {
@@ -69,9 +71,9 @@ describe('Authentication API', () => {
 		app.delete('/cookie', cookieAuth, deleteCookie)
 		httpServer = createServer(app)
 		await new Promise<void>((resolve) =>
-			httpServer.listen(8888, '127.0.0.1', undefined, resolve),
+			httpServer.listen(port, '127.0.0.1', undefined, resolve),
 		)
-		r = request('http://127.0.0.1:8888')
+		r = request(`http://127.0.0.1:${port}`)
 	})
 	afterAll(async () => {
 		httpServer.close()
@@ -167,7 +169,7 @@ describe('Authentication API', () => {
 		it('should set the isAdmin flag in the cookie to false for users', () =>
 			expect(
 				decodeAuthCookie(
-					decodeURIComponent(authCookie.replace(/\.[^.]+$/, '')).substring(2),
+					decodeURIComponent(authCookie.replace(/\.[^.]+$/, '')).slice(2),
 				).isAdmin,
 			).toBe(false))
 		it('should set the isAdmin flag in the cookie to true for admins', async () => {
@@ -194,7 +196,7 @@ describe('Authentication API', () => {
 						(
 							tokenCookieRx.exec(res.header['set-cookie'])?.[1] as string
 						).replace(/\.[^.]+$/, ''),
-					).substring(2),
+					).slice(2),
 				).isAdmin,
 			).toBe(true)
 		})

@@ -1,8 +1,16 @@
+import { fromEnv } from '@nordicsemiconductor/from-env'
 import EventEmitter from 'events'
 import { createServer } from 'http'
+import path from 'path/posix'
 import { URL } from 'url'
+import { jsonFileStore } from '../storage/file.js'
 import { backend } from './feat/backend.js'
 import { setUp as setUpEmails } from './feat/emails.js'
+
+const { originString, storageBaseDir } = fromEnv({
+	originString: 'ORIGIN',
+	storageBaseDir: 'STORAGE_BASE_DIR',
+})(process.env)
 
 const version = process.env.COMMIT_ID ?? '0.0.0-development'
 console.debug(`Launching version ${version}`)
@@ -11,7 +19,7 @@ const omnibus = new EventEmitter()
 
 let origin: URL
 try {
-	origin = new URL(process.env.ORIGIN ?? '')
+	origin = new URL(originString)
 } catch (err) {
 	console.error(
 		`Must set ORIGIN, current value is not a URL: "${process.env.ORIGIN}": ${
@@ -33,6 +41,7 @@ const app = backend({
 			? parseInt(process.env.COOKIE_LIFETIME_SECONDS, 10)
 			: undefined,
 	adminEmails: (process.env.ADMIN_EMAILS ?? '').split(','),
+	formStorage: jsonFileStore({ directory: path.join(storageBaseDir, 'forms') }),
 })
 
 const httpServer = createServer(app)

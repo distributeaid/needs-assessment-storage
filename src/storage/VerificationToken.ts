@@ -5,9 +5,9 @@ export const verificationTokenStorage = (): {
 	const storage: Record<string, string> = {}
 	return {
 		set: ({ email, token }: { email: string; token: string }) => {
-			storage[email] = token
+			storage[email.toLowerCase()] = token
 		},
-		get: ({ email }: { email: string }) => storage[email],
+		get: ({ email }: { email: string }) => storage[email.toLowerCase()],
 	}
 }
 

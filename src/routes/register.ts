@@ -36,18 +36,18 @@ const registerUser =
 			return respondWithProblem(response, errorsToProblemDetail(valid.errors))
 		}
 
-		const email = valid.value.email.toLowerCase()
+		const email = valid.value.email
 
 		if (
-			UserRegisterLock[email] !== undefined &&
-			Date.now() - UserRegisterLock[email] < 60 * 1000
+			UserRegisterLock[email.toLowerCase()] !== undefined &&
+			Date.now() - UserRegisterLock[email.toLowerCase()] < 60 * 1000
 		) {
 			return respondWithProblem(response, {
 				title: `User with email ${valid.value.email} already registered!`,
 				status: HTTPStatusCode.Conflict,
 			})
 		}
-		UserRegisterLock[email] = Date.now()
+		UserRegisterLock[email.toLowerCase()] = Date.now()
 
 		try {
 			// Generate new token

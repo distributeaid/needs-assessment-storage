@@ -6,7 +6,10 @@ import { form } from '../../schema/form'
 import { question } from '../../schema/question'
 import { section } from '../../schema/section'
 import { HTTPStatusCode } from '../../server/response/HttpStatusCode'
+import { portForTest } from '../../test/portForTest'
 import { schemaHandler } from './schema'
+
+const port = portForTest(__filename)
 
 describe('Schema API', () => {
 	let app: Express
@@ -20,7 +23,7 @@ describe('Schema API', () => {
 			'/schema/form.schema.json',
 			schemaHandler(
 				form({
-					baseURL: new URL('http://127.0.0.1:8889/schema/'),
+					baseURL: new URL(`http://127.0.0.1:${port}/schema/`),
 					version: '0.0.0-development',
 				}),
 			),
@@ -29,7 +32,7 @@ describe('Schema API', () => {
 			'/schema/section.schema.json',
 			schemaHandler(
 				section({
-					baseURL: new URL('http://127.0.0.1:8889/schema/'),
+					baseURL: new URL(`http://127.0.0.1:${port}/schema/`),
 					version: '0.0.0-development',
 				}),
 			),
@@ -38,16 +41,16 @@ describe('Schema API', () => {
 			'/schema/question.schema.json',
 			schemaHandler(
 				question({
-					baseURL: new URL('http://127.0.0.1:8889/schema/'),
+					baseURL: new URL(`http://127.0.0.1:${port}/schema/`),
 					version: '0.0.0-development',
 				}),
 			),
 		)
 		httpServer = createServer(app)
 		await new Promise<void>((resolve) =>
-			httpServer.listen(8889, '127.0.0.1', undefined, resolve),
+			httpServer.listen(port, '127.0.0.1', undefined, resolve),
 		)
-		r = request('http://127.0.0.1:8889')
+		r = request(`http://127.0.0.1:${port}`)
 	})
 	afterAll(async () => {
 		httpServer.close()
@@ -60,16 +63,16 @@ describe('Schema API', () => {
 
 		expect(res.body).toEqual(
 			form({
-				baseURL: new URL('http://127.0.0.1:8889/schema/'),
+				baseURL: new URL(`http://127.0.0.1:${port}/schema/`),
 				version: '0.0.0-development',
 			}),
 		)
 		const formSchema = res.body
 		expect(formSchema.$id).toEqual(
-			'http://127.0.0.1:8889/schema/form.schema.json?version=0.0.0-development',
+			`http://127.0.0.1:${port}/schema/form.schema.json?version=0.0.0-development`,
 		)
 		expect(formSchema.properties.sections.items.$ref).toEqual(
-			'http://127.0.0.1:8889/schema/section.schema.json?version=0.0.0-development',
+			`http://127.0.0.1:${port}/schema/section.schema.json?version=0.0.0-development`,
 		)
 	})
 	test('/schema/section.schema.json', async () => {
@@ -80,16 +83,16 @@ describe('Schema API', () => {
 
 		expect(res.body).toEqual(
 			section({
-				baseURL: new URL('http://127.0.0.1:8889/schema/'),
+				baseURL: new URL(`http://127.0.0.1:${port}/schema/`),
 				version: '0.0.0-development',
 			}),
 		)
 		const sectionSchema = res.body
 		expect(sectionSchema.$id).toEqual(
-			'http://127.0.0.1:8889/schema/section.schema.json?version=0.0.0-development',
+			`http://127.0.0.1:${port}/schema/section.schema.json?version=0.0.0-development`,
 		)
 		expect(sectionSchema.properties.questions.items.$ref).toEqual(
-			'http://127.0.0.1:8889/schema/question.schema.json?version=0.0.0-development',
+			`http://127.0.0.1:${port}/schema/question.schema.json?version=0.0.0-development`,
 		)
 	})
 	test('/schema/question.schema.json', async () => {
@@ -100,12 +103,12 @@ describe('Schema API', () => {
 		const questionSchema = res.body
 		expect(res.body).toEqual(
 			question({
-				baseURL: new URL('http://127.0.0.1:8889/schema/'),
+				baseURL: new URL(`http://127.0.0.1:${port}/schema/`),
 				version: '0.0.0-development',
 			}),
 		)
 		expect(questionSchema.$id).toEqual(
-			'http://127.0.0.1:8889/schema/question.schema.json?version=0.0.0-development',
+			`http://127.0.0.1:${port}/schema/question.schema.json?version=0.0.0-development`,
 		)
 	})
 })

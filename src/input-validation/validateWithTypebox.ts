@@ -2,14 +2,7 @@ import { Static, TObject, TProperties } from '@sinclair/typebox'
 import Ajv, { ErrorObject } from 'ajv'
 import addFormats from 'ajv-formats'
 
-const ajv = addFormats(new Ajv(), [
-	'date-time',
-	'time',
-	'date',
-	'email',
-	'uri',
-	'uuid',
-])
+const ajv = addFormats(new Ajv(), ['date-time', 'time', 'date', 'email', 'uri'])
 // see https://github.com/sinclairzx81/typebox/issues/51
 ajv.addKeyword('kind')
 ajv.addKeyword('modifier')
