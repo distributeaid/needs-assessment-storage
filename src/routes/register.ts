@@ -5,7 +5,7 @@ import { events } from '../events.js'
 import { generateDigits } from '../generateDigits.js'
 import { errorsToProblemDetail } from '../input-validation/errorsToProblemDetail.js'
 import { trimAll } from '../input-validation/trimAll.js'
-import { validateWithJSONSchema } from '../input-validation/validateWithJSONSchema.js'
+import { validateWithTypebox } from '../input-validation/validateWithTypebox.js'
 import { getRequestId } from '../server/addRequestId.js'
 import { HTTPStatusCode } from '../server/response/HttpStatusCode.js'
 import { respondWithProblem } from '../server/response/problem.js'
@@ -23,7 +23,7 @@ const registerUserInput = Type.Object(
 	{ additionalProperties: false },
 )
 
-const validateRegisterUserInput = validateWithJSONSchema(registerUserInput)
+const validateRegisterUserInput = validateWithTypebox(registerUserInput)
 
 // Remember already registered users so their emails can't be spammed
 const UserRegisterLock: Record<string, number> = {}

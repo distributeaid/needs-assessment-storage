@@ -3,7 +3,7 @@ import { Request, Response } from 'express'
 import { ExpressCookieForUserFn } from '../authenticateRequest.js'
 import { errorsToProblemDetail } from '../input-validation/errorsToProblemDetail.js'
 import { trimAll } from '../input-validation/trimAll.js'
-import { validateWithJSONSchema } from '../input-validation/validateWithJSONSchema.js'
+import { validateWithTypebox } from '../input-validation/validateWithTypebox.js'
 import { HTTPStatusCode } from '../server/response/HttpStatusCode.js'
 import { respondWithProblem } from '../server/response/problem.js'
 import { VerificationToken } from '../storage/VerificationToken.js'
@@ -17,7 +17,7 @@ const loginInput = Type.Object(
 	{ additionalProperties: false },
 )
 
-const validateLoginInput = validateWithJSONSchema(loginInput)
+const validateLoginInput = validateWithTypebox(loginInput)
 
 const login =
 	(authCookie: ExpressCookieForUserFn) =>

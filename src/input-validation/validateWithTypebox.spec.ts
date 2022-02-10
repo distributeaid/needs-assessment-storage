@@ -1,10 +1,10 @@
 import { Type } from '@sinclair/typebox'
-import { validateWithJSONSchema } from '../input-validation/validateWithJSONSchema.js'
+import { validateWithTypebox } from './validateWithTypebox.js'
 
 describe('validateWithJSONSchema', () => {
 	it('should validate input against a JSON schema', () => {
 		expect(
-			validateWithJSONSchema(
+			validateWithTypebox(
 				Type.Object({
 					foo: Type.String({ minLength: 1 }),
 				}),
@@ -17,7 +17,7 @@ describe('validateWithJSONSchema', () => {
 
 	it('should return errors if input does not match the JSON schema', () => {
 		expect(
-			validateWithJSONSchema(
+			validateWithTypebox(
 				Type.Object({
 					foo: Type.String({ minLength: 1 }),
 				}),

@@ -2,11 +2,11 @@ import { Type } from '@sinclair/typebox'
 import { ErrorObject } from 'ajv'
 import { errorsToProblemDetail } from '../input-validation/errorsToProblemDetail.js'
 import { NonEmptyShortString, URI } from '../input-validation/types.js'
-import { validateWithJSONSchema } from '../input-validation/validateWithJSONSchema.js'
+import { validateWithTypebox } from './validateWithTypebox.js'
 
 describe('errorsToProblemDetail() should turn validation errors into Problem Details for HTTP APIs (RFC7807)', () => {
 	it('should format an unknown property in the top-level object', () => {
-		const valid = validateWithJSONSchema(
+		const valid = validateWithTypebox(
 			Type.Object({}, { additionalProperties: false }),
 		)({
 			extraField: 'not allowed',
@@ -28,7 +28,7 @@ describe('errorsToProblemDetail() should turn validation errors into Problem Det
 	})
 
 	it('should format an unknown property int a child object', () => {
-		const valid = validateWithJSONSchema(
+		const valid = validateWithTypebox(
 			Type.Object({
 				contact: Type.Object({
 					properties: Type.Object({}, { additionalProperties: false }),
@@ -57,7 +57,7 @@ describe('errorsToProblemDetail() should turn validation errors into Problem Det
 
 	describe('it should format schema errors', () => {
 		test('string maxlength', () => {
-			const valid = validateWithJSONSchema(
+			const valid = validateWithTypebox(
 				Type.Object({ name: NonEmptyShortString }),
 			)({
 				name: 'My long group name, oh YEAH' + '!'.repeat(250),
@@ -78,7 +78,7 @@ describe('errorsToProblemDetail() should turn validation errors into Problem Det
 		})
 
 		test('Array of URIs', () => {
-			const valid = validateWithJSONSchema(
+			const valid = validateWithTypebox(
 				Type.Object({ photoUris: Type.Array(URI) }),
 			)({
 				photoUris: ['one', 'www.example.com'],

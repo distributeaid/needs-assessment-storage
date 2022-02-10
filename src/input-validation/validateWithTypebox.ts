@@ -14,7 +14,7 @@ const ajv = addFormats(new Ajv(), [
 ajv.addKeyword('kind')
 ajv.addKeyword('modifier')
 
-export const validateWithJSONSchema = <T extends TObject<TProperties>>(
+export const validateWithTypebox = <T extends TObject<TProperties>>(
 	schema: T,
 ): ((value: Record<string, any>) =>
 	| {

@@ -20,7 +20,7 @@
     "start": "npm run dev",
     "dev": "./node_modules/.bin/nodemon --optimize_for_size --max_old_space_size=920 --gc_interval=100 src/server/dev.ts",
     "prod": "./node_modules/.bin/nodemon --optimize_for_size --max_old_space_size=920 --gc_interval=100 src/server/prod.ts",
-    "test": "jest --detectOpenHandles --runInBand",
+    "test": "jest",
     "prepare": "husky install",
     "prod:build": "npm run build",
     "build": "tsc"
@@ -55,6 +55,7 @@
     "@sinclair/typebox": "^0.23.3",
     "ajv": "8.10.0",
     "ajv-formats": "2.1.1",
+    "ajv-keywords": "5.1.0",
     "body-parser": "1.19.1",
     "chalk": "5.0.0",
     "compression": "1.7.4",

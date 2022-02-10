@@ -1,6 +1,6 @@
 import { Type } from '@sinclair/typebox'
 import { NonEmptyShortString, URI } from '../input-validation/types.js'
-import { validateWithJSONSchema } from '../input-validation/validateWithJSONSchema.js'
+import { validateWithTypebox } from './validateWithTypebox.js'
 
 describe('input validation types', () => {
 	describe('URI input', () => {
@@ -10,7 +10,7 @@ describe('input validation types', () => {
 			['https://distributeaid.org/some/resource.html', true],
 			['distributeaid.org', false],
 		])('should validate %s as %s', (uri, isValid) => {
-			const res = validateWithJSONSchema(
+			const res = validateWithTypebox(
 				Type.Object({
 					uri: URI,
 				}),
@@ -28,7 +28,7 @@ describe('input validation types', () => {
 			[undefined, false],
 			[null, false],
 		])('should validate %s as %s', (shortString, isValid) => {
-			const res = validateWithJSONSchema(
+			const res = validateWithTypebox(
 				Type.Object({
 					shortString: NonEmptyShortString,
 				}),

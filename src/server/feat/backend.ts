@@ -77,15 +77,15 @@ export const backend = ({
 	const schemaBaseURL = new URL('./schema/', origin)
 	app.get(
 		'/schema/form.schema.json',
-		schemaHandler(form({ baseURL: schemaBaseURL })),
+		schemaHandler(form({ baseURL: schemaBaseURL, version })),
 	)
 	app.get(
 		'/schema/section.schema.json',
-		schemaHandler(section({ baseURL: schemaBaseURL })),
+		schemaHandler(section({ baseURL: schemaBaseURL, version })),
 	)
 	app.get(
 		'/schema/question.schema.json',
-		schemaHandler(question({ baseURL: schemaBaseURL })),
+		schemaHandler(question({ baseURL: schemaBaseURL, version })),
 	)
 
 	app.use(compression())

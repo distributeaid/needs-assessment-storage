@@ -19,19 +19,28 @@ describe('Schema API', () => {
 		app.get(
 			'/schema/form.schema.json',
 			schemaHandler(
-				form({ baseURL: new URL('http://127.0.0.1:8889/schema/') }),
+				form({
+					baseURL: new URL('http://127.0.0.1:8889/schema/'),
+					version: '0.0.0-development',
+				}),
 			),
 		)
 		app.get(
 			'/schema/section.schema.json',
 			schemaHandler(
-				section({ baseURL: new URL('http://127.0.0.1:8889/schema/') }),
+				section({
+					baseURL: new URL('http://127.0.0.1:8889/schema/'),
+					version: '0.0.0-development',
+				}),
 			),
 		)
 		app.get(
 			'/schema/question.schema.json',
 			schemaHandler(
-				question({ baseURL: new URL('http://127.0.0.1:8889/schema/') }),
+				question({
+					baseURL: new URL('http://127.0.0.1:8889/schema/'),
+					version: '0.0.0-development',
+				}),
 			),
 		)
 		httpServer = createServer(app)
@@ -43,18 +52,24 @@ describe('Schema API', () => {
 	afterAll(async () => {
 		httpServer.close()
 	})
-	test('/schema/form.schema.json', async () => {
+	test('/schema/form.schema.json?version=0.0.0-development', async () => {
 		const res = await r
 			.get('/schema/form.schema.json')
 			.expect(HTTPStatusCode.OK)
 			.expect('Content-Type', /application\/schema\+json/)
 
 		expect(res.body).toEqual(
-			form({ baseURL: new URL('http://127.0.0.1:8889/schema/') }),
+			form({
+				baseURL: new URL('http://127.0.0.1:8889/schema/'),
+				version: '0.0.0-development',
+			}),
 		)
 		const formSchema = res.body
+		expect(formSchema.$id).toEqual(
+			'http://127.0.0.1:8889/schema/form.schema.json?version=0.0.0-development',
+		)
 		expect(formSchema.properties.sections.items.$ref).toEqual(
-			'http://127.0.0.1:8889/schema/section.schema.json',
+			'http://127.0.0.1:8889/schema/section.schema.json?version=0.0.0-development',
 		)
 	})
 	test('/schema/section.schema.json', async () => {
@@ -64,11 +79,17 @@ describe('Schema API', () => {
 			.expect('Content-Type', /application\/schema\+json/)
 
 		expect(res.body).toEqual(
-			section({ baseURL: new URL('http://127.0.0.1:8889/schema/') }),
+			section({
+				baseURL: new URL('http://127.0.0.1:8889/schema/'),
+				version: '0.0.0-development',
+			}),
 		)
 		const sectionSchema = res.body
+		expect(sectionSchema.$id).toEqual(
+			'http://127.0.0.1:8889/schema/section.schema.json?version=0.0.0-development',
+		)
 		expect(sectionSchema.properties.questions.items.$ref).toEqual(
-			'http://127.0.0.1:8889/schema/question.schema.json',
+			'http://127.0.0.1:8889/schema/question.schema.json?version=0.0.0-development',
 		)
 	})
 	test('/schema/question.schema.json', async () => {
@@ -76,9 +97,15 @@ describe('Schema API', () => {
 			.get('/schema/question.schema.json')
 			.expect(HTTPStatusCode.OK)
 			.expect('Content-Type', /application\/schema\+json/)
-
+		const questionSchema = res.body
 		expect(res.body).toEqual(
-			question({ baseURL: new URL('http://127.0.0.1:8889/schema/') }),
+			question({
+				baseURL: new URL('http://127.0.0.1:8889/schema/'),
+				version: '0.0.0-development',
+			}),
+		)
+		expect(questionSchema.$id).toEqual(
+			'http://127.0.0.1:8889/schema/question.schema.json?version=0.0.0-development',
 		)
 	})
 })
