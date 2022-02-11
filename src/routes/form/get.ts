@@ -26,8 +26,10 @@ export const formGetHandler =
 		}
 		const form = await storage.get(valid.value.id)
 		if (form === undefined) {
-			response.status(HTTPStatusCode.NotFound).end()
-			return
+			return respondWithProblem(response, {
+				title: `Form ${valid.value.id} not found!`,
+				status: HTTPStatusCode.NotFound,
+			})
 		}
 		response.status(HTTPStatusCode.OK).json(form).end()
 	}

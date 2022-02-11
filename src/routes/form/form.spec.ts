@@ -22,6 +22,8 @@ const dummyStorage: Store<Form> = {
 	get: async (id) => forms[id],
 }
 
+const origin = new URL(`http://127.0.0.1:${port}`)
+
 describe('Form API', () => {
 	let app: Express
 	let httpServer: Server
@@ -34,7 +36,7 @@ describe('Form API', () => {
 		app.post(
 			'/form',
 			formCreationHandler({
-				origin: new URL(`http://127.0.0.1:${port}/`),
+				origin,
 				storage: dummyStorage,
 				version: '0.0.0-development',
 			}),
@@ -53,7 +55,7 @@ describe('Form API', () => {
 		baseURL: new URL('./schema/', new URL(`http://127.0.0.1:${port}`)),
 		version: '0.0.0-development',
 	})
-	const simpleForm: Form = {
+	const simpleForm = {
 		$schema: formSchema.$id,
 		sections: [
 			{
@@ -70,7 +72,7 @@ describe('Form API', () => {
 				],
 			},
 		],
-	}
+	} as const
 	let createdForm: URL
 	describe('POST /form', () => {
 		it('should fail with invalid form', async () =>
@@ -103,7 +105,8 @@ describe('Form API', () => {
 				.get(`${createdForm.pathname}`)
 				.expect(HTTPStatusCode.OK)
 				.expect('Content-Type', /application\/json/)
-			expect(JSON.stringify(response.body)).toMatch(JSON.stringify(simpleForm))
+			expect(response.body).toMatchObject(simpleForm)
+			expect(response.body.$id).toEqual(createdForm.toString())
 		})
 	})
 })

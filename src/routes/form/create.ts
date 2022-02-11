@@ -20,15 +20,21 @@ export const formCreationHandler =
 	}) =>
 	async (request: Request, response: Response): Promise<void> => {
 		const formBody = request.body
-		const { errors } = validateWithFormSchema({
+		const validForm = validateWithFormSchema({
 			baseURL: new URL('./schema/', origin),
 			version,
 		})(formBody)
-		if (errors !== undefined) {
-			return respondWithProblem(response, errorsToProblemDetail(errors))
+		if ('errors' in validForm) {
+			return respondWithProblem(
+				response,
+				errorsToProblemDetail(validForm.errors),
+			)
 		}
 		const id = ulid()
-		await storage.persist(id, formBody)
+		await storage.persist(id, {
+			$id: new URL(`./form/${id}`, origin),
+			...formBody,
+		})
 		response
 			.status(HTTPStatusCode.Created)
 			.header('Location', new URL(`./form/${id}`, origin).toString())

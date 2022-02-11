@@ -6,15 +6,19 @@ import { form } from '../schema/form'
 import { question } from '../schema/question'
 import { section } from '../schema/section'
 
-export const validateWithFormSchema = ({
+export const validateWithFormSchema = <T extends Record<string, any>>({
 	baseURL,
 	version,
 }: {
 	baseURL: URL
 	version: string
-}): ((value: Record<string, any>) => {
-	errors?: ErrorObject[]
-}) => {
+}): ((value: Record<string, any>) =>
+	| {
+			errors: ErrorObject[]
+	  }
+	| {
+			value: T
+	  }) => {
 	const formSchema = form({ baseURL, version })
 	const ajv = new Ajv({
 		schemas: [
@@ -35,6 +39,8 @@ export const validateWithFormSchema = ({
 			return { errors: validate?.errors ?? [] }
 		}
 
-		return {}
+		return {
+			value: value as T,
+		}
 	}
 }
