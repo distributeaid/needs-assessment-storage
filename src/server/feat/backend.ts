@@ -1,3 +1,4 @@
+import { Static } from '@sinclair/typebox'
 import bodyParser from 'body-parser'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
@@ -46,7 +47,7 @@ export const backend = ({
 	 */
 	generateToken?: () => string
 	formStorage: Store<Form>
-	submissionStorage: Store<Submission>
+	submissionStorage: Store<Static<typeof Submission>>
 }): Express => {
 	const app = express()
 	/**

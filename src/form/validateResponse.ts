@@ -1,3 +1,4 @@
+import { Static } from '@sinclair/typebox'
 import { evaluateJSONataExpression } from './evaluateJSONataExpression'
 import { Form, MultiSelectQuestionFormat, Question } from './form'
 import { Response } from './submission'
@@ -5,7 +6,7 @@ import { Response } from './submission'
 export const validateQuestion = (
 	answer: string | string[],
 	question: Question,
-	response: Response,
+	response: Static<typeof Response>,
 ): boolean => {
 	const required = isRequired(question, response)
 	const isBlank = answer === undefined || answer.length === 0
@@ -52,7 +53,7 @@ export const validateResponse = ({
 	response,
 	form,
 }: {
-	response: Response
+	response: Static<typeof Response>
 	form: Form
 }): {
 	valid: boolean
@@ -97,7 +98,7 @@ export const isHidden = (
 	}: {
 		hidden?: boolean | string
 	},
-	response: Response,
+	response: Static<typeof Response>,
 ): boolean => {
 	if (hidden === undefined) return false
 	if (typeof hidden === 'boolean') {
@@ -116,7 +117,7 @@ export const isRequired = (
 	}: {
 		required?: boolean | string
 	},
-	response: Response,
+	response: Static<typeof Response>,
 ): boolean => {
 	if (required === undefined) return true
 	if (typeof required === 'boolean') {

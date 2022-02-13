@@ -1,10 +1,10 @@
-import { Type } from '@sinclair/typebox'
+import { Static } from '@sinclair/typebox'
 import { EventEmitter } from 'events'
 import { Request, Response } from 'express'
 import { URL } from 'url'
 import { events } from '../../../events'
 import { Form } from '../../../form/form'
-import type { Submission } from '../../../form/submission'
+import { Submission } from '../../../form/submission'
 import { validateResponse } from '../../../form/validateResponse'
 import { errorsToProblemDetail } from '../../../input-validation/errorsToProblemDetail'
 import { validateWithTypebox } from '../../../input-validation/validateWithTypebox'
@@ -23,27 +23,10 @@ export const assessmentSubmissionHandler = ({
 }: {
 	origin: URL
 	formStorage: Store<Form>
-	submissionStorage: Store<Submission>
+	submissionStorage: Store<Static<typeof Submission>>
 	omnibus: EventEmitter
 }): ((request: Request, response: Response) => Promise<void>) => {
-	const input = Type.Object(
-		{
-			form: Type.String({
-				pattern: `^${new URL(
-					'./form/',
-					origin,
-				).toString()}[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$`,
-			}),
-			response: Type.Record(
-				Type.String(),
-				Type.Record(
-					Type.String(),
-					Type.Union([Type.String(), Type.Array(Type.String())]),
-				),
-			),
-		},
-		{ additionalProperties: false },
-	)
+	const input = Submission
 
 	const validate = validateWithTypebox(input)
 

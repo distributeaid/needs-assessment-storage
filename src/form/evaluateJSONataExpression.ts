@@ -1,5 +1,6 @@
+import { Static } from '@sinclair/typebox'
 import jsonata from 'jsonata'
-import { Submission } from './submission'
+import { Response } from './submission'
 
 export const evaluateJSONataExpression = ({
 	expression,
@@ -8,7 +9,7 @@ export const evaluateJSONataExpression = ({
 	error,
 }: {
 	expression: string
-	response: Submission['response']
+	response: Static<typeof Response>
 	debug?: typeof console.debug
 	error?: typeof console.error
 }): boolean => {

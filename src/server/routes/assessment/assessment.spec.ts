@@ -1,3 +1,4 @@
+import { Static } from '@sinclair/typebox'
 import { json } from 'body-parser'
 import EventEmitter from 'events'
 import express, { Express } from 'express'
@@ -50,8 +51,8 @@ const dummyFormStorage: Store<Form> = {
 	get: async (id) => forms[id],
 }
 
-const submissions: Record<string, Submission> = {}
-const dummySubmissionStorage: Store<Submission> = {
+const submissions: Record<string, Static<typeof Submission>> = {}
+const dummySubmissionStorage: Store<Static<typeof Submission>> = {
 	persist: async (id, form) => {
 		submissions[id] = form
 	},
