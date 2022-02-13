@@ -4,7 +4,7 @@ import { Form, MultiSelectQuestionFormat, Question } from './form'
 import { Response } from './submission'
 
 export const validateQuestion = (
-	answer: string | string[],
+	answer: string | string[] | [number, string],
 	question: Question,
 	response: Static<typeof Response>,
 ): boolean => {
@@ -35,15 +35,9 @@ export const validateQuestion = (
 				}, true as boolean)
 			)
 		case 'positive-integer':
-			return (
-				!isNaN(parseInt(answer as string, 10)) &&
-				parseInt(answer as string, 10) > 0
-			)
+			return (answer ?? [Number.MIN_SAFE_INTEGER, ''])[0] > 0
 		case 'non-negative-integer':
-			return (
-				!isNaN(parseInt(answer as string, 10)) &&
-				parseInt(answer as string, 10) >= 0
-			)
+			return (answer ?? [Number.MIN_SAFE_INTEGER, ''])[0] >= 0
 		default:
 			return false
 	}
@@ -119,7 +113,7 @@ export const isRequired = (
 	},
 	response: Static<typeof Response>,
 ): boolean => {
-	if (required === undefined) return true
+	if (required === undefined) return false
 	if (typeof required === 'boolean') {
 		return required
 	}

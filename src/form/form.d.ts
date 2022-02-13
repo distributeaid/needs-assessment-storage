@@ -47,6 +47,8 @@ export type NonNegativeIntegerQuestionFormat = {
 export type Question = {
 	id: string
 	title: string
+	description?: string
+	internalComment?: string
 	required?: boolean | JSONatatExpression // default: true
 	hidden?: boolean | JSONatatExpression // default: true
 	example?: string
@@ -65,6 +67,7 @@ export type Section = {
 	id: string
 	title: string
 	description?: string
+	internalComment?: string
 	questions: Question[]
 	hidden?: boolean | JSONatatExpression // default: true
 }

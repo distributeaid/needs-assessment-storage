@@ -33,6 +33,7 @@ const simpleForm: Form = {
 				{
 					id: 'question1',
 					title: 'Question 1',
+					required: true,
 					format: {
 						type: 'text',
 					},
