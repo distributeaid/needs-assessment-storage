@@ -1,6 +1,6 @@
+export type Response = Record<string, Record<string, string | string[]>>
+
 export type Submission = {
 	form: string
-	response: {
-		[key: string]: any
-	}
+	response: Response
 }

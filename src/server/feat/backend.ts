@@ -8,19 +8,21 @@ import passport from 'passport'
 import { URL } from 'url'
 import { authCookie, cookieAuthStrategy } from '../../authenticateRequest.js'
 import { Form } from '../../form/form.js'
+import { Submission } from '../../form/submission.js'
 import { addVersion } from '../../input-validation/addVersion.js'
-import { deleteCookie, renewCookie } from '../../routes/cookie.js'
-import { formCreationHandler } from '../../routes/form/create.js'
-import { formGetHandler } from '../../routes/form/get.js'
-import login from '../../routes/login.js'
-import registerUser from '../../routes/register.js'
-import { schemaHandler } from '../../routes/schema/schema.js'
 import { form } from '../../schema/form.js'
 import { question } from '../../schema/question.js'
 import { section } from '../../schema/section.js'
 import { Store } from '../../storage/store.js'
 import { ulid } from '../../ulid.js'
 import { addRequestId } from '../addRequestId.js'
+import { assessmentSubmissionHandler } from '../routes/assessment/submit.js'
+import { deleteCookie, renewCookie } from '../routes/cookie.js'
+import { formCreationHandler } from '../routes/form/create.js'
+import { formGetHandler } from '../routes/form/get.js'
+import login from '../routes/login.js'
+import registerUser from '../routes/register.js'
+import { schemaHandler } from '../routes/schema/schema.js'
 
 export const backend = ({
 	omnibus,
@@ -31,6 +33,7 @@ export const backend = ({
 	generateToken,
 	adminEmails,
 	formStorage,
+	submissionStorage,
 }: {
 	omnibus: EventEmitter
 	origin: URL
@@ -43,6 +46,7 @@ export const backend = ({
 	 */
 	generateToken?: () => string
 	formStorage: Store<Form>
+	submissionStorage: Store<Submission>
 }): Express => {
 	const app = express()
 	/**
@@ -100,6 +104,17 @@ export const backend = ({
 		formCreationHandler({ storage: formStorage, origin, version }),
 	)
 	app.get('/form/:id', formGetHandler({ storage: formStorage }))
+
+	// Submissions
+	app.post(
+		'/assessment',
+		assessmentSubmissionHandler({
+			omnibus,
+			origin,
+			formStorage,
+			submissionStorage,
+		}),
+	)
 
 	app.use(compression())
 

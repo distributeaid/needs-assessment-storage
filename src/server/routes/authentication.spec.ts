@@ -10,10 +10,10 @@ import {
 	authCookieName,
 	cookieAuthStrategy,
 	decodeAuthCookie,
-} from '../authenticateRequest.js'
-import { HTTPStatusCode } from '../server/response/HttpStatusCode.js'
-import { portForTest } from '../test/portForTest.js'
-import { ulid } from '../ulid.js'
+} from '../../authenticateRequest.js'
+import { portForTest } from '../../test/portForTest.js'
+import { ulid } from '../../ulid.js'
+import { HTTPStatusCode } from '../response/HttpStatusCode.js'
 import { deleteCookie, renewCookie } from './cookie.js'
 import login from './login.js'
 import registerUser from './register.js'

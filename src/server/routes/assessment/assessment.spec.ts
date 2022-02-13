@@ -1,14 +1,15 @@
 import { json } from 'body-parser'
+import EventEmitter from 'events'
 import express, { Express } from 'express'
 import { createServer, Server } from 'http'
 import request, { SuperTest, Test } from 'supertest'
-import { Form } from '../../form/form'
-import { Submission } from '../../form/submission'
-import { form } from '../../schema/form'
-import { HTTPStatusCode } from '../../server/response/HttpStatusCode'
-import { Store } from '../../storage/store'
-import { portForTest } from '../../test/portForTest'
-import { ulid } from '../../ulid'
+import { Form } from '../../../form/form'
+import { Submission } from '../../../form/submission'
+import { form } from '../../../schema/form'
+import { Store } from '../../../storage/store'
+import { portForTest } from '../../../test/portForTest'
+import { ulid } from '../../../ulid'
+import { HTTPStatusCode } from '../../response/HttpStatusCode'
 import { assessmentSubmissionHandler } from './submit'
 
 const port = portForTest(__filename)
@@ -57,6 +58,8 @@ const dummySubmissionStorage: Store<Submission> = {
 	get: async (id) => submissions[id],
 }
 
+const omnibus = new EventEmitter()
+
 describe('Assessment API', () => {
 	let app: Express
 	let httpServer: Server
@@ -68,6 +71,7 @@ describe('Assessment API', () => {
 		app.post(
 			'/assessment',
 			assessmentSubmissionHandler({
+				omnibus,
 				origin,
 				formStorage: dummyFormStorage,
 				submissionStorage: dummySubmissionStorage,
@@ -87,16 +91,26 @@ describe('Assessment API', () => {
 			r
 				.post(`/assessment`)
 				.send({
-					$schema: new URL(`./form/${formId}`, origin),
-					response: {},
+					form: new URL(`./form/${formId}`, origin),
+					response: {
+						section1: {
+							question1: 'Answer',
+						},
+					},
 				})
-				.expect(HTTPStatusCode.Created))
+				.expect(HTTPStatusCode.Created)
+				.expect(
+					'Location',
+					new RegExp(
+						`^http://127.0.0.1:${port}/submission/[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$`,
+					),
+				))
 
 		it('should fail with unknown form', async () =>
 			r
 				.post(`/assessment`)
 				.send({
-					$schema: new URL(`./form/${ulid()}`, origin),
+					form: new URL(`./form/${ulid()}`, origin),
 					response: {},
 				})
 				.expect(HTTPStatusCode.NotFound)
@@ -105,7 +119,14 @@ describe('Assessment API', () => {
 		it('should fail with invalid submission', async () =>
 			r
 				.post(`/assessment`)
-				.send({})
+				.send({
+					form: new URL(`./form/${formId}`, origin),
+					response: {
+						section1: {
+							question1: '', // Min-length = 1
+						},
+					},
+				})
 				.expect(HTTPStatusCode.BadRequest)
 				.expect('Content-Type', /application\/problem\+json/))
 	})

@@ -3,8 +3,8 @@ import {
 	AuthContext,
 	expireAuthCookie,
 	ExpressCookieForUserFn,
-} from '../authenticateRequest.js'
-import { HTTPStatusCode } from '../server/response/HttpStatusCode.js'
+} from '../../authenticateRequest.js'
+import { HTTPStatusCode } from '../response/HttpStatusCode.js'
 
 export const renewCookie =
 	(authCookie: ExpressCookieForUserFn) =>

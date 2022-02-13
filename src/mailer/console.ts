@@ -8,4 +8,7 @@ export const consoleMailer = (
 	omnibus.on(events.user_registered, (email: string, token: string) => {
 		debug(`${email}: confirmation token ${token}`)
 	})
+	omnibus.on(events.assessment_created, (id: string) => {
+		debug(`Assessment ${id} created.`)
+	})
 }

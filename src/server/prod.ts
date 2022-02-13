@@ -42,6 +42,9 @@ const app = backend({
 			: undefined,
 	adminEmails: (process.env.ADMIN_EMAILS ?? '').split(','),
 	formStorage: jsonFileStore({ directory: path.join(storageBaseDir, 'forms') }),
+	submissionStorage: jsonFileStore({
+		directory: path.join(storageBaseDir, 'submission'),
+	}),
 })
 
 const httpServer = createServer(app)

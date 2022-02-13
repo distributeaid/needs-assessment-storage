@@ -25,6 +25,9 @@ const app = backend({
 	formStorage: jsonFileStore({
 		directory: path.join(process.cwd(), 'storage', 'forms'),
 	}),
+	submissionStorage: jsonFileStore({
+		directory: path.join(process.cwd(), 'storage', 'submissions'),
+	}),
 })
 
 const httpServer = createServer(app)
