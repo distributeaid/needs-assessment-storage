@@ -21,9 +21,7 @@
     "dev": "./node_modules/.bin/nodemon --optimize_for_size --max_old_space_size=920 --gc_interval=100 src/server/dev.ts",
     "prod": "./node_modules/.bin/nodemon --optimize_for_size --max_old_space_size=920 --gc_interval=100 src/server/prod.ts",
     "test": "jest",
-    "prepare": "husky install",
-    "prod:build": "npm run build",
-    "build": "tsc"
+    "prepare": "husky install"
   },
   "engines": {
     "node": ">=16.0.0",

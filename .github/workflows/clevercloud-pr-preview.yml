@@ -85,9 +85,6 @@ jobs:
       - name: Install NPM packages
         run: npm ci
 
-      - name: Build TypeScript
-        run: npm run build
-
       - name: Create the application
         run:
           npx clever create -t node -o ${{ secrets.CLEVER_ORG }} ${{
@@ -106,7 +103,6 @@ jobs:
       - name: Configure Node.js application settings
         run: |
           npx clever env set CC_NODE_DEV_DEPENDENCIES install
-          npx clever env set CC_POST_BUILD_HOOK 'npm run prod:build'
           npx clever env set CC_RUN_COMMAND 'npm run prod'
           npx clever env set NODE_ENV production
           npx clever env set ORIGIN ${{ env.ORIGIN }}
@@ -161,9 +157,6 @@ jobs:
 
       - name: Install NPM packages
         run: npm ci
-
-      - name: Build TypeScript
-        run: npm run build
 
       - name: Link application
         run:
