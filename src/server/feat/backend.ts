@@ -11,9 +11,7 @@ import { authCookie, cookieAuthStrategy } from '../../authenticateRequest.js'
 import { Form } from '../../form/form.js'
 import { Submission } from '../../form/submission.js'
 import { addVersion } from '../../input-validation/addVersion.js'
-import { form } from '../../schema/form.js'
-import { question } from '../../schema/question.js'
-import { section } from '../../schema/section.js'
+import { formSchema } from '../../schema/form.js'
 import { Store } from '../../storage/store.js'
 import { ulid } from '../../ulid.js'
 import { addRequestId } from '../addRequestId.js'
@@ -85,24 +83,15 @@ export const backend = ({
 	app.delete('/cookie', cookieAuth, deleteCookie)
 
 	// Schemas
-	const schemaBaseURL = new URL('./schema/', origin)
-	app.get(
-		'/schema/form.schema.json',
-		schemaHandler(form({ baseURL: schemaBaseURL, version })),
-	)
-	app.get(
-		'/schema/section.schema.json',
-		schemaHandler(section({ baseURL: schemaBaseURL, version })),
-	)
-	app.get(
-		'/schema/question.schema.json',
-		schemaHandler(question({ baseURL: schemaBaseURL, version })),
-	)
+	const schema = formSchema({
+		$id: new URL(`./schema/${version}/form#`, origin),
+	})
+	app.get(`/schema/${version}/form`, schemaHandler(schema))
 
 	// Forms
 	app.post(
 		'/form',
-		formCreationHandler({ storage: formStorage, origin, version }),
+		formCreationHandler({ storage: formStorage, origin, schema }),
 	)
 	app.get('/form/:id', formGetHandler({ storage: formStorage }))
 

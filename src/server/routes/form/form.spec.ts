@@ -4,7 +4,7 @@ import { createServer, Server } from 'http'
 import request, { SuperTest, Test } from 'supertest'
 import { URL } from 'url'
 import { Form } from '../../../form/form.js'
-import { form } from '../../../schema/form.js'
+import { formSchema } from '../../../schema/form.js'
 import { Store } from '../../../storage/store.js'
 import { portForTest } from '../../../test/portForTest.js'
 import { HTTPStatusCode } from '../../response/HttpStatusCode.js'
@@ -24,6 +24,10 @@ const dummyStorage: Store<Form> = {
 
 const origin = new URL(`http://127.0.0.1:${port}`)
 
+const schema = formSchema({
+	$id: new URL(`./schema/0.0.0-development/form#`, origin),
+})
+
 describe('Form API', () => {
 	let app: Express
 	let httpServer: Server
@@ -38,7 +42,7 @@ describe('Form API', () => {
 			formCreationHandler({
 				origin,
 				storage: dummyStorage,
-				version: '0.0.0-development',
+				schema,
 			}),
 		)
 		httpServer = createServer(app)
@@ -51,12 +55,8 @@ describe('Form API', () => {
 		httpServer.close()
 	})
 
-	const formSchema = form({
-		baseURL: new URL('./schema/', new URL(`http://127.0.0.1:${port}`)),
-		version: '0.0.0-development',
-	})
 	const simpleForm = {
-		$schema: formSchema.$id,
+		$schema: schema.$id,
 		sections: [
 			{
 				id: 'section1',

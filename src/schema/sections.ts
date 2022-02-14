@@ -1,20 +1,10 @@
-import { URL } from 'url'
-import { JSONSchema } from './JSONSchema.js'
+import { questionsSchema } from './questions'
 
-export const section = ({
-	baseURL,
-	version,
-}: {
-	baseURL: URL
-	version: string
-}): JSONSchema => {
-	const $id = `${new URL(
-		`./section.schema.json?version=${encodeURIComponent(version)}`,
-		baseURL,
-	)}`
-	return {
-		$schema: 'http://json-schema.org/draft-07/schema#',
-		$id,
+export const sectionsSchema = {
+	description: "Describes the form's sections",
+	type: 'array',
+	minItems: 1,
+	items: {
 		title: 'Sections of a form',
 		description: 'A form is divided into multiple sections',
 		type: 'object',
@@ -45,19 +35,10 @@ export const section = ({
 					'whether to hide this section, can either be statically disabled, or be a JSONata expression',
 				oneOf: [{ type: 'boolean' }, { type: 'string', minLength: 1 }],
 			},
-			questions: {
-				type: 'array',
-				minItems: 1,
-				items: {
-					$ref: `${new URL(
-						`./question.schema.json?version=${encodeURIComponent(version)}`,
-						baseURL,
-					)}`,
-				},
-				uniqueItemProperties: ['id', 'title'],
-			},
+			questions: questionsSchema,
 		},
 		additionalProperties: false,
 		required: ['id', 'title', 'questions'],
-	}
-}
+	},
+	uniqueItemProperties: ['id', 'title'],
+} as const

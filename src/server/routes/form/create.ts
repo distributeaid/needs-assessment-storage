@@ -2,7 +2,8 @@ import { Request, Response } from 'express'
 import { URL } from 'url'
 import { Form } from '../../../form/form.js'
 import { errorsToProblemDetail } from '../../../input-validation/errorsToProblemDetail.js'
-import { validateWithFormSchema } from '../../../schema/validateWithJSONSchema.js'
+import { JSONSchema } from '../../../schema/JSONSchema.js'
+import { validateWithJSONSchema } from '../../../schema/validateWithJSONSchema.js'
 import { Store } from '../../../storage/store.js'
 import { ulid } from '../../../ulid.js'
 import { HTTPStatusCode } from '../../response/HttpStatusCode.js'
@@ -12,17 +13,16 @@ export const formCreationHandler =
 	({
 		storage,
 		origin,
-		version,
+		schema,
 	}: {
 		storage: Store<Form>
 		origin: URL
-		version: string
+		schema: JSONSchema
 	}) =>
 	async (request: Request, response: Response): Promise<void> => {
 		const formBody = request.body
-		const validForm = validateWithFormSchema({
-			baseURL: new URL('./schema/', origin),
-			version,
+		const validForm = validateWithJSONSchema({
+			schema,
 		})(formBody)
 		if ('errors' in validForm) {
 			return respondWithProblem(

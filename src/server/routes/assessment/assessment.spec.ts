@@ -6,7 +6,7 @@ import { createServer, Server } from 'http'
 import request, { SuperTest, Test } from 'supertest'
 import { Form } from '../../../form/form.js'
 import { Submission } from '../../../form/submission.js'
-import { form } from '../../../schema/form.js'
+import { formSchema } from '../../../schema/form.js'
 import { Store } from '../../../storage/store.js'
 import { portForTest } from '../../../test/portForTest.js'
 import { ulid } from '../../../ulid.js'
@@ -18,12 +18,11 @@ const port = portForTest(__filename)
 const origin = new URL(`http://127.0.0.1:${port}`)
 
 const formId = ulid()
-const formSchema = form({
-	baseURL: new URL('./schema/', origin),
-	version: '0.0.0-development',
+const schema = formSchema({
+	$id: new URL(`http://127.0.0.1:${port}/schema/0.0.0-development/form#`),
 })
 const simpleForm: Form = {
-	$schema: formSchema.$id,
+	$schema: schema.$id,
 	$id: new URL(`./form/${formId}`, origin).toString(),
 	sections: [
 		{

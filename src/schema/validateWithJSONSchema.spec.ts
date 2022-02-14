@@ -1,11 +1,13 @@
-import { validateWithFormSchema } from './validateWithJSONSchema.js'
+import { formSchema } from './form.js'
+import { validateWithJSONSchema } from './validateWithJSONSchema.js'
 
-describe('validateWithFormSchema', () => {
+describe('validateWithJSONSchema()', () => {
 	it('should validate a form', () =>
 		expect(
-			validateWithFormSchema({
-				baseURL: new URL('https://example.com/schema/'),
-				version: '0.0.0-development',
+			validateWithJSONSchema({
+				schema: formSchema({
+					$id: new URL(`http://example.com/schema/0.0.0-development/form#`),
+				}),
 			})({ foo: 'bar' }),
 		).toMatchObject({
 			errors: [

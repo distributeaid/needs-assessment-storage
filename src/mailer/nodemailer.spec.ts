@@ -5,7 +5,7 @@ import { events } from '../events.js'
 import { Form } from '../form/form.js'
 import { responseToTSV } from '../form/responseToTSV.js'
 import { Submission } from '../form/submission.js'
-import { form } from '../schema/form.js'
+import { formSchema } from '../schema/form.js'
 import { ulid } from '../ulid.js'
 import { appMailer } from './nodemailer.js'
 
@@ -42,9 +42,8 @@ describe('appMailer', () => {
 			const formId = ulid()
 			const form$Id = new URL(`https://example.com/form/${formId}`).toString()
 			const simpleForm: Form = {
-				$schema: form({
-					baseURL: new URL('https://example.com/schema/'),
-					version: '0.0.0-development',
+				$schema: formSchema({
+					$id: new URL('https://example.com/schema/'),
 				}).$id,
 				$id: form$Id,
 				sections: [
