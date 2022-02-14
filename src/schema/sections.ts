@@ -1,4 +1,4 @@
-import { questionsSchema } from './questions'
+import { questionsSchema } from './questions.js'
 
 export const sectionsSchema = {
 	description: "Describes the form's sections",

@@ -5,3 +5,4 @@
 .envrc
 npm-debug.log*
 .clever.json
+/storage

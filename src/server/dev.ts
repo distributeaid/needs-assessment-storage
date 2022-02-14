@@ -13,6 +13,8 @@ const origin = new URL(process.env.ORIGIN ?? `http://localhost:${port}`)
 
 const adminEmails = (process.env.ADMIN_EMAILS ?? '').split(',')
 
+const storageBaseDir = path.join(process.cwd(), 'storage')
+
 const app = backend({
 	omnibus,
 	cookieSecret: process.env.COOKIE_SECRET,
@@ -37,6 +39,7 @@ const httpServer = createServer(app)
 httpServer.listen({ port }, (): void => {
 	console.debug(`ℹ️ Listening on port:`, port)
 	console.debug(`ℹ️ Origin:`, origin.toString())
+	console.debug(`ℹ️ Storage:`, storageBaseDir)
 })
 
 // Configure email sending
