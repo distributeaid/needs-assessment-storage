@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { ulid } from '../ulid'
+import { ulid } from '../ulid.js'
 
 export const addRequestId = (
 	_: Request,

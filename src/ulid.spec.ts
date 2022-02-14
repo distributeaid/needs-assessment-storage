@@ -1,4 +1,4 @@
-import { ulid, ulidRegEx } from './ulid'
+import { ulid, ulidRegEx } from './ulid.js'
 
 describe('ulid()', () => {
 	it('should return a Ulid', () => expect(ulid()).toMatch(ulidRegEx))

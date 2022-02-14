@@ -1,9 +1,9 @@
 import { URL } from 'url'
-import { ulid } from '../ulid'
-import { exampleForm } from './example.form'
-import { exampleResponse } from './example.response'
+import { ulid } from '../ulid.js'
+import { exampleForm } from './example.form.js'
+import { exampleResponse } from './example.response.js'
 import { Form } from './form.js'
-import { validateResponse } from './validateResponse'
+import { validateResponse } from './validateResponse.js'
 
 describe('validateResponse()', () => {
 	describe('simple form', () => {

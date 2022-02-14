@@ -2,9 +2,9 @@ import Ajv, { ErrorObject } from 'ajv'
 import addFormats from 'ajv-formats'
 import addKeywords from 'ajv-keywords'
 import { URL } from 'url'
-import { form } from '../schema/form'
-import { question } from '../schema/question'
-import { section } from '../schema/section'
+import { form } from '../schema/form.js'
+import { question } from '../schema/question.js'
+import { section } from '../schema/section.js'
 
 export const validateWithFormSchema = <T extends Record<string, any>>({
 	baseURL,

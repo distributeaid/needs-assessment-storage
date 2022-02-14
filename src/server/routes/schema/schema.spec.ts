@@ -2,12 +2,12 @@ import { json } from 'body-parser'
 import express, { Express } from 'express'
 import { createServer, Server } from 'http'
 import request, { SuperTest, Test } from 'supertest'
-import { form } from '../../../schema/form'
-import { question } from '../../../schema/question'
-import { section } from '../../../schema/section'
-import { portForTest } from '../../../test/portForTest'
-import { HTTPStatusCode } from '../../response/HttpStatusCode'
-import { schemaHandler } from './schema'
+import { form } from '../../../schema/form.js'
+import { question } from '../../../schema/question.js'
+import { section } from '../../../schema/section.js'
+import { portForTest } from '../../../test/portForTest.js'
+import { HTTPStatusCode } from '../../response/HttpStatusCode.js'
+import { schemaHandler } from './schema.js'
 
 const port = portForTest(__filename)
 

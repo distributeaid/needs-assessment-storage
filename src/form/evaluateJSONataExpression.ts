@@ -1,6 +1,6 @@
 import { Static } from '@sinclair/typebox'
 import jsonata from 'jsonata'
-import { Response } from './submission'
+import { Response } from './submission.js'
 
 export const evaluateJSONataExpression = ({
 	expression,

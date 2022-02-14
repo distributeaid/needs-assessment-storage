@@ -1,5 +1,5 @@
 import { URL } from 'url'
-import { JSONSchema } from './JSONSchema'
+import { JSONSchema } from './JSONSchema.js'
 
 export const form = ({
 	baseURL,

@@ -1,5 +1,5 @@
 import { Static } from '@sinclair/typebox'
-import { Response } from './submission'
+import { Response } from './submission.js'
 
 export const exampleResponse: Static<typeof Response> = {
 	basicInfo: {

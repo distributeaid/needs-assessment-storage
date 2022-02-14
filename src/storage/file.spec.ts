@@ -1,9 +1,9 @@
 import { promises as fs } from 'fs'
 import * as os from 'os'
 import * as path from 'path'
-import { ulid } from '../ulid'
-import { jsonFileStore } from './file'
-import { Store } from './store'
+import { ulid } from '../ulid.js'
+import { jsonFileStore } from './file.js'
+import { Store } from './store.js'
 
 describe('File store', () => {
 	let store: Store<any>

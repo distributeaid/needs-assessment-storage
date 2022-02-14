@@ -1,4 +1,4 @@
-import { validateWithFormSchema } from './validateWithJSONSchema'
+import { validateWithFormSchema } from './validateWithJSONSchema.js'
 
 describe('validateWithFormSchema', () => {
 	it('should validate a form', () =>

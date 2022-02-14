@@ -1,7 +1,7 @@
 import { Static } from '@sinclair/typebox'
-import { evaluateJSONataExpression } from './evaluateJSONataExpression'
-import { Form, MultiSelectQuestionFormat, Question } from './form'
-import { Response } from './submission'
+import { evaluateJSONataExpression } from './evaluateJSONataExpression.js'
+import { Form, MultiSelectQuestionFormat, Question } from './form.js'
+import { Response } from './submission.js'
 
 export const validateQuestion = (
 	answer: string | string[] | [number, string],

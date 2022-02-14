@@ -1,12 +1,12 @@
 import { Request, Response } from 'express'
 import { URL } from 'url'
-import { Form } from '../../../form/form'
-import { errorsToProblemDetail } from '../../../input-validation/errorsToProblemDetail'
-import { validateWithFormSchema } from '../../../schema/validateWithJSONSchema'
-import { Store } from '../../../storage/store'
-import { ulid } from '../../../ulid'
-import { HTTPStatusCode } from '../../response/HttpStatusCode'
-import { respondWithProblem } from '../../response/problem'
+import { Form } from '../../../form/form.js'
+import { errorsToProblemDetail } from '../../../input-validation/errorsToProblemDetail.js'
+import { validateWithFormSchema } from '../../../schema/validateWithJSONSchema.js'
+import { Store } from '../../../storage/store.js'
+import { ulid } from '../../../ulid.js'
+import { HTTPStatusCode } from '../../response/HttpStatusCode.js'
+import { respondWithProblem } from '../../response/problem.js'
 
 export const formCreationHandler =
 	({

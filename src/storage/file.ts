@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs'
 import * as path from 'path'
-import { ulidRegEx } from '../ulid'
-import { Store } from './store'
+import { ulidRegEx } from '../ulid.js'
+import { Store } from './store.js'
 
 export const jsonFileStore = <T extends Record<string, any>>({
 	directory,

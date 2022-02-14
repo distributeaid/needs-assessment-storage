@@ -1,12 +1,12 @@
 import { Type } from '@sinclair/typebox'
 import { Request, Response } from 'express'
-import { Form } from '../../../form/form'
-import { errorsToProblemDetail } from '../../../input-validation/errorsToProblemDetail'
-import { validateWithTypebox } from '../../../input-validation/validateWithTypebox'
-import { Store } from '../../../storage/store'
-import { ulidRegEx } from '../../../ulid'
-import { HTTPStatusCode } from '../../response/HttpStatusCode'
-import { respondWithProblem } from '../../response/problem'
+import { Form } from '../../../form/form.js'
+import { errorsToProblemDetail } from '../../../input-validation/errorsToProblemDetail.js'
+import { validateWithTypebox } from '../../../input-validation/validateWithTypebox.js'
+import { Store } from '../../../storage/store.js'
+import { ulidRegEx } from '../../../ulid.js'
+import { HTTPStatusCode } from '../../response/HttpStatusCode.js'
+import { respondWithProblem } from '../../response/problem.js'
 
 const input = Type.Object(
 	{
