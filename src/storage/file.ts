@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs'
 import * as path from 'path'
-import { ulidRegEx } from '../ulid.js'
+import { ulidExclusiveRegEx } from '../ulid.js'
 import { Store } from './store.js'
 
 export const jsonFileStore = <T extends Record<string, any>>({
@@ -9,7 +9,7 @@ export const jsonFileStore = <T extends Record<string, any>>({
 	directory: string
 }): Store<T> => ({
 	get: async (id) => {
-		if (!ulidRegEx.test(id)) throw new Error(`Invalid id: ${id}!`)
+		if (!ulidExclusiveRegEx.test(id)) throw new Error(`Invalid id: ${id}!`)
 		try {
 			return JSON.parse(
 				await fs.readFile(path.join(directory, id), 'utf-8'),
@@ -19,7 +19,7 @@ export const jsonFileStore = <T extends Record<string, any>>({
 		}
 	},
 	persist: async (id, file: T) => {
-		if (!ulidRegEx.test(id)) throw new Error(`Invalid id: ${id}!`)
+		if (!ulidExclusiveRegEx.test(id)) throw new Error(`Invalid id: ${id}!`)
 		await fs.writeFile(path.join(directory, id), JSON.stringify(file), 'utf-8')
 	},
 })

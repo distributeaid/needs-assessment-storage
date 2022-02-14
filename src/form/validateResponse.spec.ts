@@ -7,9 +7,10 @@ import { validateResponse } from './validateResponse.js'
 
 describe('validateResponse()', () => {
 	describe('simple form', () => {
+		const id = ulid()
 		const simpleForm: Form = {
 			$schema: `https://example.com/form.schema.json`,
-			$id: `https://example.com/form/${ulid()}`,
+			$id: `https://example.com/form/${id}`,
 			sections: [
 				{
 					id: 'section1',

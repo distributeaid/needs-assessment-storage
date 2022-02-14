@@ -1,6 +1,12 @@
+import { Static } from '@sinclair/typebox'
 import EventEmitter from 'events'
 import nodemailer, { Transporter } from 'nodemailer'
+import { Attachment } from 'nodemailer/lib/mailer'
 import { events } from '../events.js'
+import { Form } from '../form/form.js'
+import { responseToTSV } from '../form/responseToTSV.js'
+import { Submission } from '../form/submission.js'
+import { ulidRegEx } from '../ulid.js'
 
 /**
  * SMTP hostname, e.g. "smtp.net"
@@ -28,7 +34,7 @@ const user = process.env.SMTP_USER
 const pass = process.env.SMTP_PASSWORD
 
 /**
- * The email sender, in the form `"<name>" <email>`, e.g. `"Distribute Aid Shipment Tracker" <no-reply@needs-assessment-storage.distributeaid.org>`
+ * The email sender, in the form `"<name>" <email>`, e.g. `"Distribute Aid Needs Assessment" <no-reply@needs-assessment-storage.distributeaid.org>`
  */
 const fromEmail = process.env.SMTP_FROM
 
@@ -63,39 +69,76 @@ export const transportFromConfig = (
 	return undefined
 }
 
-export const verificationEmail = (
-	email: string,
-	token: string,
-	fromEmail: string,
-): {
-	from: string
-	to: string
+type Email = {
 	subject: string
 	text: string
-} => ({
-	from: `"Distribute Aid Shipment Tracker" <${fromEmail}>`,
-	to: email,
+	attachments?: Attachment[]
+}
+
+export const verificationEmail = (token: string): Email => ({
 	subject: `Verification token: ${token}`,
 	text: `Hey 👋,\n\nPlease use the token ${token} to verify your email address.\n\nPlease do not reply to this email.\n\nIf you need support, please contact help@distributeaid.org.`,
 })
+
+export const adminSubmissionNotificationEmail = (
+	id: string,
+	submission: Static<typeof Submission>,
+	form: Form,
+): Email => {
+	const formId = ulidRegEx.exec(form.$id)?.[0]
+	return {
+		subject: `[form:${formId}] New submission received (${id})`,
+		text: [`A new needs assessment form was filled.`, `Form: ${form.$id}`].join(
+			'\n',
+		),
+		attachments: [
+			{
+				contentType: 'text/tsv; charset=utf-8',
+				filename: `form-${formId}-submission-${id}.tsv`,
+				content: responseToTSV(submission.response, form),
+			},
+		],
+	}
+}
 
 export const appMailer = (
 	omnibus: EventEmitter,
 	{
 		transport,
 		fromEmail,
-	}: { transport: Transporter<unknown>; fromEmail: string },
+	}: {
+		transport: Transporter<unknown>
+		fromEmail: string
+	},
+	adminEmails: string[],
 	debug?: (...args: any[]) => void,
 ): void => {
-	const sendEmailVerificationToken = async (email: string, token: string) => {
-		debug?.(`> ${email}: confirmation token ${token}`)
+	const from = `"Distribute Aid Needs Assessment" <${fromEmail}>`
+
+	const sendMail = async (to: string, data: Email) => {
+		debug?.(`> ${to}: ${data.subject}`)
 		try {
-			await transport.sendMail(verificationEmail(email, token, fromEmail))
+			await transport.sendMail({
+				...data,
+				from,
+				to,
+			})
 			debug?.('> message sent')
 		} catch (error) {
 			console.error(`Failed to sent email: ${(error as Error).message}`)
 			console.error(error)
 		}
 	}
-	omnibus.on(events.user_registered, sendEmailVerificationToken)
+
+	omnibus.on(events.user_registered, async (email: string, token: string) =>
+		sendMail(email, verificationEmail(token)),
+	)
+
+	omnibus.on(
+		events.assessment_created,
+		async (id: string, submission: Static<typeof Submission>, form: Form) => {
+			const data = adminSubmissionNotificationEmail(id, submission, form)
+			await Promise.all(adminEmails.map(async (email) => sendMail(email, data)))
+		},
+	)
 }

@@ -11,6 +11,8 @@ const omnibus = new EventEmitter()
 const port = parseInt(process.env.PORT ?? '3000', 10)
 const origin = new URL(process.env.ORIGIN ?? `http://localhost:${port}`)
 
+const adminEmails = (process.env.ADMIN_EMAILS ?? '').split(',')
+
 const app = backend({
 	omnibus,
 	cookieSecret: process.env.COOKIE_SECRET,
@@ -21,7 +23,7 @@ const app = backend({
 	origin,
 	version: 'development',
 	generateToken: () => '123456',
-	adminEmails: (process.env.ADMIN_EMAILS ?? 'm@distributeaid.org').split(','),
+	adminEmails,
 	formStorage: jsonFileStore({
 		directory: path.join(process.cwd(), 'storage', 'forms'),
 	}),
@@ -38,4 +40,4 @@ httpServer.listen({ port }, (): void => {
 })
 
 // Configure email sending
-setUpEmails(omnibus)
+setUpEmails(omnibus, adminEmails)

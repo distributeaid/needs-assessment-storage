@@ -31,6 +31,8 @@ try {
 
 const port = parseInt(process.env.PORT ?? '8080', 10)
 
+const adminEmails = (process.env.ADMIN_EMAILS ?? '').split(',')
+
 const app = backend({
 	omnibus,
 	origin,
@@ -40,7 +42,7 @@ const app = backend({
 		process.env.COOKIE_LIFETIME_SECONDS !== undefined
 			? parseInt(process.env.COOKIE_LIFETIME_SECONDS, 10)
 			: undefined,
-	adminEmails: (process.env.ADMIN_EMAILS ?? '').split(','),
+	adminEmails,
 	formStorage: jsonFileStore({ directory: path.join(storageBaseDir, 'forms') }),
 	submissionStorage: jsonFileStore({
 		directory: path.join(storageBaseDir, 'submission'),
@@ -55,4 +57,4 @@ httpServer.listen(port, '0.0.0.0', (): void => {
 })
 
 // Configure email sending
-setUpEmails(omnibus)
+setUpEmails(omnibus, adminEmails)

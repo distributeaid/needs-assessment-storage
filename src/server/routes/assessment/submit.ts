@@ -79,7 +79,7 @@ export const assessmentSubmissionHandler = ({
 		}
 
 		const id = ulid()
-		omnibus.emit(events.assessment_created, id, validBody.value)
+		omnibus.emit(events.assessment_created, id, validBody.value, form)
 		await submissionStorage.persist(id, validBody.value)
 		response
 			.status(HTTPStatusCode.Created)
