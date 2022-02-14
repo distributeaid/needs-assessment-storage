@@ -1,5 +1,6 @@
 import { fromEnv } from '@nordicsemiconductor/from-env'
 import EventEmitter from 'events'
+import * as fs from 'fs'
 import { createServer } from 'http'
 import path from 'path/posix'
 import { URL } from 'url'
@@ -14,6 +15,18 @@ const { originString, cleverCloudFsBucket, appHome } = fromEnv({
 })(process.env)
 
 const storageBaseDir = `${appHome}/${cleverCloudFsBucket.split(':')[0]}`
+const submissionsDir = path.join(storageBaseDir, 'submission')
+const formsDir = path.join(storageBaseDir, 'forms')
+try {
+	fs.statSync(submissionsDir)
+} catch {
+	fs.mkdirSync(submissionsDir, { recursive: true })
+}
+try {
+	fs.statSync(formsDir)
+} catch {
+	fs.mkdirSync(formsDir, { recursive: true })
+}
 
 const version = process.env.COMMIT_ID ?? '0.0.0-development'
 console.debug(`Launching version ${version}`)
@@ -46,9 +59,9 @@ const app = backend({
 			? parseInt(process.env.COOKIE_LIFETIME_SECONDS, 10)
 			: undefined,
 	adminEmails,
-	formStorage: jsonFileStore({ directory: path.join(storageBaseDir, 'forms') }),
+	formStorage: jsonFileStore({ directory: formsDir }),
 	submissionStorage: jsonFileStore({
-		directory: path.join(storageBaseDir, 'submission'),
+		directory: submissionsDir,
 	}),
 })
 
