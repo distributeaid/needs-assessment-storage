@@ -7,10 +7,13 @@ import { jsonFileStore } from '../storage/file.js'
 import { backend } from './feat/backend.js'
 import { setUp as setUpEmails } from './feat/emails.js'
 
-const { originString, storageBaseDir } = fromEnv({
+const { originString, cleverCloudFsBucket, appHome } = fromEnv({
+	appHome: 'APP_HOME',
 	originString: 'ORIGIN',
-	storageBaseDir: 'STORAGE_BASE_DIR',
+	cleverCloudFsBucket: 'CC_FS_BUCKET',
 })(process.env)
+
+const storageBaseDir = `${appHome}/${cleverCloudFsBucket.split(':')[0]}`
 
 const version = process.env.COMMIT_ID ?? '0.0.0-development'
 console.debug(`Launching version ${version}`)

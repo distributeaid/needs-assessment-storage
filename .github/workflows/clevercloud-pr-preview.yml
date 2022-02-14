@@ -90,6 +90,11 @@ jobs:
           npx clever create -t node -o ${{ secrets.CLEVER_ORG }} ${{
           needs.app.outputs.name }}
 
+      - name: Link application
+        run:
+          npx clever link -o ${{ secrets.CLEVER_ORG }} ${{
+          needs.app.outputs.name }}
+
       - name: Enable dedicated build instance
         run: npx clever scale --build-flavor M
 
@@ -115,6 +120,10 @@ jobs:
           npx clever env set SMTP_PORT ${{ secrets.SMTP_PORT }} # e.g. 587
           npx clever env set SMTP_SECURE ${{ secrets.SMTP_SECURE }} # e.g. false
           npx clever env set SMTP_SERVER ${{ secrets.SMTP_SERVER }} # e.g. relay-de.smtp.net
+
+      - name: Configure storage
+        run: |
+          npx clever env set CC_FS_BUCKET /storage:${{ secrets.STORAGE_BUCKET }}
 
       - name: Deploy the application
         run: npx clever deploy
