@@ -9,11 +9,11 @@ export const responseToTSV = (
 ): string => {
 	const tsv: string[][] = []
 	tsv.push([
-		'Question ID',
+		'Question',
 		'Question Title',
-		'Answer ID',
+		'Answer',
 		'Answer Title',
-		'Unit ID',
+		'Unit',
 		'Unit Title',
 	])
 	form.sections.forEach((section) => {

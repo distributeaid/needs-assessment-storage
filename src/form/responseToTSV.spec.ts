@@ -40,7 +40,7 @@ const response: Static<typeof Response> = {
 	},
 }
 
-const tsv = `Question ID	Question Title	Answer ID	Answer Title	Unit ID	Unit Title
+const tsv = `Question	Question Title	Answer	Answer Title	Unit	Unit Title
 basicInfo.email	Email Address	alex@example.com
 basicInfo.organization	Organisation Name	DA
 basicInfo.region	What region to you operate in?	lesvos	Lesvos
