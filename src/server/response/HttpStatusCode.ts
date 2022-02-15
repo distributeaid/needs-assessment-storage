@@ -7,6 +7,8 @@ export enum HTTPStatusCode {
 	Accepted = 202,
 	/** Use for empty responses. */
 	NoContent = 204,
+	/** Used for redirects. */
+	Found = 302,
 	/** Use for invalid input. */
 	BadRequest = 400,
 	/** Use if invalid credentials are provided. */

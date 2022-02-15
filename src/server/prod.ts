@@ -7,6 +7,7 @@ import { URL } from 'url'
 import { jsonFileStore } from '../storage/file.js'
 import { backend } from './feat/backend.js'
 import { setUp as setUpEmails } from './feat/emails.js'
+import { startpage } from './feat/startpage.js'
 
 const { originString, cleverCloudFsBucket, appHome } = fromEnv({
 	appHome: 'APP_HOME',
@@ -47,7 +48,9 @@ try {
 
 const port = parseInt(process.env.PORT ?? '8080', 10)
 
-const adminEmails = (process.env.ADMIN_EMAILS ?? '').split(',')
+const adminEmails = (process.env.ADMIN_EMAILS ?? '')
+	.split(',')
+	.filter((e) => e.length > 0)
 
 const app = backend({
 	omnibus,
@@ -64,6 +67,8 @@ const app = backend({
 		directory: submissionsDir,
 	}),
 })
+
+startpage(app, origin, version)
 
 const httpServer = createServer(app)
 

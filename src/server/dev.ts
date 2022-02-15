@@ -5,15 +5,20 @@ import { URL } from 'url'
 import { jsonFileStore } from '../storage/file.js'
 import { backend } from './feat/backend.js'
 import { setUp as setUpEmails } from './feat/emails.js'
+import { startpage } from './feat/startpage.js'
 
 const omnibus = new EventEmitter()
 
 const port = parseInt(process.env.PORT ?? '3000', 10)
-const origin = new URL(process.env.ORIGIN ?? `http://localhost:${port}`)
+const origin = new URL(`http://localhost:${port}`)
 
-const adminEmails = (process.env.ADMIN_EMAILS ?? '').split(',')
+const adminEmails = (process.env.ADMIN_EMAILS ?? '')
+	.split(',')
+	.filter((e) => e.length > 0)
 
 const storageBaseDir = path.join(process.cwd(), 'storage')
+
+const version = '0.0.0-development'
 
 const app = backend({
 	omnibus,
@@ -23,7 +28,7 @@ const app = backend({
 			? 1800
 			: parseInt(process.env.COOKIE_LIFETIME_SECONDS, 10),
 	origin,
-	version: 'development',
+	version,
 	generateToken: () => '123456',
 	adminEmails,
 	formStorage: jsonFileStore({
@@ -33,6 +38,8 @@ const app = backend({
 		directory: path.join(process.cwd(), 'storage', 'submissions'),
 	}),
 })
+
+startpage(app, origin, version)
 
 const httpServer = createServer(app)
 
