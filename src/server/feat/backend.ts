@@ -82,7 +82,6 @@ export const backend = ({
 
 	app.use(
 		cors({
-			origin: `${origin.protocol}//${origin.host}`,
 			credentials: true,
 		}),
 	)
