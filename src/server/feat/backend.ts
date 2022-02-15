@@ -8,6 +8,8 @@ import express, { Express, NextFunction, Request, Response } from 'express'
 import passport from 'passport'
 import { URL } from 'url'
 import { authCookie, cookieAuthStrategy } from '../../authenticateRequest.js'
+import { exampleForm } from '../../form/example.form.js'
+import { exampleResponse } from '../../form/example.response.js'
 import { Form } from '../../form/form.js'
 import { Submission } from '../../form/submission.js'
 import { addVersion } from '../../input-validation/addVersion.js'
@@ -96,8 +98,9 @@ export const backend = ({
 	app.delete('/cookie', cookieAuth, deleteCookie)
 
 	// Schemas
+	const schemaId = new URL(`./schema/${version}/form#`, origin)
 	const schema = formSchema({
-		$id: new URL(`./schema/${version}/form#`, origin),
+		$id: schemaId,
 	})
 	app.get(`/schema/${version}/form`, schemaHandler(schema))
 	app.get(`/schema`, (_, response) =>
@@ -115,6 +118,23 @@ export const backend = ({
 		'/form',
 		formCreationHandler({ storage: formStorage, origin, schema }),
 	)
+	const exampleFormId = new URL(`./form/example`, origin)
+	app.get('/form/example', (_, res) =>
+		res
+			.status(HTTPStatusCode.OK)
+			.header('Content-Type', 'application/json; charset=utf-8')
+			.send(
+				JSON.stringify(
+					exampleForm({
+						$schema: schemaId,
+						$id: exampleFormId,
+					}),
+					null,
+					2,
+				),
+			)
+			.end(),
+	)
 	app.get('/form/:id', formGetHandler({ storage: formStorage }))
 
 	// Submissions
@@ -126,6 +146,19 @@ export const backend = ({
 			formStorage,
 			submissionStorage,
 		}),
+	)
+	app.get('/assessment/example', (_, res) =>
+		res
+			.status(HTTPStatusCode.OK)
+			.header('Content-Type', 'application/json; charset=utf-8')
+			.send(
+				JSON.stringify(
+					{ form: exampleFormId, response: exampleResponse },
+					null,
+					2,
+				),
+			)
+			.end(),
 	)
 
 	app.use(compression())

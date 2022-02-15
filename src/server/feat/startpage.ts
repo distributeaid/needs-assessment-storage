@@ -30,12 +30,15 @@ export const startpage = (
               </head>
               <body>
               <h1>Distribute Aid Needs Assessment Storage</h1>
-              <p>
-                <a href="${homepage}" target="_blank">README</a>
-              </p>
+              <ul>
+                <li><a href="${homepage}" target="_blank">README</a></li>
+              </ul>
               <h2>Get the schema</h2>
               <p><a href="${schemaURL}" target="_blank">${schemaURL}</a> -&gt; <a href="${versionedSchemaURL}" target="_blank">${versionedSchemaURL}</a></p>
               <h2>Submit a new form</h2>
+			  <ul>
+				<li><a href="/form/example" target="_blank">Full example form</a></li>
+				</ul>
               <pre>http POST ${submitFormURL} &lt;&lt;&lt; '${JSON.stringify({
 					$schema: versionedSchemaURL.toString(),
 					sections: [
@@ -56,6 +59,9 @@ export const startpage = (
 				})}'</pre>
               <pre>HTTP/1.1 201 Created\nLocation: http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043</pre>
               <h2>Submit a new assessment for the form</h2>
+			  <ul>
+				<li><a href="/assessment/example" target="_blank">Assessment example for full example form</a></li>
+			  </ul>
               <pre>http POST http://localhost:3000/assessment &lt;&lt;&lt; '${JSON.stringify(
 								{
 									form: 'http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043',
