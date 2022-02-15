@@ -5,7 +5,7 @@ import { sectionsSchema } from './sections.js'
 export const formSchema = ({ $id }: { $id: URL }): JSONSchema => ({
 	$schema: 'http://json-schema.org/draft-07/schema#',
 	$id: $id.toString(),
-	title: 'Distribute Aid Needs Assesment Form Schema',
+	title: 'Distribute Aid Needs Assessment Form Schema',
 	description:
 		'Describes the JSON document which decribes needs assessment forms.',
 	type: 'object',
