@@ -7,7 +7,7 @@ export const formSchema = ({ $id }: { $id: URL }): JSONSchema => ({
 	$id: $id.toString(),
 	title: 'Distribute Aid Needs Assessment Form Schema',
 	description:
-		'Describes the JSON document which decribes needs assessment forms.',
+		'Describes the JSON document which describes needs assessment forms.',
 	type: 'object',
 	properties: {
 		$schema: {

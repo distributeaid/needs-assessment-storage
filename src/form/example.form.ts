@@ -2161,7 +2161,7 @@ export const exampleForm = ({
 				},
 				{
 					id: 'babyBodies',
-					title: 'Baby Bodies/Rombers',
+					title: 'Baby Bodies/Rompers',
 					format: {
 						type: 'positive-integer',
 						units: [
