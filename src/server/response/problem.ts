@@ -10,6 +10,7 @@ export const respondWithProblem = (
 		.status(problem.status)
 		// @see https://datatracker.ietf.org/doc/html/rfc7807#section-3
 		.header('Content-Type', 'application/problem+json; charset=utf-8')
+		.header('Access-Control-Allow-Origin', '*')
 		.send(JSON.stringify(problem))
 		.end()
 }

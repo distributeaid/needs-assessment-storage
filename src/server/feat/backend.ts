@@ -85,6 +85,7 @@ export const backend = ({
 	app.use(
 		cors({
 			credentials: true,
+			exposedHeaders: ['Location'],
 		}),
 	)
 
