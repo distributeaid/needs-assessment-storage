@@ -398,6 +398,7 @@ export const exampleForm = ({
 				{
 					id: 'storageUsage',
 					title: 'How full is your storage?',
+					required: true,
 					format: {
 						type: 'single-select',
 						options: [
