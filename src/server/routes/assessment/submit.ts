@@ -47,7 +47,14 @@ export const assessmentSubmissionHandler = ({
 		}
 
 		// Extract formId
-		const formId = formIdRegEx.exec(validBody.value.form)?.groups?.id as string
+		const formId = formIdRegEx.exec(validBody.value.form)?.groups?.id
+
+		// Validate id
+		if (formId === undefined)
+			return respondWithProblem(response, {
+				status: HTTPStatusCode.BadRequest,
+				title: `Invalid ID "${validBody.value.form}" supplied.`,
+			})
 
 		// Load form
 		const form = formCache[formId] ?? (await formStorage.get(formId))
