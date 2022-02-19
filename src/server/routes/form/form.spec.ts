@@ -95,6 +95,28 @@ describe('Form API', () => {
 				)
 			createdForm = new URL(response.headers.location)
 		})
+
+		it('should overwrite the $id parameter if present', async () => {
+			const createResponse = await r
+				.post('/form')
+				.send({
+					$id: 'https://example.com/form/simpleForm',
+					...simpleForm,
+				})
+				.expect(HTTPStatusCode.Created)
+				.expect(
+					'Location',
+					new RegExp(
+						`^http://127.0.0.1:${port}/form/[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$`,
+					),
+				)
+			const createdForm = new URL(createResponse.headers.location)
+			const response = await r
+				.get(`${createdForm.pathname}`)
+				.expect(HTTPStatusCode.OK)
+				.expect('Content-Type', /application\/json/)
+			expect(response.body.$id).toEqual(createdForm.toString())
+		})
 	})
 
 	describe('GET /form/:id', () => {

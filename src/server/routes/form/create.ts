@@ -32,8 +32,8 @@ export const formCreationHandler =
 		}
 		const id = ulid()
 		await storage.persist(id, {
-			$id: new URL(`./form/${id}`, origin),
 			...formBody,
+			$id: new URL(`./form/${id}`, origin),
 		})
 		response
 			.status(HTTPStatusCode.Created)
