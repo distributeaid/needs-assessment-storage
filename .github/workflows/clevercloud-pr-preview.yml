@@ -27,7 +27,7 @@ jobs:
       name: ${{ steps.name.outputs.name }}
       exists: ${{ steps.exists.outputs.exists }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install Node.js
         uses: actions/setup-node@v2
@@ -67,7 +67,7 @@ jobs:
     needs:
       - app
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # Needed for deploy
 
@@ -152,7 +152,7 @@ jobs:
     needs:
       - app
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # Needed for deploy
 
@@ -208,7 +208,7 @@ jobs:
     needs:
       - app
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install Node.js
         uses: actions/setup-node@v2
