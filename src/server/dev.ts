@@ -47,8 +47,9 @@ const httpServer = createServer(app)
 
 httpServer.listen({ port }, (): void => {
 	console.debug(`ℹ️ Listening on port:`, port)
-	console.debug(`ℹ️ Origin:`, origin.toString())
-	console.debug(`ℹ️ Storage:`, storageBaseDir)
+	console.debug(`ℹ️ Endpoint:`, endpoint.toString())
+	console.debug(`ℹ️ Origin:  `, origin.toString())
+	console.debug(`ℹ️ Storage: `, storageBaseDir)
 })
 
 // Configure email sending
