@@ -41,6 +41,7 @@ export const assessmentSubmissionHandler = ({
 		const validBody = validate(request.body)
 		if ('errors' in validBody) {
 			return respondWithProblem(
+				request,
 				response,
 				errorsToProblemDetail(validBody.errors),
 			)
@@ -51,7 +52,7 @@ export const assessmentSubmissionHandler = ({
 
 		// Validate id
 		if (formId === undefined)
-			return respondWithProblem(response, {
+			return respondWithProblem(request, response, {
 				status: HTTPStatusCode.BadRequest,
 				title: `Invalid ID "${validBody.value.form}" supplied.`,
 			})
@@ -59,7 +60,7 @@ export const assessmentSubmissionHandler = ({
 		// Load form
 		const form = formCache[formId] ?? (await formStorage.get(formId))?.data
 		if (form === undefined)
-			return respondWithProblem(response, {
+			return respondWithProblem(request, response, {
 				title: `Invalid form.`,
 				status: HTTPStatusCode.NotFound,
 			})
@@ -67,7 +68,7 @@ export const assessmentSubmissionHandler = ({
 
 		// Make sure response is for the given form
 		if (form.$id !== validBody.value.form) {
-			return respondWithProblem(response, {
+			return respondWithProblem(request, response, {
 				title: `Response form ${validBody.value.form} does not match form ID ${form.$id}.`,
 				status: HTTPStatusCode.BadRequest,
 			})
@@ -79,7 +80,7 @@ export const assessmentSubmissionHandler = ({
 			response: validBody.value.response,
 		})
 		if (!validResponse.valid) {
-			return respondWithProblem(response, {
+			return respondWithProblem(request, response, {
 				title: `Response is not valid.`,
 				detail: JSON.stringify(validResponse.validation),
 				status: HTTPStatusCode.BadRequest,

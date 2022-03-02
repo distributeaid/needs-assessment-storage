@@ -33,7 +33,11 @@ const registerUser =
 	async (request: Request, response: Response): Promise<void> => {
 		const valid = validateRegisterUserInput(trimAll(request.body))
 		if ('errors' in valid) {
-			return respondWithProblem(response, errorsToProblemDetail(valid.errors))
+			return respondWithProblem(
+				request,
+				response,
+				errorsToProblemDetail(valid.errors),
+			)
 		}
 
 		const email = valid.value.email
@@ -42,7 +46,7 @@ const registerUser =
 			UserRegisterLock[email.toLowerCase()] !== undefined &&
 			Date.now() - UserRegisterLock[email.toLowerCase()] < 60 * 1000
 		) {
-			return respondWithProblem(response, {
+			return respondWithProblem(request, response, {
 				title: `User with email ${valid.value.email} already registered!`,
 				status: HTTPStatusCode.Conflict,
 			})
@@ -61,7 +65,7 @@ const registerUser =
 			return
 		} catch (error) {
 			console.error(getRequestId(response), error)
-			respondWithProblem(response, {
+			respondWithProblem(request, response, {
 				title: 'An unexpected problem occurred.',
 				status: HTTPStatusCode.InternalError,
 				detail: `Request ID: ${getRequestId(response)}`,

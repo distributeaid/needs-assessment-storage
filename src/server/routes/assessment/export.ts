@@ -43,7 +43,7 @@ export const assessmentsExportHandler = ({
 	return async (request, response) => {
 		const authContext = request.user as AuthContext
 		if (!authContext.isAdmin)
-			return respondWithProblem(response, {
+			return respondWithProblem(request, response, {
 				status: HTTPStatusCode.Forbidden,
 				title: `Access denied for ${authContext.email}.`,
 			})
@@ -52,6 +52,7 @@ export const assessmentsExportHandler = ({
 
 		if ('errors' in validBody) {
 			return respondWithProblem(
+				request,
 				response,
 				errorsToProblemDetail(validBody.errors),
 			)
@@ -62,7 +63,7 @@ export const assessmentsExportHandler = ({
 
 		// Validate id
 		if (formId === undefined)
-			return respondWithProblem(response, {
+			return respondWithProblem(request, response, {
 				status: HTTPStatusCode.BadRequest,
 				title: `Invalid ID "${validBody.value.form}" supplied.`,
 			})
@@ -70,7 +71,7 @@ export const assessmentsExportHandler = ({
 		// Load form
 		const form = formCache[formId] ?? (await formStorage.get(formId))?.data
 		if (form === undefined)
-			return respondWithProblem(response, {
+			return respondWithProblem(request, response, {
 				title: `Invalid form.`,
 				status: HTTPStatusCode.NotFound,
 			})
@@ -78,7 +79,7 @@ export const assessmentsExportHandler = ({
 
 		// Make sure response is for the given form
 		if (form.$id !== validBody.value.form) {
-			return respondWithProblem(response, {
+			return respondWithProblem(request, response, {
 				title: `Response form ${validBody.value.form} does not match form ID ${form.$id}.`,
 				status: HTTPStatusCode.BadRequest,
 			})

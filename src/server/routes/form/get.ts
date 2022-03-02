@@ -22,11 +22,15 @@ export const formGetHandler =
 	async (request: Request, response: Response): Promise<void> => {
 		const valid = validateInput(request.params)
 		if ('errors' in valid) {
-			return respondWithProblem(response, errorsToProblemDetail(valid.errors))
+			return respondWithProblem(
+				request,
+				response,
+				errorsToProblemDetail(valid.errors),
+			)
 		}
 		const form = await storage.get(valid.value.id)
 		if (form === undefined) {
-			return respondWithProblem(response, {
+			return respondWithProblem(request, response, {
 				title: `Form ${valid.value.id} not found!`,
 				status: HTTPStatusCode.NotFound,
 			})

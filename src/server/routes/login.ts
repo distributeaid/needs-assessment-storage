@@ -24,14 +24,18 @@ const login =
 	async (request: Request, response: Response): Promise<void> => {
 		const valid = validateLoginInput(trimAll(request.body))
 		if ('errors' in valid) {
-			return respondWithProblem(response, errorsToProblemDetail(valid.errors))
+			return respondWithProblem(
+				request,
+				response,
+				errorsToProblemDetail(valid.errors),
+			)
 		}
 
 		const email = valid.value.email
 		const token = VerificationToken.get({ email })
 
 		if (token !== valid.value.token) {
-			return respondWithProblem(response, {
+			return respondWithProblem(request, response, {
 				title: `Invalid token ${valid.value.token} for email ${valid.value.email}!`,
 				status: HTTPStatusCode.Unauthorized,
 			})

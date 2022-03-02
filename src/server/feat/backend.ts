@@ -70,9 +70,14 @@ export const backend = ({
 	app.use(cookieParser(cookieSecret ?? ulid()))
 	app.use(bodyParser.json({ strict: true }))
 	app.use(
-		(err: Error | undefined, _: Request, res: Response, next: NextFunction) => {
+		(
+			err: Error | undefined,
+			req: Request,
+			res: Response,
+			next: NextFunction,
+		) => {
 			if (err !== undefined) {
-				return respondWithProblem(res, {
+				return respondWithProblem(req, res, {
 					status: HTTPStatusCode.BadRequest,
 					title: 'Invalid request data.',
 				})
