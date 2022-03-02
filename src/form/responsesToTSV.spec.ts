@@ -37,6 +37,56 @@ const simpleForm: Form = {
 				},
 			],
 		},
+		{
+			id: 'section2',
+			title: 'Section 2',
+			questions: [
+				{
+					id: 'question1',
+					title: 'Pick one fruit',
+					required: true,
+					format: {
+						type: 'single-select',
+						options: [
+							{
+								id: 'apples',
+								title: 'Apples',
+							},
+							{
+								id: 'oranges',
+								title: 'Oranges',
+							},
+							{
+								id: 'bananas',
+								title: 'Bananas',
+							},
+						],
+					},
+				},
+				{
+					id: 'question2',
+					title: 'Pick multiple fruit',
+					required: true,
+					format: {
+						type: 'multi-select',
+						options: [
+							{
+								id: 'apples',
+								title: 'Apples',
+							},
+							{
+								id: 'oranges',
+								title: 'Oranges',
+							},
+							{
+								id: 'bananas',
+								title: 'Bananas',
+							},
+						],
+					},
+				},
+			],
+		},
 	],
 }
 
@@ -49,6 +99,10 @@ const response1: ResponseWithID = {
 			question1: 'Answer 1',
 			question2: [1, 'm'],
 		},
+		section2: {
+			question1: 'oranges',
+			question2: ['apples'],
+		},
 	},
 }
 
@@ -59,6 +113,10 @@ const response2: ResponseWithID = {
 			question1: 'Answer 2',
 			question2: [2, 'm'],
 		},
+		section2: {
+			question1: 'apples',
+			question2: ['oranges', 'bananas'],
+		},
 	},
 }
 
@@ -67,20 +125,44 @@ const tsv = [
 	[
 		`#`,
 		`section1.question1`,
-		`section1.question1:unit`,
 		`section1.question2`,
 		`section1.question2:unit`,
+		`section2.question1`,
+		`section2.question1:id`,
+		`section2.question2`,
+		`section2.question2:ids`,
 	],
 	[
 		`Assessment ID`,
-		`Question 1`,
-		`Question 1 (unit)`,
-		`Question 2`,
-		`Question 2 (unit)`,
+		`Section 1: Question 1`,
+		`Section 1: Question 2`,
+		`Section 1: Question 2 (unit)`,
+		`Section 2: Pick one fruit`,
+		`Section 2: Pick one fruit (id)`,
+		`Section 2: Pick multiple fruit`,
+		`Section 2: Pick multiple fruit (ids)`,
 	],
 	// Responses
-	[response1.id, 'Answer 1', '', '1', 'm'],
-	[response2.id, 'Answer 2', '', '2', 'm'],
+	[
+		response1.id,
+		'Answer 1',
+		'1',
+		'm',
+		'Oranges',
+		'oranges',
+		'Apples',
+		'apples',
+	],
+	[
+		response2.id,
+		'Answer 2',
+		'2',
+		'm',
+		'Apples',
+		'apples',
+		'Oranges, Bananas',
+		'oranges, bananas',
+	],
 ]
 	.map((line) => line.join('\t'))
 	.join('\n')

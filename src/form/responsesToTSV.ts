@@ -14,10 +14,28 @@ export const responsesToTSV = (
 				(questionIds, section) =>
 					[
 						...questionIds,
-						...section.questions.map((question) => [
-							`${section.id}.${question.id}`,
-							`${section.id}.${question.id}:unit`,
-						]),
+						...section.questions.map((question) => {
+							switch (question.format.type) {
+								case 'non-negative-integer':
+								case 'positive-integer':
+									return [
+										`${section.id}.${question.id}`,
+										`${section.id}.${question.id}:unit`,
+									]
+								case 'single-select':
+									return [
+										`${section.id}.${question.id}`,
+										`${section.id}.${question.id}:id`,
+									]
+								case 'multi-select':
+									return [
+										`${section.id}.${question.id}`,
+										`${section.id}.${question.id}:ids`,
+									]
+								default:
+									return `${section.id}.${question.id}`
+							}
+						}),
 					].flat(),
 				[] as string[],
 			),
@@ -28,7 +46,28 @@ export const responsesToTSV = (
 				(questionTitles, section) =>
 					[
 						...questionTitles,
-						...section.questions.map(({ title }) => [title, `${title} (unit)`]),
+						...section.questions.map(({ title, format }) => {
+							switch (format.type) {
+								case 'non-negative-integer':
+								case 'positive-integer':
+									return [
+										`${section.title}: ${title}`,
+										`${section.title}: ${title} (unit)`,
+									]
+								case 'single-select':
+									return [
+										`${section.title}: ${title}`,
+										`${section.title}: ${title} (id)`,
+									]
+								case 'multi-select':
+									return [
+										`${section.title}: ${title}`,
+										`${section.title}: ${title} (ids)`,
+									]
+								default:
+									return `${section.title}: ${title}`
+							}
+						}),
 					].flat(),
 				[] as string[],
 			),
@@ -42,9 +81,27 @@ export const responsesToTSV = (
 						...questionIds,
 						...section.questions.map((question) => {
 							const answer = response[section.id][question.id]
-							if (Array.isArray(answer))
-								return [answer[0].toString(), answer[1]]
-							return [answer, '']
+							switch (question.format.type) {
+								case 'non-negative-integer':
+								case 'positive-integer':
+									return [answer[0].toString(), answer[1]]
+								case 'single-select':
+									return [
+										question.format.options.find(({ id }) => id === answer)
+											?.title ?? '',
+										answer as string,
+									]
+								case 'multi-select':
+									return [
+										question.format.options
+											.filter(({ id }) => answer.includes(id))
+											.map(({ title }) => title)
+											.join(', '),
+										(answer as unknown as string[]).join(', '),
+									]
+								default:
+									return [answer as string]
+							}
 						}),
 					].flat(),
 				[] as string[],
