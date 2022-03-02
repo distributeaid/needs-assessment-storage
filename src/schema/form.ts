@@ -12,7 +12,8 @@ export const formSchema = ({ $id }: { $id: URL }): JSONSchema => ({
 	properties: {
 		$schema: {
 			description: 'URL to the JSON schema in use',
-			const: $id.toString(),
+			type: 'string',
+			format: 'uri',
 		},
 		$id: {
 			description: 'URL to the stored form',
