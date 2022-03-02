@@ -101,16 +101,19 @@ jobs:
       - name: Force HTTPs
         run: npx clever config set force-https true
 
-      - name: Determine frontend URL
+      - name: Determine endpoint
         run:
-          echo "ORIGIN=https://`npx clever domain | tr -d ' \n'`" >> $GITHUB_ENV
+          echo "ENDPOINT=https://`npx clever domain | tr -d ' \n'`" >>
+          $GITHUB_ENV
 
       - name: Configure Node.js application settings
         run: |
           npx clever env set CC_NODE_DEV_DEPENDENCIES install
           npx clever env set CC_RUN_COMMAND 'npm run prod'
           npx clever env set NODE_ENV production
-          npx clever env set ORIGIN ${{ env.ORIGIN }}
+          npx clever env set ENDPOINT ${{ env.ENDPOINT }}
+          # Assume website is served from same URL
+          npx clever env set ORIGIN ${{ env.ENDPOINT }}
 
       - name: Configure email settings
         run: |
@@ -135,7 +138,7 @@ jobs:
             ${{ github.event.pull_request.comments_url }} \
             -H "Content-Type: application/json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            --data '{ "body": "Preview available on ${{ env.ORIGIN }}" }'
+            --data '{ "body": "Preview available on ${{ env.ENDPOINT }}" }'
 
   update:
     if:
@@ -180,6 +183,11 @@ jobs:
         if: github.event.inputs.restartApp == 'yes'
         run: npx clever restart
 
+      - name: Determine endpoint
+        run:
+          echo "ENDPOINT=https://`npx clever domain | tr -d ' \n'`" >>
+          $GITHUB_ENV
+
       - name: Add comment with preview URL to PR
         run: |
           curl \
@@ -187,7 +195,7 @@ jobs:
             ${{ github.event.pull_request.comments_url }} \
             -H "Content-Type: application/json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            --data '{ "body": "Preview updated on ${{ env.ORIGIN }}" }'
+            --data '{ "body": "Preview updated on ${{ env.ENDPOINT }}" }'
 
   delete:
     if:
