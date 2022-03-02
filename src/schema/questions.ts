@@ -43,12 +43,13 @@ export const questionsSchema = {
 				description:
 					'Whether answering this is required, can either be statically disabled, or be a JSONata expression',
 				oneOf: [{ type: 'boolean' }, { type: 'string', minLength: 1 }],
-				default: true,
+				default: false,
 			},
 			hidden: {
 				description:
 					'whether to hide this question, can either be statically disabled, or be a JSONata expression',
 				oneOf: [{ type: 'boolean' }, { type: 'string', minLength: 1 }],
+				default: false,
 			},
 			format: {
 				type: 'object',

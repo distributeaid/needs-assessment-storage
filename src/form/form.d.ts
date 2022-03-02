@@ -49,8 +49,8 @@ export type Question = {
 	title: string
 	description?: string
 	internalComment?: string
-	required?: boolean | JSONatatExpression // default: true
-	hidden?: boolean | JSONatatExpression // default: true
+	required?: boolean | JSONatatExpression // default: false
+	hidden?: boolean | JSONatatExpression // default: false
 	example?: string
 	format:
 		| TextQuestionFormat
@@ -69,5 +69,5 @@ export type Section = {
 	description?: string
 	internalComment?: string
 	questions: Question[]
-	hidden?: boolean | JSONatatExpression // default: true
+	hidden?: boolean | JSONatatExpression // default: false
 }

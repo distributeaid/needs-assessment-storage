@@ -34,6 +34,7 @@ export const sectionsSchema = {
 				description:
 					'whether to hide this section, can either be statically disabled, or be a JSONata expression',
 				oneOf: [{ type: 'boolean' }, { type: 'string', minLength: 1 }],
+				default: false,
 			},
 			questions: questionsSchema,
 		},
