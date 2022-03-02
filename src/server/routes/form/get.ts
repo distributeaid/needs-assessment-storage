@@ -34,6 +34,6 @@ export const formGetHandler =
 		response
 			.status(HTTPStatusCode.OK)
 			.header('Content-Type', 'application/json; charset=utf-8')
-			.send(JSON.stringify(form, null, 2))
+			.send(JSON.stringify(form.data, null, 2))
 			.end()
 	}

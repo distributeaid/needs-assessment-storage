@@ -19,6 +19,7 @@ import { ulid } from '../../ulid.js'
 import { addRequestId } from '../addRequestId.js'
 import { HTTPStatusCode } from '../response/HttpStatusCode.js'
 import { respondWithProblem } from '../response/problem.js'
+import { assessmentsExportHandler } from '../routes/assessment/export.js'
 import { assessmentSubmissionHandler } from '../routes/assessment/submit.js'
 import { deleteCookie, renewCookie } from '../routes/cookie.js'
 import { formCreationHandler } from '../routes/form/create.js'
@@ -32,6 +33,7 @@ export const backend = ({
 	cookieSecret,
 	cookieLifetimeSeconds,
 	origin,
+	endpoint,
 	version,
 	generateToken,
 	adminEmails,
@@ -40,6 +42,7 @@ export const backend = ({
 }: {
 	omnibus: EventEmitter
 	origin: URL
+	endpoint: URL
 	cookieSecret?: string
 	cookieLifetimeSeconds?: number
 	adminEmails: string[]
@@ -84,6 +87,7 @@ export const backend = ({
 
 	app.use(
 		cors({
+			origin: `${origin.protocol}//${origin.host}`,
 			credentials: true,
 			exposedHeaders: ['Location'],
 		}),
@@ -99,7 +103,7 @@ export const backend = ({
 	app.delete('/cookie', cookieAuth, deleteCookie)
 
 	// Schemas
-	const schemaId = new URL(`./schema/${version}/form#`, origin)
+	const schemaId = new URL(`./schema/${version}/form#`, endpoint)
 	const schema = formSchema({
 		$id: schemaId,
 	})
@@ -109,7 +113,7 @@ export const backend = ({
 			.status(HTTPStatusCode.Found)
 			.header(
 				'Location',
-				new URL(`/schema/${version}/form#`, origin).toString(),
+				new URL(`/schema/${version}/form#`, endpoint).toString(),
 			)
 			.end(),
 	)
@@ -117,9 +121,9 @@ export const backend = ({
 	// Forms
 	app.post(
 		'/form',
-		formCreationHandler({ storage: formStorage, origin, schema }),
+		formCreationHandler({ storage: formStorage, endpoint, schema }),
 	)
-	const exampleFormId = new URL(`./form/example`, origin)
+	const exampleFormId = new URL(`./form/example`, endpoint)
 	app.get('/form/example', (_, res) =>
 		res
 			.status(HTTPStatusCode.OK)
@@ -143,7 +147,7 @@ export const backend = ({
 		'/assessment',
 		assessmentSubmissionHandler({
 			omnibus,
-			origin,
+			endpoint,
 			formStorage,
 			submissionStorage,
 		}),
@@ -160,6 +164,15 @@ export const backend = ({
 				),
 			)
 			.end(),
+	)
+	app.post(
+		'/assessment/export',
+		cookieAuth,
+		assessmentsExportHandler({
+			endpoint,
+			formStorage,
+			submissionStorage,
+		}),
 	)
 
 	app.use(compression())

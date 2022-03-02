@@ -9,12 +9,12 @@ const { homepage } = JSON.parse(
 
 export const startpage = (
 	app: Application,
-	origin: URL,
+	endpoint: URL,
 	version: string,
 ): void => {
-	const schemaURL = new URL(`./schema/`, origin)
-	const versionedSchemaURL = new URL(`./schema/${version}/form#`, origin)
-	const submitFormURL = new URL(`./form`, origin)
+	const schemaURL = new URL(`./schema/`, endpoint)
+	const versionedSchemaURL = new URL(`./schema/${version}/form#`, endpoint)
+	const submitFormURL = new URL(`./form`, endpoint)
 
 	app.get('/', (_, res) => {
 		res

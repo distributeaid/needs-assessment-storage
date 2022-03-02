@@ -1,4 +1,4 @@
-import { json } from 'body-parser'
+import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import EventEmitter from 'events'
 import express, { Express } from 'express'
@@ -59,8 +59,8 @@ describe('Authentication API', () => {
 	let authCookie: string
 	beforeAll(async () => {
 		app = express()
-		app.use(cookieParser(process.env.COOKIE_SECRET ?? 'cookie-secret'))
-		app.use(json())
+		app.use(cookieParser('cookie-secret'))
+		app.use(bodyParser.json({ strict: true }))
 		app.use(passport.initialize())
 		app.post(
 			'/register',

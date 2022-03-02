@@ -1,4 +1,4 @@
-import { json } from 'body-parser'
+import bodyParser from 'body-parser'
 import express, { Express } from 'express'
 import { createServer, Server } from 'http'
 import request, { SuperTest, Test } from 'supertest'
@@ -16,7 +16,7 @@ describe('Schema API', () => {
 
 	beforeAll(async () => {
 		app = express()
-		app.use(json())
+		app.use(bodyParser.json({ strict: true }))
 		app.get(
 			'/schema/0.0.0-development/form',
 			schemaHandler(

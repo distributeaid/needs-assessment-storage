@@ -1,32 +1,35 @@
-import { Static } from '@sinclair/typebox'
-import { EventEmitter } from 'events'
+import { Static, Type } from '@sinclair/typebox'
 import { Request, Response } from 'express'
 import { URL } from 'url'
-import { events } from '../../../events.js'
+import { AuthContext } from '../../../authenticateRequest.js'
 import { Form } from '../../../form/form.js'
+import { responsesToTSV } from '../../../form/responsesToTSV.js'
 import { Submission } from '../../../form/submission.js'
-import { validateResponse } from '../../../form/validateResponse.js'
 import { errorsToProblemDetail } from '../../../input-validation/errorsToProblemDetail.js'
 import { validateWithTypebox } from '../../../input-validation/validateWithTypebox.js'
 import { Store } from '../../../storage/store.js'
-import { ulid } from '../../../ulid.js'
 import { HTTPStatusCode } from '../../response/HttpStatusCode.js'
 import { respondWithProblem } from '../../response/problem.js'
 
 const formCache: Record<string, Form> = {}
 
-export const assessmentSubmissionHandler = ({
+export const assessmentsExportHandler = ({
 	endpoint,
 	formStorage,
 	submissionStorage,
-	omnibus,
 }: {
 	endpoint: URL
 	formStorage: Store<Form>
 	submissionStorage: Store<Static<typeof Submission>>
-	omnibus: EventEmitter
 }): ((request: Request, response: Response) => Promise<void>) => {
-	const input = Submission
+	const input = Type.Object(
+		{
+			form: Type.String({
+				format: 'uri',
+			}),
+		},
+		{ additionalProperties: false },
+	)
 
 	const validate = validateWithTypebox(input)
 
@@ -38,7 +41,15 @@ export const assessmentSubmissionHandler = ({
 	)
 
 	return async (request, response) => {
+		const authContext = request.user as AuthContext
+		if (!authContext.isAdmin)
+			return respondWithProblem(response, {
+				status: HTTPStatusCode.Forbidden,
+				title: `Access denied for ${authContext.email}.`,
+			})
+
 		const validBody = validate(request.body)
+
 		if ('errors' in validBody) {
 			return respondWithProblem(
 				response,
@@ -73,25 +84,18 @@ export const assessmentSubmissionHandler = ({
 			})
 		}
 
-		// Validate response against form
-		const validResponse = validateResponse({
-			form,
-			response: validBody.value.response,
+		const submissions = await submissionStorage.findAll({
+			form: validBody.value.form,
 		})
-		if (!validResponse.valid) {
-			return respondWithProblem(response, {
-				title: `Response is not valid.`,
-				detail: JSON.stringify(validResponse.validation),
-				status: HTTPStatusCode.BadRequest,
-			})
-		}
-
-		const id = ulid()
-		omnibus.emit(events.assessment_created, id, validBody.value, form)
-		await submissionStorage.persist(id, validBody.value)
 		response
-			.status(HTTPStatusCode.Created)
-			.header('Location', new URL(`./submission/${id}`, endpoint).toString())
+			.status(HTTPStatusCode.OK)
+			.header('Content-Type', 'text/tsv; charset=utf-8')
+			.send(
+				responsesToTSV(
+					form,
+					submissions.map(({ id, data: { response } }) => ({ id, response })),
+				),
+			)
 			.end()
 	}
 }

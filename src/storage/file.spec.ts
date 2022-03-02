@@ -29,10 +29,20 @@ describe('File store', () => {
 
 	describe('get()', () => {
 		it('should retrieve a file', async () =>
-			expect(await store.get(id)).toMatchObject({ foo: 'bar' }))
+			expect(await store.get(id)).toMatchObject({ id, data: { foo: 'bar' } }))
 		it('should reject invalid ids', async () =>
 			expect(store.get('unknown')).rejects.toThrow('Invalid id: unknown!'))
 		it('should return undefined for unknown files', async () =>
 			expect(await store.get(ulid())).toBeUndefined())
+	})
+
+	describe('findAll()', () => {
+		it('should find all matchin files', async () => {
+			const someValue = ulid()
+			await store.persist(ulid(), { foo: someValue })
+			await store.persist(ulid(), { foo: someValue })
+			await store.persist(ulid(), { foo: 'baz' })
+			expect(await store.findAll({ foo: someValue })).toHaveLength(2)
+		})
 	})
 })

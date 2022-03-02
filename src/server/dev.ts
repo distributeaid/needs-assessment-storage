@@ -10,7 +10,8 @@ import { startpage } from './feat/startpage.js'
 const omnibus = new EventEmitter()
 
 const port = parseInt(process.env.PORT ?? '3000', 10)
-const origin = new URL(`http://localhost:${port}`)
+const origin = new URL(process.env.ORIGIN ?? `http://localhost:8080`)
+const endpoint = new URL(process.env.ENDPOINT ?? `http://localhost:${port}`)
 
 const adminEmails = (process.env.ADMIN_EMAILS ?? '')
 	.split(',')
@@ -28,6 +29,7 @@ const app = backend({
 			? 1800
 			: parseInt(process.env.COOKIE_LIFETIME_SECONDS, 10),
 	origin,
+	endpoint,
 	version,
 	generateToken: () => '123456',
 	adminEmails,

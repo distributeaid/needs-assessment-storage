@@ -1,4 +1,4 @@
-import { json } from 'body-parser'
+import bodyParser from 'body-parser'
 import express, { Express } from 'express'
 import { createServer, Server } from 'http'
 import request, { SuperTest, Test } from 'supertest'
@@ -19,13 +19,15 @@ const dummyStorage: Store<Form> = {
 	persist: async (id, form) => {
 		forms[id] = form
 	},
-	get: async (id) => forms[id],
+	get: async (id) =>
+		forms[id] !== undefined ? { id, data: forms[id] } : undefined,
+	findAll: async () => [],
 }
 
-const origin = new URL(`http://127.0.0.1:${port}`)
+const endpoint = new URL(`http://127.0.0.1:${port}`)
 
 const schema = formSchema({
-	$id: new URL(`./schema/0.0.0-development/form#`, origin),
+	$id: new URL(`./schema/0.0.0-development/form#`, endpoint),
 })
 
 describe('Form API', () => {
@@ -35,12 +37,12 @@ describe('Form API', () => {
 
 	beforeAll(async () => {
 		app = express()
-		app.use(json())
+		app.use(bodyParser.json({ strict: true }))
 		app.get('/form/:id', formGetHandler({ storage: dummyStorage }))
 		app.post(
 			'/form',
 			formCreationHandler({
-				origin,
+				endpoint,
 				storage: dummyStorage,
 				schema,
 			}),

@@ -12,11 +12,11 @@ import { respondWithProblem } from '../../response/problem.js'
 export const formCreationHandler =
 	({
 		storage,
-		origin,
+		endpoint,
 		schema,
 	}: {
 		storage: Store<Form>
-		origin: URL
+		endpoint: URL
 		schema: JSONSchema
 	}) =>
 	async (request: Request, response: Response): Promise<void> => {
@@ -33,10 +33,10 @@ export const formCreationHandler =
 		const id = ulid()
 		await storage.persist(id, {
 			...formBody,
-			$id: new URL(`./form/${id}`, origin),
+			$id: new URL(`./form/${id}`, endpoint),
 		})
 		response
 			.status(HTTPStatusCode.Created)
-			.header('Location', new URL(`./form/${id}`, origin).toString())
+			.header('Location', new URL(`./form/${id}`, endpoint).toString())
 			.end()
 	}
