@@ -1,4 +1,4 @@
-import { Static } from '@sinclair/typebox'
+import { Static, StaticArray, TString } from '@sinclair/typebox'
 import { Form } from './form'
 import { Response } from './submission'
 
@@ -80,11 +80,15 @@ export const responsesToTSV = (
 					[
 						...questionIds,
 						...section.questions.map((question) => {
-							const answer = response[section.id][question.id]
+							const answer:
+								| string
+								| StaticArray<TString>
+								| [number, string]
+								| undefined = response?.[section.id]?.[question.id]
 							switch (question.format.type) {
 								case 'non-negative-integer':
 								case 'positive-integer':
-									return [answer[0].toString(), answer[1]]
+									return [answer?.[0]?.toString() ?? '', answer?.[1]]
 								case 'single-select':
 									return [
 										question.format.options.find(({ id }) => id === answer)
@@ -94,10 +98,10 @@ export const responsesToTSV = (
 								case 'multi-select':
 									return [
 										question.format.options
-											.filter(({ id }) => answer.includes(id))
+											.filter(({ id }) => (answer ?? []).includes(id))
 											.map(({ title }) => title)
 											.join(', '),
-										(answer as unknown as string[]).join(', '),
+										((answer ?? []) as unknown as string[]).join(', '),
 									]
 								default:
 									return [answer as string]

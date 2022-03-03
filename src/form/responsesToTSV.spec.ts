@@ -87,6 +87,70 @@ const simpleForm: Form = {
 				},
 			],
 		},
+		{
+			id: 'optional',
+			title: 'Optional Questions',
+			questions: [
+				{
+					id: 'name',
+					title: 'What is your name?',
+					format: {
+						type: 'text',
+					},
+				},
+				{
+					id: 'height',
+					title: 'How tall are you?',
+					format: {
+						type: 'positive-integer',
+						units: [
+							{
+								id: 'm',
+								title: 'meter',
+							},
+						],
+					},
+				},
+				{
+					id: 'color',
+					title: 'What is your favorite color?',
+					format: {
+						type: 'single-select',
+						options: [
+							{
+								id: 'black',
+								title: 'Black',
+							},
+							{
+								id: 'white',
+								title: 'White',
+							},
+						],
+					},
+				},
+				{
+					id: 'fruit',
+					title: 'What is your favorite fruit?',
+					format: {
+						type: 'multi-select',
+						options: [
+							{
+								id: 'apples',
+								title: 'Apples',
+							},
+							{
+								id: 'oranges',
+								title: 'Oranges',
+							},
+							{
+								id: 'bananas',
+								title: 'Bananas',
+							},
+						],
+					},
+				},
+			],
+		},
 	],
 }
 
@@ -131,6 +195,13 @@ const tsv = [
 		`section2.question1:id`,
 		`section2.question2`,
 		`section2.question2:ids`,
+		`optional.name`,
+		`optional.height`,
+		`optional.height:unit`,
+		`optional.color`,
+		`optional.color:id`,
+		`optional.fruit`,
+		`optional.fruit:ids`,
 	],
 	[
 		`Assessment ID`,
@@ -141,6 +212,13 @@ const tsv = [
 		`Section 2: Pick one fruit (id)`,
 		`Section 2: Pick multiple fruit`,
 		`Section 2: Pick multiple fruit (ids)`,
+		`Optional Questions: What is your name?`,
+		`Optional Questions: How tall are you?`,
+		`Optional Questions: How tall are you? (unit)`,
+		`Optional Questions: What is your favorite color?`,
+		`Optional Questions: What is your favorite color? (id)`,
+		`Optional Questions: What is your favorite fruit?`,
+		`Optional Questions: What is your favorite fruit? (ids)`,
 	],
 	// Responses
 	[
@@ -152,6 +230,13 @@ const tsv = [
 		'oranges',
 		'Apples',
 		'apples',
+		'',
+		'',
+		'',
+		'',
+		'',
+		'',
+		'',
 	],
 	[
 		response2.id,
@@ -162,6 +247,13 @@ const tsv = [
 		'apples',
 		'Oranges, Bananas',
 		'oranges, bananas',
+		'',
+		'',
+		'',
+		'',
+		'',
+		'',
+		'',
 	],
 ]
 	.map((line) => line.join('\t'))
