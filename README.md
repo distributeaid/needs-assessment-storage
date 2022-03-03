@@ -8,6 +8,17 @@
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier/)
 [![ESLint: TypeScript](https://img.shields.io/badge/ESLint-TypeScript-blue.svg)](https://github.com/typescript-eslint/typescript-eslint)
 
+---
+
+## Sponsors :heart:
+
+[![rapidmail](./docs/sponsor-rapidmail.png)](https://www.rapidmail.com/)
+
+Transactional email sending sponsored by
+[rapidmail](https://www.rapidmail.com/).
+
+---
+
 This is the storage backend for Distribute Aid Needs Assessments. The main goal
 of this project is to provide a flexible way to
 
