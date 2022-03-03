@@ -12,7 +12,7 @@
 
 ## Sponsors :heart:
 
-[![rapidmail](./docs/sponsor-rapidmail.png)](https://www.rapidmail.com/)
+[![rapidmail](https://raw.githubusercontent.com/distributeaid/needs-assessment-storage/saga/docs/sponsor-rapidmail.png)](https://www.rapidmail.com/)
 
 Transactional email sending sponsored by
 [rapidmail](https://www.rapidmail.com/).
