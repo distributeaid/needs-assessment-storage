@@ -116,8 +116,11 @@ describe('Authentication API', () => {
 					email,
 					token: '123456',
 				})
-				.expect(HTTPStatusCode.NoContent)
+				.expect(HTTPStatusCode.OK)
 				.expect('set-cookie', tokenCookieRx)
+			expect(res.body).toMatchObject({
+				isAdmin: false,
+			})
 
 			const cookieInfo = parseCookie(res.header['set-cookie'][0] as string)
 			expect(cookieInfo[authCookieName]).toBeDefined()
@@ -139,7 +142,7 @@ describe('Authentication API', () => {
 					email,
 					token: '123456',
 				})
-				.expect(HTTPStatusCode.NoContent)
+				.expect(HTTPStatusCode.OK)
 			const expiresIn = new Date(res.headers['expires']).getTime() - Date.now()
 			expect(expiresIn).toBeLessThan(30 * 60 * 1000)
 			expect(expiresIn).toBeGreaterThan(0)
@@ -187,8 +190,11 @@ describe('Authentication API', () => {
 					email: adminEmail,
 					token: '123456',
 				})
-				.expect(HTTPStatusCode.NoContent)
+				.expect(HTTPStatusCode.OK)
 				.expect('set-cookie', tokenCookieRx)
+			expect(res.body).toMatchObject({
+				isAdmin: true,
+			})
 
 			expect(
 				decodeAuthCookie(

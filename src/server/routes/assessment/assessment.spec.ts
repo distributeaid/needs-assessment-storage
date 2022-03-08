@@ -186,7 +186,7 @@ describe('Assessment API', () => {
 						email: adminEmail,
 						token: '123456',
 					})
-					.expect(HTTPStatusCode.NoContent)
+					.expect(HTTPStatusCode.OK)
 				authCookie = tokenCookieRx.exec(res.header['set-cookie'])?.[1] as string
 			})
 
@@ -220,7 +220,7 @@ describe('Assessment API', () => {
 						email: userEmail,
 						token: '123456',
 					})
-					.expect(HTTPStatusCode.NoContent)
+					.expect(HTTPStatusCode.OK)
 				authCookie = tokenCookieRx.exec(res.header['set-cookie'])?.[1] as string
 			})
 

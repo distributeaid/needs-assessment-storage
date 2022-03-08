@@ -1,6 +1,9 @@
 import { Type } from '@sinclair/typebox'
 import { Request, Response } from 'express'
-import { ExpressCookieForUserFn } from '../../authenticateRequest.js'
+import {
+	decodeAuthCookie,
+	ExpressCookieForUserFn,
+} from '../../authenticateRequest.js'
 import { errorsToProblemDetail } from '../../input-validation/errorsToProblemDetail.js'
 import { trimAll } from '../../input-validation/trimAll.js'
 import { validateWithTypebox } from '../../input-validation/validateWithTypebox.js'
@@ -43,9 +46,10 @@ const login =
 		// Generate new token
 		const [name, val, options] = authCookie(email)
 		response
-			.status(HTTPStatusCode.NoContent)
+			.status(HTTPStatusCode.OK)
 			.cookie(name, val, options)
 			.header('Expires', options.expires.toString())
+			.json(decodeAuthCookie(val))
 			.end()
 	}
 
