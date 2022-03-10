@@ -49,7 +49,7 @@ timeOfYear.quarter	Which quarter is this needs assessment for?	q1	Q1: January, F
 whomYouServe.peopleofConcern	How many people total are there in your region who may access NGO services?	10000		people	people of concern
 whomYouServe.peopleSupportedMonth	How many unique people does your organisation support in one month?	1000		people	unique people
 whomYouServe.averagePeopleServedMonth	How many times on average do you serve one person over the course of one month?	30		servings	average servings/month
-whomYouServe.populationTrending	Is the number of people you support trending upwards, downwards, stagnant, or hard to say?	upwards	upwards
+whomYouServe.populationTrending	Is the number of people you support trending upwards, downwards, steady/consistent, or hard to say?	upwards	upwards
 whomYouServe.aidTypes	Which of the following types of aid does your organisation provide? Please select all that apply	food, clothing	food items, clothing
 whomYouServe.primaryServing	Whom do you primarily serve? Pease select all that apply	men, women	men, women
 whomYouServe.clothingDistribution	Which types of the following clothing does your organisation distribute? Please select all that apply	womens, mens	Women's clothing, men's clothing

@@ -207,7 +207,7 @@ export const exampleForm = ({
 				{
 					id: 'populationTrending',
 					title:
-						'Is the number of people you support trending upwards, downwards, stagnant, or hard to say?',
+						'Is the number of people you support trending upwards, downwards, steady/consistent, or hard to say?',
 					required: true,
 					format: {
 						type: 'single-select',
@@ -221,8 +221,8 @@ export const exampleForm = ({
 								title: 'downwards',
 							},
 							{
-								id: 'stagnant',
-								title: 'stagnant',
+								id: 'steady/consistent',
+								title: 'steady/consistent',
 							},
 							{
 								id: 'hardToSay',
