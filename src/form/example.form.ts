@@ -221,7 +221,7 @@ export const exampleForm = ({
 								title: 'downwards',
 							},
 							{
-								id: 'steady/consistent',
+								id: 'steady',
 								title: 'steady/consistent',
 							},
 							{
