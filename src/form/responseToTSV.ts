@@ -3,12 +3,25 @@ import { Form, MultiSelectQuestionFormat } from './form.js'
 import { Response } from './submission.js'
 import { isHidden } from './validateResponse.js'
 
+const escapeTSVLine =
+	(tsv: string[][]) =>
+	(line: string[]): number =>
+		tsv.push([
+			...line.map((s) => {
+				if (typeof s !== 'string') return s
+				let escaped = s.replace(/"/g, '""') // quote quotes
+				if (escaped.includes('\n')) escaped = `"${escaped}"`
+				return escaped
+			}),
+		]) // Escape newlines
+
 export const responseToTSV = (
 	response: Static<typeof Response>,
 	form: Form,
 ): string => {
 	const tsv: string[][] = []
-	tsv.push([
+	const p = escapeTSVLine(tsv)
+	p([
 		'Question',
 		'Question Title',
 		'Answer',
@@ -26,10 +39,10 @@ export const responseToTSV = (
 			switch (question.format.type) {
 				case 'text':
 				case 'email':
-					tsv.push([id, questionText, (v ?? '') as string])
+					p([id, questionText, (v ?? '') as string])
 					return
 				case 'single-select':
-					tsv.push([
+					p([
 						id,
 						questionText,
 						(v ?? '') as string,
@@ -38,7 +51,7 @@ export const responseToTSV = (
 					return
 				case 'positive-integer':
 				case 'non-negative-integer':
-					tsv.push([
+					p([
 						id,
 						questionText,
 						((v ?? []) as string[])[0],
@@ -48,7 +61,7 @@ export const responseToTSV = (
 					])
 					return
 				case 'multi-select':
-					tsv.push([
+					p([
 						id,
 						questionText,
 						((v ?? []) as string[]).join(', '),
@@ -63,7 +76,7 @@ export const responseToTSV = (
 					])
 					return
 				default:
-					tsv.push([id, questionText, JSON.stringify(v)])
+					p([id, questionText, JSON.stringify(v)])
 					return
 			}
 		})

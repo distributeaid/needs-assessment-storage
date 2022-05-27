@@ -124,4 +124,53 @@ describe('responseToTSV()', () => {
 			),
 		).toEqual(tsv)
 	})
+	it('should convert a multiline-response to CSV (#48)', () =>
+		expect(
+			responseToTSV(
+				{
+					section: {
+						multilineResponse: [
+							'Line 1',
+							'Line 2 with "quotes"',
+							'Line 3',
+						].join('\n'),
+					},
+				},
+				{
+					$schema: `https://example.com/form.schema.json`,
+					$id: `https://example.com/form/${ulid()}`,
+					sections: [
+						{
+							id: 'section',
+							title: 'Test-section',
+							questions: [
+								{
+									id: 'multilineResponse',
+									title: 'Multi-line text',
+									format: {
+										type: 'text',
+									},
+								},
+							],
+						},
+					],
+				},
+			),
+		).toEqual(
+			[
+				[
+					'Question',
+					'Question Title',
+					'Answer',
+					'Answer Title',
+					'Unit',
+					'Unit Title',
+				].join('\t'),
+				[
+					'section.multilineResponse',
+					'Multi-line text',
+					'"Line 1\nLine 2 with ""quotes""\nLine 3"',
+				].join('\t'),
+			].join('\n'),
+		))
 })
