@@ -124,7 +124,7 @@ describe('responseToTSV()', () => {
 			),
 		).toEqual(tsv)
 	})
-	it('should convert a multiline-response to CSV (#48)', () =>
+	it('should convert a response with line breaks to CSV (#48)', () =>
 		expect(
 			responseToTSV(
 				{

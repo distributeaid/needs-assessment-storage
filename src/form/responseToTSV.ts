@@ -1,27 +1,16 @@
 import { Static } from '@sinclair/typebox'
+import { escapeCellForTSV } from './escapeCellForTSV.js'
 import { Form, MultiSelectQuestionFormat } from './form.js'
 import { Response } from './submission.js'
 import { isHidden } from './validateResponse.js'
-
-const escapeTSVLine =
-	(tsv: string[][]) =>
-	(line: string[]): number =>
-		tsv.push([
-			...line.map((s) => {
-				if (typeof s !== 'string') return s
-				let escaped = s.replace(/"/g, '""') // quote quotes
-				if (escaped.includes('\n')) escaped = `"${escaped}"`
-				return escaped
-			}),
-		]) // Escape newlines
 
 export const responseToTSV = (
 	response: Static<typeof Response>,
 	form: Form,
 ): string => {
 	const tsv: string[][] = []
-	const p = escapeTSVLine(tsv)
-	p([
+	const pushLine = (line: string[]) => tsv.push(line.map(escapeCellForTSV))
+	pushLine([
 		'Question',
 		'Question Title',
 		'Answer',
@@ -39,10 +28,10 @@ export const responseToTSV = (
 			switch (question.format.type) {
 				case 'text':
 				case 'email':
-					p([id, questionText, (v ?? '') as string])
+					pushLine([id, questionText, (v ?? '') as string])
 					return
 				case 'single-select':
-					p([
+					pushLine([
 						id,
 						questionText,
 						(v ?? '') as string,
@@ -51,7 +40,7 @@ export const responseToTSV = (
 					return
 				case 'positive-integer':
 				case 'non-negative-integer':
-					p([
+					pushLine([
 						id,
 						questionText,
 						((v ?? []) as string[])[0],
@@ -61,7 +50,7 @@ export const responseToTSV = (
 					])
 					return
 				case 'multi-select':
-					p([
+					pushLine([
 						id,
 						questionText,
 						((v ?? []) as string[]).join(', '),
@@ -76,7 +65,7 @@ export const responseToTSV = (
 					])
 					return
 				default:
-					p([id, questionText, JSON.stringify(v)])
+					pushLine([id, questionText, JSON.stringify(v)])
 					return
 			}
 		})

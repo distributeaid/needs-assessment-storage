@@ -262,4 +262,54 @@ const tsv = [
 describe('responsesToTSV()', () => {
 	it('should combine multiple responses in one document', () =>
 		expect(responsesToTSV(simpleForm, [response1, response2])).toEqual(tsv))
+
+	it('should convert a response with line breaks to CSV (#48)', () =>
+		expect(
+			responsesToTSV(
+				{
+					$schema: `https://example.com/form.schema.json`,
+					$id: `https://example.com/form/${ulid()}`,
+					sections: [
+						{
+							id: 'section',
+							title: 'Test-section',
+							questions: [
+								{
+									id: 'multilineResponse',
+									title: 'Multi-line text',
+									format: {
+										type: 'text',
+									},
+								},
+							],
+						},
+					],
+				},
+				[
+					{
+						id: '01G4A0MY9HG9QD37DVCW60G41T',
+						response: {
+							section: {
+								multilineResponse: [
+									'Line 1',
+									'Line 2 with "quotes"',
+									'Line 3',
+								].join('\n'),
+							},
+						},
+					},
+				],
+			),
+		).toEqual(
+			[
+				[`#`, 'section.multilineResponse'],
+				[`Assessment ID`, 'Test-section: Multi-line text'],
+				[
+					'01G4A0MY9HG9QD37DVCW60G41T',
+					'"Line 1\nLine 2 with ""quotes""\nLine 3"',
+				],
+			]
+				.map((line) => line.join('\t'))
+				.join('\n'),
+		))
 })

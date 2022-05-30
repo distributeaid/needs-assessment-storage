@@ -1,4 +1,5 @@
 import { Static, StaticArray, TString } from '@sinclair/typebox'
+import { escapeCellForTSV } from './escapeCellForTSV'
 import { Form } from './form'
 import { Response } from './submission'
 
@@ -73,44 +74,46 @@ export const responsesToTSV = (
 			),
 		],
 		// Responses
-		...responses.map(({ id, response }) => [
-			id,
-			...form.sections.reduce(
-				(questionIds, section) =>
-					[
-						...questionIds,
-						...section.questions.map((question) => {
-							const answer:
-								| string
-								| StaticArray<TString>
-								| [number, string]
-								| undefined = response?.[section.id]?.[question.id]
-							switch (question.format.type) {
-								case 'non-negative-integer':
-								case 'positive-integer':
-									return [answer?.[0]?.toString() ?? '', answer?.[1]]
-								case 'single-select':
-									return [
-										question.format.options.find(({ id }) => id === answer)
-											?.title ?? '',
-										answer as string,
-									]
-								case 'multi-select':
-									return [
-										question.format.options
-											.filter(({ id }) => (answer ?? []).includes(id))
-											.map(({ title }) => title)
-											.join(', '),
-										((answer ?? []) as unknown as string[]).join(', '),
-									]
-								default:
-									return [answer as string]
-							}
-						}),
-					].flat(),
-				[] as string[],
-			),
-		]),
+		...responses.map(({ id, response }) =>
+			[
+				id,
+				...form.sections.reduce(
+					(questionIds, section) =>
+						[
+							...questionIds,
+							...section.questions.map((question) => {
+								const answer:
+									| string
+									| StaticArray<TString>
+									| [number, string]
+									| undefined = response?.[section.id]?.[question.id]
+								switch (question.format.type) {
+									case 'non-negative-integer':
+									case 'positive-integer':
+										return [answer?.[0]?.toString() ?? '', answer?.[1]]
+									case 'single-select':
+										return [
+											question.format.options.find(({ id }) => id === answer)
+												?.title ?? '',
+											answer as string,
+										]
+									case 'multi-select':
+										return [
+											question.format.options
+												.filter(({ id }) => (answer ?? []).includes(id))
+												.map(({ title }) => title)
+												.join(', '),
+											((answer ?? []) as unknown as string[]).join(', '),
+										]
+									default:
+										return [answer as string]
+								}
+							}),
+						].flat(),
+					[] as string[],
+				),
+			].map(escapeCellForTSV),
+		),
 	]
 		.map((line) => line.join('\t'))
 		.join('\n')
