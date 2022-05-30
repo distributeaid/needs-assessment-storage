@@ -1,7 +1,7 @@
 import { Static, StaticArray, TString } from '@sinclair/typebox'
-import { escapeCellForTSV } from './escapeCellForTSV'
-import { Form } from './form'
-import { Response } from './submission'
+import { escapeCellForTSV } from './escapeCellForTSV.js'
+import { Form } from './form.js'
+import { Response } from './submission.js'
 
 export const responsesToTSV = (
 	form: Form,
