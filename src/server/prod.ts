@@ -18,6 +18,7 @@ const { originString, cleverCloudFsBucket, appHome, endpointString } = fromEnv({
 
 const storageBaseDir = `${appHome}/${cleverCloudFsBucket.split(':')[0]}`
 const submissionsDir = path.join(storageBaseDir, 'submission')
+const correctionsDir = path.join(storageBaseDir, 'corrections')
 const formsDir = path.join(storageBaseDir, 'forms')
 try {
 	fs.statSync(submissionsDir)
@@ -79,6 +80,9 @@ const app = backend({
 	formStorage: jsonFileStore({ directory: formsDir }),
 	submissionStorage: jsonFileStore({
 		directory: submissionsDir,
+	}),
+	correctionStorage: jsonFileStore({
+		directory: correctionsDir,
 	}),
 })
 

@@ -2,7 +2,7 @@ import { Static } from '@sinclair/typebox'
 import { ulid } from '../ulid'
 import { Form } from './form'
 import { responsesToTSV } from './responsesToTSV'
-import { Response } from './submission'
+import { Response } from './submission.js'
 
 const id = ulid()
 const simpleForm: Form = {

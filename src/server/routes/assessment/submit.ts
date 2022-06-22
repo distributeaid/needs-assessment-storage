@@ -92,7 +92,8 @@ export const assessmentSubmissionHandler = ({
 		await submissionStorage.persist(id, validBody.value)
 		response
 			.status(HTTPStatusCode.Created)
-			.header('Location', new URL(`./submission/${id}`, endpoint).toString())
+			.header('Location', new URL(`./assessment/${id}`, endpoint).toString())
+			.header('ETag', '1')
 			.end()
 	}
 }

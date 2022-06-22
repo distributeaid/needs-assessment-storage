@@ -39,6 +39,9 @@ const app = backend({
 	submissionStorage: jsonFileStore({
 		directory: path.join(process.cwd(), 'storage', 'submissions'),
 	}),
+	correctionStorage: jsonFileStore({
+		directory: path.join(process.cwd(), 'storage', 'corrections'),
+	}),
 })
 
 startpage(app, origin, version)

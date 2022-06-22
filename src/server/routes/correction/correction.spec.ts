@@ -11,6 +11,7 @@ import {
 	authCookieName,
 	cookieAuthStrategy,
 } from '../../../authenticateRequest.js'
+import { Correction } from '../../../form/correction.js'
 import { Form } from '../../../form/form.js'
 import { Submission } from '../../../form/submission.js'
 import { formSchema } from '../../../schema/form.js'
@@ -20,8 +21,7 @@ import { ulid } from '../../../ulid.js'
 import { HTTPStatusCode } from '../../response/HttpStatusCode.js'
 import login from '../login.js'
 import registerUser from '../register.js'
-import { assessmentsExportHandler } from './export.js'
-import { assessmentSubmissionHandler } from './submit.js'
+import { assessmentCorrectionHandler } from './correct.js'
 
 const port = portForTest(__filename)
 
@@ -66,6 +66,16 @@ const dummyFormStorage: Store<Form> = {
 }
 
 const submissions: Record<string, Static<typeof Submission>> = {}
+const submissionId = ulid()
+const submission: Static<typeof Submission> = {
+	form: new URL(`./form/${formId}`, endpoint).toString(),
+	response: {
+		section1: {
+			question1: 'Answer',
+		},
+	},
+}
+submissions[submissionId] = submission
 const dummySubmissionStorage: Store<Static<typeof Submission>> = {
 	persist: async (id, form) => {
 		submissions[id] = form
@@ -75,9 +85,19 @@ const dummySubmissionStorage: Store<Static<typeof Submission>> = {
 	findAll: async () => [],
 }
 
+const corrections: Record<string, Static<typeof Correction>> = {}
+const dummyCorrectionStorage: Store<Static<typeof Correction>> = {
+	persist: async (id, form) => {
+		corrections[id] = form
+	},
+	get: async (id) =>
+		corrections[id] !== undefined ? { id, data: corrections[id] } : undefined,
+	findAll: async () => [],
+}
+
 const omnibus = new EventEmitter()
 
-describe('Assessment API', () => {
+describe('Correction API', () => {
 	let app: Express
 	let httpServer: Server
 	let r: SuperTest<Test>
@@ -93,24 +113,16 @@ describe('Assessment API', () => {
 		const cookieAuth = passport.authenticate('cookie', { session: false })
 		passport.use(cookieAuthStrategy)
 		app.post(
-			'/assessment',
-			assessmentSubmissionHandler({
+			'/correction',
+			cookieAuth,
+			assessmentCorrectionHandler({
 				omnibus,
 				endpoint,
 				formStorage: dummyFormStorage,
 				submissionStorage: dummySubmissionStorage,
+				correctionStorage: dummyCorrectionStorage,
 			}),
 		)
-		app.post(
-			'/assessment/export',
-			cookieAuth,
-			assessmentsExportHandler({
-				endpoint,
-				formStorage: dummyFormStorage,
-				submissionStorage: dummySubmissionStorage,
-			}),
-		)
-
 		app.post(
 			'/register',
 			registerUser(omnibus, () => '123456'),
@@ -125,53 +137,9 @@ describe('Assessment API', () => {
 	afterAll(async () => {
 		httpServer.close()
 	})
-	describe('POST /assessment', () => {
-		it('should store a valid submission', async () =>
-			r
-				.post(`/assessment`)
-				.send({
-					form: new URL(`./form/${formId}`, endpoint),
-					response: {
-						section1: {
-							question1: 'Answer',
-						},
-					},
-				})
-				.expect(HTTPStatusCode.Created)
-				.expect('ETag', '1')
-				.expect(
-					'Location',
-					new RegExp(
-						`^http://127.0.0.1:${port}/assessment/[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$`,
-					),
-				))
 
-		it('should fail with unknown form', async () =>
-			r
-				.post(`/assessment`)
-				.send({
-					form: new URL(`./form/${ulid()}`, endpoint),
-					response: {},
-				})
-				.expect(HTTPStatusCode.NotFound)
-				.expect('Content-Type', /application\/problem\+json/))
-
-		it('should fail with invalid submission', async () =>
-			r
-				.post(`/assessment`)
-				.send({
-					form: new URL(`./form/${formId}`, endpoint),
-					response: {
-						section1: {
-							question1: '', // Min-length = 1
-						},
-					},
-				})
-				.expect(HTTPStatusCode.BadRequest)
-				.expect('Content-Type', /application\/problem\+json/))
-	})
-	describe('POST /assessment/export', () => {
-		describe('admins are allowed to export all assessments for a form', () => {
+	describe('POST /correction', () => {
+		describe('admins are allow to provide corrections to responses', () => {
 			let authCookie: string
 			// Login
 			beforeAll(async () => {
@@ -192,49 +160,28 @@ describe('Assessment API', () => {
 				authCookie = tokenCookieRx.exec(res.header['set-cookie'])?.[1] as string
 			})
 
-			it('should export the submissions', async () =>
-				await r
-					.post(`/assessment/export`)
+			it('should store a correction', async () =>
+				r
+					.post('/correction')
 					.set('Content-type', 'application/json; charset=utf-8')
 					.set('Cookie', [`${authCookieName}=${authCookie}`])
+					.set('If-Match', '1')
 					.send({
 						form: new URL(`./form/${formId}`, endpoint),
+						submission: new URL(`./assessment/${submissionId}`, endpoint),
+						response: {
+							section1: {
+								question1: 'Corrected answer',
+							},
+						},
 					})
-					.expect(HTTPStatusCode.OK)
-					.expect('Content-Type', /text\/tsv; charset=utf-8/))
-		})
-
-		describe('non-admins should not be allowed to export', () => {
-			const userEmail = `some-user${ulid()}@example.com`
-			let authCookie: string
-			// Login
-			beforeAll(async () => {
-				await r
-					.post('/register')
-					.set('Content-type', 'application/json; charset=utf-8')
-					.send({
-						email: userEmail,
-					})
-					.expect(HTTPStatusCode.Accepted)
-				const res = await r
-					.post('/login')
-					.send({
-						email: userEmail,
-						token: '123456',
-					})
-					.expect(HTTPStatusCode.OK)
-				authCookie = tokenCookieRx.exec(res.header['set-cookie'])?.[1] as string
-			})
-
-			it('should export the submissions', async () =>
-				await r
-					.post(`/assessment/export`)
-					.set('Content-type', 'application/json; charset=utf-8')
-					.set('Cookie', [`${authCookieName}=${authCookie}`])
-					.send({
-						form: new URL(`./form/${formId}`, endpoint),
-					})
-					.expect(HTTPStatusCode.Forbidden))
+					.expect(HTTPStatusCode.Created)
+					.expect(
+						'Location',
+						new RegExp(
+							`^http://127.0.0.1:${port}/correction/[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$`,
+						),
+					))
 		})
 	})
 })
