@@ -15,8 +15,8 @@ import { Correction } from '../../../form/correction.js'
 import { Form } from '../../../form/form.js'
 import { Submission } from '../../../form/submission.js'
 import { formSchema } from '../../../schema/form.js'
-import { Store } from '../../../storage/store.js'
 import { portForTest } from '../../../test/portForTest.js'
+import { tempJsonFileStore } from '../../../test/tempJsonFileStore.js'
 import { ulid } from '../../../ulid.js'
 import { HTTPStatusCode } from '../../response/HttpStatusCode.js'
 import login from '../login.js'
@@ -53,19 +53,7 @@ const simpleForm: Form = {
 		},
 	],
 }
-const forms: Record<string, any> = {
-	[formId]: simpleForm,
-}
-const dummyFormStorage: Store<Form> = {
-	persist: async (id, form) => {
-		forms[id] = form
-	},
-	get: async (id) =>
-		forms[id] !== undefined ? { id, data: forms[id] } : undefined,
-	findAll: async () => [],
-}
 
-const submissions: Record<string, Static<typeof Submission>> = {}
 const submissionId = ulid()
 const submission: Static<typeof Submission> = {
 	form: new URL(`./form/${formId}`, endpoint).toString(),
@@ -75,25 +63,6 @@ const submission: Static<typeof Submission> = {
 		},
 	},
 }
-submissions[submissionId] = submission
-const dummySubmissionStorage: Store<Static<typeof Submission>> = {
-	persist: async (id, form) => {
-		submissions[id] = form
-	},
-	get: async (id) =>
-		submissions[id] !== undefined ? { id, data: submissions[id] } : undefined,
-	findAll: async () => [],
-}
-
-const corrections: Record<string, Static<typeof Correction>> = {}
-const dummyCorrectionStorage: Store<Static<typeof Correction>> = {
-	persist: async (id, form) => {
-		corrections[id] = form
-	},
-	get: async (id) =>
-		corrections[id] !== undefined ? { id, data: corrections[id] } : undefined,
-	findAll: async () => [],
-}
 
 const omnibus = new EventEmitter()
 
@@ -101,11 +70,24 @@ describe('Correction API', () => {
 	let app: Express
 	let httpServer: Server
 	let r: SuperTest<Test>
+	const cleanups: (() => Promise<void>)[] = []
 
 	const adminEmail = `some-admin${ulid()}@example.com`
 	const getExpressCookie = getAuthCookie(1800, [adminEmail])
 
 	beforeAll(async () => {
+		const { cleanup: cleanupFormStorage, store: formStorage } =
+			await tempJsonFileStore<Form>()
+		cleanups.push(cleanupFormStorage)
+		await formStorage.persist(formId, simpleForm)
+		const { cleanup: cleanupSubmissionStorage, store: submissionStorage } =
+			await tempJsonFileStore<Static<typeof Submission>>()
+		cleanups.push(cleanupSubmissionStorage)
+		await submissionStorage.persist(submissionId, submission)
+		const { cleanup: cleanupCorrectionStorage, store: correctionStorage } =
+			await tempJsonFileStore<Static<typeof Correction>>()
+		cleanups.push(cleanupCorrectionStorage)
+
 		app = express()
 		app.use(cookieParser('cookie-secret'))
 		app.use(bodyParser.json({ strict: true }))
@@ -118,9 +100,9 @@ describe('Correction API', () => {
 			assessmentCorrectionHandler({
 				omnibus,
 				endpoint,
-				formStorage: dummyFormStorage,
-				submissionStorage: dummySubmissionStorage,
-				correctionStorage: dummyCorrectionStorage,
+				formStorage,
+				submissionStorage,
+				correctionStorage,
 			}),
 		)
 		app.post(
@@ -136,6 +118,7 @@ describe('Correction API', () => {
 	})
 	afterAll(async () => {
 		httpServer.close()
+		await Promise.all(cleanups)
 	})
 
 	describe('POST /correction', () => {
@@ -182,6 +165,49 @@ describe('Correction API', () => {
 							`^http://127.0.0.1:${port}/correction/[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$`,
 						),
 					))
+
+			it('should store another correction', async () =>
+				r
+					.post('/correction')
+					.set('Content-type', 'application/json; charset=utf-8')
+					.set('Cookie', [`${authCookieName}=${authCookie}`])
+					.set('If-Match', '2')
+					.send({
+						form: new URL(`./form/${formId}`, endpoint),
+						submission: new URL(`./assessment/${submissionId}`, endpoint),
+						response: {
+							section1: {
+								question1: 'Corrected answer, again',
+							},
+						},
+					})
+					.expect(HTTPStatusCode.Created)
+					.expect(
+						'Location',
+						new RegExp(
+							`^http://127.0.0.1:${port}/correction/[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$`,
+						),
+					))
+
+			it.each([['1', '3', 'a']])(
+				'should not store a correction on etag mismatch (%s)',
+				async (etag) =>
+					r
+						.post('/correction')
+						.set('Content-type', 'application/json; charset=utf-8')
+						.set('Cookie', [`${authCookieName}=${authCookie}`])
+						.set('If-Match', etag)
+						.send({
+							form: new URL(`./form/${formId}`, endpoint),
+							submission: new URL(`./assessment/${submissionId}`, endpoint),
+							response: {
+								section1: {
+									question1: 'Corrected answer, again',
+								},
+							},
+						})
+						.expect(HTTPStatusCode.Conflict),
+			)
 		})
 	})
 })

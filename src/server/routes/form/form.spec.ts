@@ -5,24 +5,13 @@ import request, { SuperTest, Test } from 'supertest'
 import { URL } from 'url'
 import { Form } from '../../../form/form.js'
 import { formSchema } from '../../../schema/form.js'
-import { Store } from '../../../storage/store.js'
 import { portForTest } from '../../../test/portForTest.js'
+import { tempJsonFileStore } from '../../../test/tempJsonFileStore.js'
 import { HTTPStatusCode } from '../../response/HttpStatusCode.js'
 import { formCreationHandler } from './create.js'
 import { formGetHandler } from './get.js'
 
 const port = portForTest(__filename)
-
-const forms: Record<string, Form> = {}
-
-const dummyStorage: Store<Form> = {
-	persist: async (id, form) => {
-		forms[id] = form
-	},
-	get: async (id) =>
-		forms[id] !== undefined ? { id, data: forms[id] } : undefined,
-	findAll: async () => [],
-}
 
 const endpoint = new URL(`http://127.0.0.1:${port}`)
 
@@ -34,16 +23,21 @@ describe('Form API', () => {
 	let app: Express
 	let httpServer: Server
 	let r: SuperTest<Test>
+	const cleanups: (() => Promise<void>)[] = []
 
 	beforeAll(async () => {
+		const { cleanup: cleanupFormStorage, store: formStorage } =
+			await tempJsonFileStore<Form>()
+		cleanups.push(cleanupFormStorage)
+
 		app = express()
 		app.use(bodyParser.json({ strict: true }))
-		app.get('/form/:id', formGetHandler({ storage: dummyStorage }))
+		app.get('/form/:id', formGetHandler({ storage: formStorage }))
 		app.post(
 			'/form',
 			formCreationHandler({
 				endpoint,
-				storage: dummyStorage,
+				storage: formStorage,
 				schema,
 			}),
 		)
@@ -55,6 +49,7 @@ describe('Form API', () => {
 	})
 	afterAll(async () => {
 		httpServer.close()
+		await Promise.all(cleanups)
 	})
 
 	const simpleForm = {

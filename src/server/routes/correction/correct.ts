@@ -83,8 +83,13 @@ export const assessmentCorrectionHandler = ({
 			})
 		}
 
-		// TODO: load older corrections to build submission version
-		const submissionVersion = 1
+		// Load older corrections to build submission version
+		const submissionVersion =
+			(
+				await correctionStorage.findAll({
+					submission: validBody.value.submission,
+				})
+			).length + 1
 		if (validBody.value.submissionVersion !== submissionVersion) {
 			return respondWithProblem(request, response, {
 				title: `Expected correction for submission version ${submissionVersion}, got ${validBody.value.submissionVersion}.`,
@@ -121,6 +126,11 @@ export const assessmentCorrectionHandler = ({
 		}
 
 		const id = ulid()
+		await correctionStorage.persist(id, validBody.value)
+		response
+			.status(HTTPStatusCode.Created)
+			.header('Location', new URL(`./correction/${id}`, endpoint).toString())
+			.end()
 		omnibus.emit(
 			events.correction_created,
 			id,
@@ -128,10 +138,5 @@ export const assessmentCorrectionHandler = ({
 			form,
 			submission,
 		)
-		await correctionStorage.persist(id, validBody.value)
-		response
-			.status(HTTPStatusCode.Created)
-			.header('Location', new URL(`./correction/${id}`, endpoint).toString())
-			.end()
 	}
 }
