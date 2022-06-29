@@ -1,7 +1,9 @@
 import { Static } from '@sinclair/typebox'
 import EventEmitter from 'events'
 import { Transporter } from 'nodemailer'
+import { AuthContext } from '../authenticateRequest.js'
 import { events } from '../events.js'
+import { Correction } from '../form/correction.js'
 import { Form } from '../form/form.js'
 import { responseToTSV } from '../form/responseToTSV.js'
 import { Submission } from '../form/submission.js'
@@ -34,7 +36,15 @@ describe('appMailer', () => {
 				from: `"Distribute Aid Needs Assessment" <no-reply@distributeaid.org>`,
 				to: 'alex@example.com',
 				subject: `Verification token: 123456`,
-				text: `Hey 👋,\n\nPlease use the token 123456 to verify your email address.\n\nPlease do not reply to this email.\n\nIf you need support, please contact help@distributeaid.org.`,
+				text: [
+					'Hey 👋,',
+					'',
+					'Please use the token 123456 to verify your email address.',
+					'',
+					'Please do not reply to this email.',
+					'',
+					'If you need support, please contact help@distributeaid.org.',
+				].join('\n'),
 			})
 		})
 
@@ -82,12 +92,138 @@ describe('appMailer', () => {
 				from: `"Distribute Aid Needs Assessment" <no-reply@distributeaid.org>`,
 				to: 'needs@distributeaid.org',
 				subject: `[form:${formId}] New submission received (${submissionId})`,
-				text: `A new needs assessment form was filled.\nForm: ${form$Id}`,
+				text: [
+					'A new needs assessment form was filled.',
+					`Form: ${form$Id}`,
+				].join('\n'),
 				attachments: [
 					{
 						content: responseToTSV(submission.response, simpleForm),
 						contentType: 'text/tsv; charset=utf-8',
 						filename: `form-${formId}-submission-${submissionId}.tsv`,
+					},
+				],
+			})
+			expect(sendMailMock).toHaveBeenCalledTimes(1)
+		})
+
+		test(events.correction_created, () => {
+			const formId = ulid()
+			const form$Id = new URL(`https://example.com/form/${formId}`).toString()
+			const simpleForm: Form = {
+				$schema: formSchema({
+					$id: new URL('https://example.com/schema/'),
+				}).$id,
+				$id: form$Id,
+				sections: [
+					{
+						id: 'section1',
+						title: 'Section 1',
+						questions: [
+							{
+								id: 'question1',
+								title: 'Question 1',
+								required: true,
+								format: {
+									type: 'text',
+								},
+							},
+							{
+								id: 'question2',
+								title: 'Question 2',
+								required: true,
+								format: {
+									type: 'text',
+								},
+							},
+						],
+					},
+					{
+						id: 'section2',
+						title: 'Section 2',
+						questions: [
+							{
+								id: 'question1',
+								title: 'Question 1',
+								required: true,
+								format: {
+									type: 'text',
+								},
+							},
+							{
+								id: 'question2',
+								title: 'Question 2',
+								required: true,
+								format: {
+									type: 'text',
+								},
+							},
+						],
+					},
+				],
+			}
+
+			const submissionId = ulid()
+			const submission$Id = new URL(
+				`https://example.com/submission/${submissionId}`,
+			).toString()
+			const submission: Static<typeof Submission> = {
+				form: simpleForm.$id,
+				response: {
+					section1: {
+						question1: 'Answer 1',
+						question2: 'Answer 2',
+					},
+					section2: {
+						question1: 'Answer 1',
+						question2: 'Answer 2',
+					},
+				},
+			}
+			const correctionId = ulid()
+			const correction: Static<typeof Correction> = {
+				form: simpleForm.$id,
+				submission: submission$Id,
+				submissionVersion: 1,
+				response: {
+					section2: {
+						question2: 'Answer 2 (corrected)',
+					},
+				},
+			}
+			const authContext: AuthContext = {
+				email: 'admin@example.com',
+				isAdmin: true,
+			}
+			omnibus.emit(
+				events.correction_created,
+				correctionId,
+				correction,
+				simpleForm,
+				new URL(submission$Id),
+				submission,
+				authContext,
+			)
+			expect(sendMailMock).toHaveBeenCalledWith({
+				from: `"Distribute Aid Needs Assessment" <no-reply@distributeaid.org>`,
+				to: 'needs@distributeaid.org',
+				subject: `[submission:${submissionId}] New correction by admin@example.com received (${correctionId})`,
+				text: [
+					'A needs assessment submission was corrected by admin@example.com.',
+					`Form: ${form$Id}`,
+					`Submission: ${submission$Id}`,
+					'Changes:',
+					/* FIXME: implement diff to text
+						'- Section 2: Question 2',
+						'  OLD: Answer 2',
+						'  NEW: Answer 2 (corrected)'
+						*/
+				].join('\n'),
+				attachments: [
+					{
+						content: responseToTSV(submission.response, simpleForm),
+						contentType: 'text/tsv; charset=utf-8',
+						filename: `form-${formId}-submission-${submissionId}-correction-${correctionId}.tsv`,
 					},
 				],
 			})

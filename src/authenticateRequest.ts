@@ -1,7 +1,7 @@
 import { CookieOptions } from 'express'
 import { Strategy as CookieStrategy } from 'passport-cookie'
 
-type AuthCookiePayload = {
+export type AuthCookiePayload = {
 	/** email */
 	e: string
 	/** is admin */
