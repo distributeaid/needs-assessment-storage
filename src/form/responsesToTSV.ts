@@ -1,4 +1,4 @@
-import { Static, StaticArray, TString } from '@sinclair/typebox'
+import { Static } from '@sinclair/typebox'
 import { escapeCellForTSV } from './escapeCellForTSV.js'
 import { Form } from './form.js'
 import { Response } from './submission.js'
@@ -82,11 +82,8 @@ export const responsesToTSV = (
 						[
 							...questionIds,
 							...section.questions.map((question) => {
-								const answer:
-									| string
-									| StaticArray<TString>
-									| [number, string]
-									| undefined = response?.[section.id]?.[question.id]
+								const answer: string | [number, string] | string[] | undefined =
+									response?.[section.id]?.[question.id]
 								switch (question.format.type) {
 									case 'non-negative-integer':
 									case 'positive-integer':
