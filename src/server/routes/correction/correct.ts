@@ -2,6 +2,7 @@ import { Static } from '@sinclair/typebox'
 import { EventEmitter } from 'events'
 import { Request, Response } from 'express'
 import { URL } from 'url'
+import { AuthContext } from '../../../authenticateRequest.js'
 import { events } from '../../../events.js'
 import { Correction } from '../../../form/correction.js'
 import { Form } from '../../../form/form.js'
@@ -52,6 +53,7 @@ export const assessmentCorrectionHandler = ({
 		const validBody = validate({
 			...request.body,
 			submissionVersion: parseInt(request.headers['if-match'] ?? '', 10),
+			author: (request.user as AuthContext).email,
 		})
 		if ('errors' in validBody) {
 			return respondWithProblem(
@@ -138,7 +140,6 @@ export const assessmentCorrectionHandler = ({
 			form,
 			new URL(validBody.value.submission),
 			submission,
-			request.user,
 		)
 	}
 }

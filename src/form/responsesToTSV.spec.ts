@@ -1,5 +1,6 @@
 import { Static } from '@sinclair/typebox'
 import { ulid } from '../ulid'
+import { Correction } from './correction'
 import { Form } from './form'
 import { responsesToTSV } from './responsesToTSV'
 import { Response } from './submission.js'
@@ -154,9 +155,13 @@ const simpleForm: Form = {
 	],
 }
 
-type ResponseWithID = { id: string; response: Static<typeof Response> }
+type ResponseWithIDAndCorrections = {
+	id: string
+	response: Static<typeof Response>
+	corrections: { id: string; data: Static<typeof Correction> }[]
+}
 
-const response1: ResponseWithID = {
+const response1: ResponseWithIDAndCorrections = {
 	id: ulid(),
 	response: {
 		section1: {
@@ -168,9 +173,10 @@ const response1: ResponseWithID = {
 			question2: ['apples'],
 		},
 	},
+	corrections: [],
 }
 
-const response2: ResponseWithID = {
+const response2: ResponseWithIDAndCorrections = {
 	id: ulid(),
 	response: {
 		section1: {
@@ -182,6 +188,7 @@ const response2: ResponseWithID = {
 			question2: ['oranges', 'bananas'],
 		},
 	},
+	corrections: [],
 }
 
 const tsv = [
@@ -202,6 +209,8 @@ const tsv = [
 		`optional.color:id`,
 		`optional.fruit`,
 		`optional.fruit:ids`,
+		`$meta.version`,
+		`$meta.corrections`,
 	],
 	[
 		`Assessment ID`,
@@ -219,6 +228,8 @@ const tsv = [
 		`Optional Questions: What is your favorite color? (id)`,
 		`Optional Questions: What is your favorite fruit?`,
 		`Optional Questions: What is your favorite fruit? (ids)`,
+		`Version`,
+		`Corrections`,
 	],
 	// Responses
 	[
@@ -237,6 +248,10 @@ const tsv = [
 		'',
 		'',
 		'',
+		// Version
+		'1',
+		// Corrections
+		'',
 	],
 	[
 		response2.id,
@@ -253,6 +268,10 @@ const tsv = [
 		'',
 		'',
 		'',
+		'',
+		// Version
+		'1',
+		// Corrections
 		'',
 	],
 ]
@@ -297,16 +316,31 @@ describe('responsesToTSV()', () => {
 								].join('\n'),
 							},
 						},
+						corrections: [],
 					},
 				],
 			),
 		).toEqual(
 			[
-				[`#`, 'section.multilineResponse'],
-				[`Assessment ID`, 'Test-section: Multi-line text'],
+				[
+					`#`,
+					'section.multilineResponse',
+					`$meta.version`,
+					`$meta.corrections`,
+				],
+				[
+					`Assessment ID`,
+					'Test-section: Multi-line text',
+					`Version`,
+					`Corrections`,
+				],
 				[
 					'01G4A0MY9HG9QD37DVCW60G41T',
 					'"Line 1\nLine 2 with ""quotes""\nLine 3"',
+					// Version
+					'1',
+					// Corrections
+					'',
 				],
 			]
 				.map((line) => line.join('\t'))

@@ -1,4 +1,5 @@
 import { Type } from '@sinclair/typebox'
+import { emailInput } from '../server/routes/register.js'
 import { Response } from './submission.js'
 
 export const Correction = Type.Object(
@@ -14,6 +15,7 @@ export const Correction = Type.Object(
 			title: 'version number',
 		}),
 		response: Response,
+		author: emailInput,
 	},
 	{ additionalProperties: false },
 )

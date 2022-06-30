@@ -181,6 +181,7 @@ export const backend = ({
 			endpoint,
 			formStorage,
 			submissionStorage,
+			correctionStorage,
 		}),
 	)
 

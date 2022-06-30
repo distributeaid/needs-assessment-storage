@@ -2,7 +2,6 @@ import { Static } from '@sinclair/typebox'
 import EventEmitter from 'events'
 import nodemailer, { Transporter } from 'nodemailer'
 import { Attachment } from 'nodemailer/lib/mailer'
-import { AuthContext } from '../authenticateRequest.js'
 import { correctionDiff } from '../correction/correctionDiff.js'
 import { correctionDiffToText } from '../correction/correctionDiffToText.js'
 import { events } from '../events.js'
@@ -111,14 +110,13 @@ export const adminCorrectionNotificationEmail = (
 	submission$Id: URL,
 	submission: Static<typeof Submission>,
 	form: Form,
-	authContext: AuthContext,
 ): Email => {
 	const formId = ulidRegEx.exec(form.$id)?.[0]
 	const submissionId = ulidRegEx.exec(submission$Id.toString())?.[0]
 	return {
-		subject: `[submission:${submissionId}] New correction by ${authContext.email} received (${id})`,
+		subject: `[submission:${submissionId}] New correction by ${correction.author} received (${id})`,
 		text: [
-			`A needs assessment submission was corrected by ${authContext.email}.`,
+			`A needs assessment submission was corrected by ${correction.author}.`,
 			`Form: ${form.$id}`,
 			`Submission: ${submission$Id} (v${correction.submissionVersion})`,
 			'',
@@ -188,7 +186,6 @@ export const appMailer = (
 			form: Form,
 			submissionId: URL,
 			submission: Static<typeof Submission>,
-			authContext: AuthContext,
 		) => {
 			const data = adminCorrectionNotificationEmail(
 				id,
@@ -196,7 +193,6 @@ export const appMailer = (
 				submissionId,
 				submission,
 				form,
-				authContext,
 			)
 			await Promise.all(adminEmails.map(async (email) => sendMail(email, data)))
 		},

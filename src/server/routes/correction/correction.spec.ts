@@ -17,8 +17,9 @@ import { Submission } from '../../../form/submission.js'
 import { formSchema } from '../../../schema/form.js'
 import { portForTest } from '../../../test/portForTest.js'
 import { tempJsonFileStore } from '../../../test/tempJsonFileStore.js'
-import { ulid } from '../../../ulid.js'
+import { ulid, ulidRegEx } from '../../../ulid.js'
 import { HTTPStatusCode } from '../../response/HttpStatusCode.js'
+import { assessmentsExportHandler } from '../assessment/export.js'
 import login from '../login.js'
 import registerUser from '../register.js'
 import { assessmentCorrectionHandler } from './correct.js'
@@ -106,6 +107,16 @@ describe('Correction API', () => {
 			}),
 		)
 		app.post(
+			'/assessment/export',
+			cookieAuth,
+			assessmentsExportHandler({
+				endpoint,
+				formStorage,
+				submissionStorage,
+				correctionStorage,
+			}),
+		)
+		app.post(
 			'/register',
 			registerUser(omnibus, () => '123456'),
 		)
@@ -121,30 +132,33 @@ describe('Correction API', () => {
 		await Promise.all(cleanups)
 	})
 
-	describe('POST /correction', () => {
-		describe('admins are allow to provide corrections to responses', () => {
-			let authCookie: string
-			// Login
-			beforeAll(async () => {
-				await r
-					.post('/register')
-					.set('Content-type', 'application/json; charset=utf-8')
-					.send({
-						email: adminEmail,
-					})
-					.expect(HTTPStatusCode.Accepted)
-				const res = await r
-					.post('/login')
-					.send({
-						email: adminEmail,
-						token: '123456',
-					})
-					.expect(HTTPStatusCode.OK)
-				authCookie = tokenCookieRx.exec(res.header['set-cookie'])?.[1] as string
-			})
+	let correctionId1: string
+	let correctionId2: string
 
-			it('should store a correction', async () =>
-				r
+	describe('admins are allow to provide corrections to responses', () => {
+		let authCookie: string
+		// Login
+		beforeAll(async () => {
+			await r
+				.post('/register')
+				.set('Content-type', 'application/json; charset=utf-8')
+				.send({
+					email: adminEmail,
+				})
+				.expect(HTTPStatusCode.Accepted)
+			const res = await r
+				.post('/login')
+				.send({
+					email: adminEmail,
+					token: '123456',
+				})
+				.expect(HTTPStatusCode.OK)
+			authCookie = tokenCookieRx.exec(res.header['set-cookie'])?.[1] as string
+		})
+
+		describe('POST /correction', () => {
+			it('should store a correction', async () => {
+				const res = await r
 					.post('/correction')
 					.set('Content-type', 'application/json; charset=utf-8')
 					.set('Cookie', [`${authCookieName}=${authCookie}`])
@@ -164,10 +178,12 @@ describe('Correction API', () => {
 						new RegExp(
 							`^http://127.0.0.1:${port}/correction/[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$`,
 						),
-					))
+					)
+				correctionId1 = ulidRegEx.exec(res.headers['location'])?.[0] as string
+			})
 
-			it('should store another correction', async () =>
-				r
+			it('should store another correction', async () => {
+				const res = await r
 					.post('/correction')
 					.set('Content-type', 'application/json; charset=utf-8')
 					.set('Cookie', [`${authCookieName}=${authCookie}`])
@@ -187,7 +203,9 @@ describe('Correction API', () => {
 						new RegExp(
 							`^http://127.0.0.1:${port}/correction/[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$`,
 						),
-					))
+					)
+				correctionId2 = ulidRegEx.exec(res.headers['location'])?.[0] as string
+			})
 
 			it.each([['1', '3', 'a']])(
 				'should not store a correction on etag mismatch (%s)',
@@ -208,6 +226,37 @@ describe('Correction API', () => {
 						})
 						.expect(HTTPStatusCode.Conflict),
 			)
+		})
+
+		describe('POST /assessment/export', () => {
+			describe('export should include the corrections', () => {
+				it('should export the submissions', async () => {
+					const res = await r
+						.post(`/assessment/export`)
+						.set('Content-type', 'application/json; charset=utf-8')
+						.set('Cookie', [`${authCookieName}=${authCookie}`])
+						.send({
+							form: new URL(`./form/${formId}`, endpoint),
+						})
+						.expect(HTTPStatusCode.OK)
+						.expect('Content-Type', /text\/tsv; charset=utf-8/)
+					expect(res.text.split('\n').map((l) => l.split('\t'))).toMatchObject([
+						['#', 'section1.question1', '$meta.version', '$meta.corrections'],
+						[
+							'Assessment ID',
+							'Section 1: Question 1',
+							'Version',
+							'Corrections',
+						],
+						[
+							submissionId,
+							'Corrected answer, again',
+							'3',
+							`${correctionId1} by ${adminEmail}, ${correctionId2} by ${adminEmail}`,
+						],
+					])
+				})
+			})
 		})
 	})
 })

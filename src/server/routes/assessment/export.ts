@@ -2,6 +2,7 @@ import { Static, Type } from '@sinclair/typebox'
 import { Request, Response } from 'express'
 import { URL } from 'url'
 import { AuthContext } from '../../../authenticateRequest.js'
+import { Correction } from '../../../form/correction.js'
 import { Form } from '../../../form/form.js'
 import { responsesToTSV } from '../../../form/responsesToTSV.js'
 import { Submission } from '../../../form/submission.js'
@@ -17,10 +18,12 @@ export const assessmentsExportHandler = ({
 	endpoint,
 	formStorage,
 	submissionStorage,
+	correctionStorage,
 }: {
 	endpoint: URL
 	formStorage: Store<Form>
 	submissionStorage: Store<Static<typeof Submission>>
+	correctionStorage: Store<Static<typeof Correction>>
 }): ((request: Request, response: Response) => Promise<void>) => {
 	const input = Type.Object(
 		{
@@ -88,13 +91,30 @@ export const assessmentsExportHandler = ({
 		const submissions = await submissionStorage.findAll({
 			form: validBody.value.form,
 		})
+
+		const corrections: Record<
+			string,
+			{ id: string; data: Static<typeof Correction> }[]
+		> = {}
+		await Promise.all(
+			submissions.map(async ({ id }) => {
+				corrections[id] = await correctionStorage.findAll({
+					submission: new URL(`./assessment/${id}`, endpoint).toString(),
+				})
+			}),
+		)
+
 		response
 			.status(HTTPStatusCode.OK)
 			.header('Content-Type', 'text/tsv; charset=utf-8')
 			.send(
 				responsesToTSV(
 					form,
-					submissions.map(({ id, data: { response } }) => ({ id, response })),
+					submissions.map(({ id, data: { response } }) => ({
+						id,
+						response,
+						corrections: corrections[id],
+					})),
 				),
 			)
 			.end()

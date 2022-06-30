@@ -108,6 +108,10 @@ describe('appMailer', () => {
 		})
 
 		test(events.correction_created, () => {
+			const authContext: AuthContext = {
+				email: 'admin@example.com',
+				isAdmin: true,
+			}
 			const formId = ulid()
 			const form$Id = new URL(`https://example.com/form/${formId}`).toString()
 			const simpleForm: Form = {
@@ -195,10 +199,7 @@ describe('appMailer', () => {
 						question2: 'Answer 2 (corrected)',
 					},
 				},
-			}
-			const authContext: AuthContext = {
-				email: 'admin@example.com',
-				isAdmin: true,
+				author: authContext.email,
 			}
 			omnibus.emit(
 				events.correction_created,
@@ -207,7 +208,6 @@ describe('appMailer', () => {
 				simpleForm,
 				new URL(submission$Id),
 				submission,
-				authContext,
 			)
 			expect(sendMailMock).toHaveBeenCalledWith({
 				from: `"Distribute Aid Needs Assessment" <no-reply@distributeaid.org>`,
