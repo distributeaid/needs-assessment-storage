@@ -3,8 +3,10 @@ import { evaluateJSONataExpression } from './evaluateJSONataExpression.js'
 import { Form, MultiSelectQuestionFormat, Question } from './form.js'
 import { Response } from './submission.js'
 
+export type Answer = string | string[] | [number, string]
+
 export const validateQuestion = (
-	answer: string | string[] | [number, string],
+	answer: Answer,
 	question: Question,
 	response: Static<typeof Response>,
 ): boolean => {

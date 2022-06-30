@@ -3,6 +3,8 @@ import EventEmitter from 'events'
 import nodemailer, { Transporter } from 'nodemailer'
 import { Attachment } from 'nodemailer/lib/mailer'
 import { AuthContext } from '../authenticateRequest.js'
+import { correctionDiff } from '../correction/correctionDiff.js'
+import { correctionDiffToText } from '../correction/correctionDiffToText.js'
 import { events } from '../events.js'
 import { Correction } from '../form/correction.js'
 import { Form } from '../form/form.js'
@@ -105,7 +107,7 @@ export const adminSubmissionNotificationEmail = (
 
 export const adminCorrectionNotificationEmail = (
 	id: string,
-	_: Static<typeof Correction>,
+	correction: Static<typeof Correction>,
 	submission$Id: URL,
 	submission: Static<typeof Submission>,
 	form: Form,
@@ -118,8 +120,13 @@ export const adminCorrectionNotificationEmail = (
 		text: [
 			`A needs assessment submission was corrected by ${authContext.email}.`,
 			`Form: ${form.$id}`,
-			`Submission: ${submission$Id}`,
+			`Submission: ${submission$Id} (v${correction.submissionVersion})`,
+			'',
 			`Changes:`,
+			correctionDiffToText(
+				form,
+				correctionDiff(form, submission.response, correction.response),
+			),
 		].join('\n'),
 		attachments: [
 			{

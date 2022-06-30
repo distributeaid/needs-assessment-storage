@@ -2,30 +2,31 @@ import { Static } from '@sinclair/typebox'
 import { deepEqual } from 'fast-equals'
 import { Form } from '../form/form'
 import { Response } from '../form/submission'
+import { Answer } from '../form/validateResponse'
 
-type CorrectionDiff = Record<
+export type CorrectionDiff =
+	| {
+			old: Answer
+			new: Answer
+	  }
+	| {
+			unset: Answer
+	  }
+	| {
+			set: Answer
+	  }
+
+export type QuestionCorrectionDiff = Record<
 	string,
-	Record<
-		string,
-		| {
-				old: string | string[] | [number, string]
-				new: string | string[] | [number, string]
-		  }
-		| {
-				unset: string | string[] | [number, string]
-		  }
-		| {
-				set: string | string[] | [number, string]
-		  }
-	>
+	Record<string, CorrectionDiff>
 >
 
 export const correctionDiff = (
 	form: Form,
 	submissionResponse: Static<typeof Response>,
 	correctionResponse: Static<typeof Response>,
-): CorrectionDiff => {
-	const difference: CorrectionDiff = {}
+): QuestionCorrectionDiff => {
+	const difference: QuestionCorrectionDiff = {}
 	for (const section of form.sections) {
 		for (const question of section.questions) {
 			const sectionId = section.id

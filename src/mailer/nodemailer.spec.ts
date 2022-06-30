@@ -186,7 +186,12 @@ describe('appMailer', () => {
 				submission: submission$Id,
 				submissionVersion: 1,
 				response: {
+					section1: {
+						question1: 'Answer 1',
+						question2: 'Answer 2',
+					},
 					section2: {
+						question1: 'Answer 1',
 						question2: 'Answer 2 (corrected)',
 					},
 				},
@@ -211,13 +216,13 @@ describe('appMailer', () => {
 				text: [
 					'A needs assessment submission was corrected by admin@example.com.',
 					`Form: ${form$Id}`,
-					`Submission: ${submission$Id}`,
+					`Submission: ${submission$Id} (v1)`,
+					'',
 					'Changes:',
-					/* FIXME: implement diff to text
-						'- Section 2: Question 2',
-						'  OLD: Answer 2',
-						'  NEW: Answer 2 (corrected)'
-						*/
+					'- Section 2: Question 2',
+					'  OLD: Answer 2',
+					'  NEW: Answer 2 (corrected)',
+					'',
 				].join('\n'),
 				attachments: [
 					{
