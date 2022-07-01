@@ -1,5 +1,6 @@
 import { Static } from '@sinclair/typebox'
 import { Request, Response } from 'express'
+import { AuthContext } from '../../../authenticateRequest.js'
 import { correctResponse } from '../../../correction/correctResponse.js'
 import { Correction } from '../../../form/correction.js'
 import { Submission } from '../../../form/submission.js'
@@ -23,6 +24,13 @@ export const assessmentGetHandler =
 		correctionStorage: Store<Static<typeof Correction>>
 	}) =>
 	async (request: Request, response: Response): Promise<void> => {
+		const authContext = request.user as AuthContext
+		if (!authContext.isAdmin)
+			return respondWithProblem(request, response, {
+				status: HTTPStatusCode.Forbidden,
+				title: `Access denied for ${authContext.email}.`,
+			})
+
 		const valid = validateInput(request.params)
 		if ('errors' in valid) {
 			return respondWithProblem(

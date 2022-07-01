@@ -50,6 +50,13 @@ export const assessmentCorrectionHandler = ({
 	)
 
 	return async (request, response) => {
+		const authContext = request.user as AuthContext
+		if (!authContext.isAdmin)
+			return respondWithProblem(request, response, {
+				status: HTTPStatusCode.Forbidden,
+				title: `Access denied for ${authContext.email}.`,
+			})
+
 		const validBody = validate({
 			...request.body,
 			submissionVersion: parseInt(request.headers['if-match'] ?? '', 10),

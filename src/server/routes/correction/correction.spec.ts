@@ -145,9 +145,9 @@ describe('Correction API', () => {
 	let correctionId1: string
 	let correctionId2: string
 
-	describe('admins are allowed to provide corrections to responses', () => {
-		let authCookie: string
-		// Login
+	describe('should allow admins to provide corrections to responses', () => {
+		// Register an admin
+		let adminAuthCookie: string
 		beforeAll(async () => {
 			await r
 				.post('/register')
@@ -163,14 +163,39 @@ describe('Correction API', () => {
 					token: '123456',
 				})
 				.expect(HTTPStatusCode.OK)
-			authCookie = tokenCookieRx.exec(res.header['set-cookie'])?.[1] as string
+			adminAuthCookie = tokenCookieRx.exec(
+				res.header['set-cookie'],
+			)?.[1] as string
+		})
+
+		// Register a user
+		const userEmail = `some-user${ulid()}@example.com`
+		let userAuthCookie: string
+		beforeAll(async () => {
+			await r
+				.post('/register')
+				.set('Content-type', 'application/json; charset=utf-8')
+				.send({
+					email: userEmail,
+				})
+				.expect(HTTPStatusCode.Accepted)
+			const res = await r
+				.post('/login')
+				.send({
+					email: userEmail,
+					token: '123456',
+				})
+				.expect(HTTPStatusCode.OK)
+			userAuthCookie = tokenCookieRx.exec(
+				res.header['set-cookie'],
+			)?.[1] as string
 		})
 
 		describe('GET /assessment/:id', () => {
-			it('admins are allowed to retrieve submission in order to provide corrections', async () => {
+			it('should allow admins to retrieve submission in order to provide corrections', async () => {
 				const res = await r
 					.get(`/assessment/${submissionId}`)
-					.set('Cookie', [`${authCookieName}=${authCookie}`])
+					.set('Cookie', [`${authCookieName}=${adminAuthCookie}`])
 					.set('Accept', 'application/json; charset=utf-8')
 					.expect(HTTPStatusCode.OK)
 					.expect('etag', '1')
@@ -183,7 +208,7 @@ describe('Correction API', () => {
 				const res = await r
 					.post('/correction')
 					.set('Content-type', 'application/json; charset=utf-8')
-					.set('Cookie', [`${authCookieName}=${authCookie}`])
+					.set('Cookie', [`${authCookieName}=${adminAuthCookie}`])
 					.set('If-Match', '1')
 					.send({
 						form: new URL(`./form/${formId}`, endpoint),
@@ -208,7 +233,7 @@ describe('Correction API', () => {
 				const res = await r
 					.post('/correction')
 					.set('Content-type', 'application/json; charset=utf-8')
-					.set('Cookie', [`${authCookieName}=${authCookie}`])
+					.set('Cookie', [`${authCookieName}=${adminAuthCookie}`])
 					.set('If-Match', '2')
 					.send({
 						form: new URL(`./form/${formId}`, endpoint),
@@ -235,7 +260,7 @@ describe('Correction API', () => {
 					r
 						.post('/correction')
 						.set('Content-type', 'application/json; charset=utf-8')
-						.set('Cookie', [`${authCookieName}=${authCookie}`])
+						.set('Cookie', [`${authCookieName}=${adminAuthCookie}`])
 						.set('If-Match', etag)
 						.send({
 							form: new URL(`./form/${formId}`, endpoint),
@@ -248,6 +273,23 @@ describe('Correction API', () => {
 						})
 						.expect(HTTPStatusCode.Conflict),
 			)
+
+			it('should not allow users to create a correction', async () =>
+				r
+					.post('/correction')
+					.set('Content-type', 'application/json; charset=utf-8')
+					.set('Cookie', [`${authCookieName}=${userAuthCookie}`])
+					.set('If-Match', '1')
+					.send({
+						form: new URL(`./form/${formId}`, endpoint),
+						submission: new URL(`./assessment/${submissionId}`, endpoint),
+						response: {
+							section1: {
+								question1: 'Corrected answer',
+							},
+						},
+					})
+					.expect(HTTPStatusCode.Forbidden))
 		})
 
 		describe('POST /assessment/export', () => {
@@ -256,7 +298,7 @@ describe('Correction API', () => {
 					const res = await r
 						.post(`/assessment/export`)
 						.set('Content-type', 'application/json; charset=utf-8')
-						.set('Cookie', [`${authCookieName}=${authCookie}`])
+						.set('Cookie', [`${authCookieName}=${adminAuthCookie}`])
 						.send({
 							form: new URL(`./form/${formId}`, endpoint),
 						})
@@ -282,10 +324,10 @@ describe('Correction API', () => {
 		})
 
 		describe('GET /assessment/:id', () => {
-			it('admins are allowed to retrieve submission in order to provide corrections', async () => {
+			it('should allow admins to retrieve submission in order to provide corrections', async () => {
 				const res = await r
 					.get(`/assessment/${submissionId}`)
-					.set('Cookie', [`${authCookieName}=${authCookie}`])
+					.set('Cookie', [`${authCookieName}=${adminAuthCookie}`])
 					.set('Accept', 'application/json; charset=utf-8')
 					.expect(HTTPStatusCode.OK)
 					.expect('etag', '3')
@@ -300,6 +342,12 @@ describe('Correction API', () => {
 				}
 				expect(res.body).toMatchObject(correctedSubmission)
 			})
+			it('should not allow users to retrieve a submission', async () =>
+				r
+					.get(`/assessment/${submissionId}`)
+					.set('Accept', 'application/json; charset=utf-8')
+					.set('Cookie', [`${authCookieName}=${userAuthCookie}`])
+					.expect(HTTPStatusCode.Forbidden))
 		})
 	})
 })
