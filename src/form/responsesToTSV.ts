@@ -1,4 +1,5 @@
 import { Static } from '@sinclair/typebox'
+import { correctResponse } from '../correction/correctResponse.js'
 import { Correction } from './correction.js'
 import { escapeCellForTSV } from './escapeCellForTSV.js'
 import { Form } from './form.js'
@@ -87,17 +88,10 @@ export const responsesToTSV = (
 		],
 		// Responses
 		...responses.map(({ id, response, corrections }) => {
-			const correctedResponse = [
+			const correctedResponse = correctResponse({
 				response,
-				...corrections.map(({ data }) => data.response),
-			].reduce((correctedResponse, response) => {
-				for (const [sectionId, questions] of Object.entries(response)) {
-					for (const [questionId, response] of Object.entries(questions)) {
-						correctedResponse[sectionId][questionId] = response
-					}
-				}
-				return correctedResponse
-			}, response)
+				corrections: corrections.map(({ data: { response } }) => response),
+			})
 			return [
 				id,
 				...form.sections.reduce(

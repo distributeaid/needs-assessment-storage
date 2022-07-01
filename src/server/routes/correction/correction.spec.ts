@@ -19,6 +19,7 @@ import { portForTest } from '../../../test/portForTest.js'
 import { tempJsonFileStore } from '../../../test/tempJsonFileStore.js'
 import { ulid, ulidRegEx } from '../../../ulid.js'
 import { HTTPStatusCode } from '../../response/HttpStatusCode.js'
+import { assessmentGetHandler } from '../assessment/assessmentGetHandler.js'
 import { assessmentsExportHandler } from '../assessment/export.js'
 import login from '../login.js'
 import registerUser from '../register.js'
@@ -116,6 +117,15 @@ describe('Correction API', () => {
 				correctionStorage,
 			}),
 		)
+		app.get(
+			'/assessment/:id',
+			cookieAuth,
+			assessmentGetHandler({
+				endpoint,
+				submissionStorage,
+				correctionStorage,
+			}),
+		)
 		app.post(
 			'/register',
 			registerUser(omnibus, () => '123456'),
@@ -135,7 +145,7 @@ describe('Correction API', () => {
 	let correctionId1: string
 	let correctionId2: string
 
-	describe('admins are allow to provide corrections to responses', () => {
+	describe('admins are allowed to provide corrections to responses', () => {
 		let authCookie: string
 		// Login
 		beforeAll(async () => {
@@ -154,6 +164,18 @@ describe('Correction API', () => {
 				})
 				.expect(HTTPStatusCode.OK)
 			authCookie = tokenCookieRx.exec(res.header['set-cookie'])?.[1] as string
+		})
+
+		describe('GET /assessment/:id', () => {
+			it('admins are allowed to retrieve submission in order to provide corrections', async () => {
+				const res = await r
+					.get(`/assessment/${submissionId}`)
+					.set('Cookie', [`${authCookieName}=${authCookie}`])
+					.set('Accept', 'application/json; charset=utf-8')
+					.expect(HTTPStatusCode.OK)
+					.expect('etag', '1')
+				expect(res.body).toMatchObject(submission)
+			})
 		})
 
 		describe('POST /correction', () => {
@@ -256,6 +278,27 @@ describe('Correction API', () => {
 						],
 					])
 				})
+			})
+		})
+
+		describe('GET /assessment/:id', () => {
+			it('admins are allowed to retrieve submission in order to provide corrections', async () => {
+				const res = await r
+					.get(`/assessment/${submissionId}`)
+					.set('Cookie', [`${authCookieName}=${authCookie}`])
+					.set('Accept', 'application/json; charset=utf-8')
+					.expect(HTTPStatusCode.OK)
+					.expect('etag', '3')
+				const correctedSubmission: Static<typeof Submission> = {
+					...submission,
+					response: {
+						...submission.response,
+						section1: {
+							question1: 'Corrected answer, again',
+						},
+					},
+				}
+				expect(res.body).toMatchObject(correctedSubmission)
 			})
 		})
 	})

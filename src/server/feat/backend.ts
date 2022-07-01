@@ -20,6 +20,7 @@ import { ulid } from '../../ulid.js'
 import { addRequestId } from '../addRequestId.js'
 import { HTTPStatusCode } from '../response/HttpStatusCode.js'
 import { respondWithProblem } from '../response/problem.js'
+import { assessmentGetHandler } from '../routes/assessment/assessmentGetHandler.js'
 import { assessmentsExportHandler } from '../routes/assessment/export.js'
 import { assessmentSubmissionHandler } from '../routes/assessment/submit.js'
 import { deleteCookie, renewCookie } from '../routes/cookie.js'
@@ -174,12 +175,23 @@ export const backend = ({
 			)
 			.end(),
 	)
+
 	app.post(
 		'/assessment/export',
 		cookieAuth,
 		assessmentsExportHandler({
 			endpoint,
 			formStorage,
+			submissionStorage,
+			correctionStorage,
+		}),
+	)
+
+	app.get(
+		'/assessment/:id',
+		cookieAuth,
+		assessmentGetHandler({
+			endpoint,
 			submissionStorage,
 			correctionStorage,
 		}),
