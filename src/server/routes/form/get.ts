@@ -1,21 +1,13 @@
-import { Type } from '@sinclair/typebox'
 import { Request, Response } from 'express'
 import { Form } from '../../../form/form.js'
 import { errorsToProblemDetail } from '../../../input-validation/errorsToProblemDetail.js'
 import { validateWithTypebox } from '../../../input-validation/validateWithTypebox.js'
 import { Store } from '../../../storage/store.js'
-import { ulidExclusiveRegEx } from '../../../ulid.js'
 import { HTTPStatusCode } from '../../response/HttpStatusCode.js'
 import { respondWithProblem } from '../../response/problem.js'
+import { idParamSchema } from '../idParamSchema.js'
 
-const input = Type.Object(
-	{
-		id: Type.RegEx(ulidExclusiveRegEx),
-	},
-	{ additionalProperties: false },
-)
-
-const validateInput = validateWithTypebox(input)
+const validateInput = validateWithTypebox(idParamSchema)
 
 export const formGetHandler =
 	({ storage }: { storage: Store<Form> }) =>

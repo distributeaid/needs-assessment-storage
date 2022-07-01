@@ -1,11 +1,20 @@
 import { Static } from '@sinclair/typebox'
+import { correctResponse } from '../correction/correctResponse.js'
+import { Correction } from './correction.js'
 import { escapeCellForTSV } from './escapeCellForTSV.js'
 import { Form } from './form.js'
 import { Response } from './submission.js'
 
 export const responsesToTSV = (
 	form: Form,
-	responses: { id: string; response: Static<typeof Response> }[],
+	responses: {
+		id: string
+		response: Static<typeof Response>
+		corrections: {
+			id: string
+			data: Static<typeof Correction>
+		}[]
+	}[],
 ): string =>
 	[
 		// Header
@@ -40,6 +49,8 @@ export const responsesToTSV = (
 					].flat(),
 				[] as string[],
 			),
+			'$meta.version',
+			'$meta.corrections',
 		],
 		[
 			`Assessment ID`,
@@ -72,10 +83,16 @@ export const responsesToTSV = (
 					].flat(),
 				[] as string[],
 			),
+			'Version',
+			'Corrections',
 		],
 		// Responses
-		...responses.map(({ id, response }) =>
-			[
+		...responses.map(({ id, response, corrections }) => {
+			const correctedResponse = correctResponse({
+				response,
+				corrections: corrections.map(({ data: { response } }) => response),
+			})
+			return [
 				id,
 				...form.sections.reduce(
 					(questionIds, section) =>
@@ -83,7 +100,7 @@ export const responsesToTSV = (
 							...questionIds,
 							...section.questions.map((question) => {
 								const answer: string | [number, string] | string[] | undefined =
-									response?.[section.id]?.[question.id]
+									correctedResponse?.[section.id]?.[question.id]
 								switch (question.format.type) {
 									case 'non-negative-integer':
 									case 'positive-integer':
@@ -109,8 +126,10 @@ export const responsesToTSV = (
 						].flat(),
 					[] as string[],
 				),
-			].map(escapeCellForTSV),
-		),
+				`${corrections.length + 1}`,
+				corrections.map((c) => `${c.id} by ${c.data.author}`).join(', '),
+			].map(escapeCellForTSV)
+		}),
 	]
 		.map((line) => line.join('\t'))
 		.join('\n')

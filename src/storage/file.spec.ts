@@ -1,21 +1,19 @@
-import { promises as fs } from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import { tempJsonFileStore } from '../test/tempJsonFileStore.js'
 import { ulid } from '../ulid.js'
-import { jsonFileStore } from './file.js'
 import { Store } from './store.js'
 
 describe('File store', () => {
 	let store: Store<any>
-	let tmpDir: string
 	let id: string
+	let cleanup: () => Promise<void>
 	beforeAll(async () => {
-		tmpDir = await fs.mkdtemp(`${os.tmpdir()}${path.sep}`)
-		store = jsonFileStore<any>({ directory: tmpDir })
+		const { store: s, cleanup: c } = await tempJsonFileStore<any>()
+		cleanup = c
+		store = s
 		id = ulid()
 	})
 	afterAll(async () => {
-		await fs.rm(tmpDir, { recursive: true })
+		await cleanup()
 	})
 
 	describe('persist()', () => {

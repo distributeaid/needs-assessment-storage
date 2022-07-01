@@ -2,7 +2,10 @@ import { Static } from '@sinclair/typebox'
 import EventEmitter from 'events'
 import nodemailer, { Transporter } from 'nodemailer'
 import { Attachment } from 'nodemailer/lib/mailer'
+import { correctionDiff } from '../correction/correctionDiff.js'
+import { correctionDiffToText } from '../correction/correctionDiffToText.js'
 import { events } from '../events.js'
+import { Correction } from '../form/correction.js'
 import { Form } from '../form/form.js'
 import { responseToTSV } from '../form/responseToTSV.js'
 import { Submission } from '../form/submission.js'
@@ -101,8 +104,41 @@ export const adminSubmissionNotificationEmail = (
 	}
 }
 
+export const adminCorrectionNotificationEmail = (
+	id: string,
+	correction: Static<typeof Correction>,
+	submission$Id: URL,
+	submission: Static<typeof Submission>,
+	form: Form,
+): Email => {
+	const formId = ulidRegEx.exec(form.$id)?.[0]
+	const submissionId = ulidRegEx.exec(submission$Id.toString())?.[0]
+	return {
+		subject: `[submission:${submissionId}] New correction by ${correction.author} received (${id})`,
+		text: [
+			`A needs assessment submission was corrected by ${correction.author}.`,
+			`Form: ${form.$id}`,
+			`Submission: ${submission$Id} (v${correction.submissionVersion})`,
+			'',
+			`Changes:`,
+			correctionDiffToText(
+				form,
+				correctionDiff(form, submission.response, correction.response),
+			),
+		].join('\n'),
+		attachments: [
+			{
+				contentType: 'text/tsv; charset=utf-8',
+				filename: `form-${formId}-submission-${submissionId}-correction-${id}.tsv`,
+				content: responseToTSV(submission.response, form),
+			},
+		],
+	}
+}
+
 export const appMailer = (
 	omnibus: EventEmitter,
+
 	{
 		transport,
 		fromEmail,
@@ -138,6 +174,26 @@ export const appMailer = (
 		events.assessment_created,
 		async (id: string, submission: Static<typeof Submission>, form: Form) => {
 			const data = adminSubmissionNotificationEmail(id, submission, form)
+			await Promise.all(adminEmails.map(async (email) => sendMail(email, data)))
+		},
+	)
+
+	omnibus.on(
+		events.correction_created,
+		async (
+			id: string,
+			correction: Static<typeof Correction>,
+			form: Form,
+			submissionId: URL,
+			submission: Static<typeof Submission>,
+		) => {
+			const data = adminCorrectionNotificationEmail(
+				id,
+				correction,
+				submissionId,
+				submission,
+				form,
+			)
 			await Promise.all(adminEmails.map(async (email) => sendMail(email, data)))
 		},
 	)

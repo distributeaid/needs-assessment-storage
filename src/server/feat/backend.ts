@@ -8,6 +8,7 @@ import express, { Express, NextFunction, Request, Response } from 'express'
 import passport from 'passport'
 import { URL } from 'url'
 import { authCookie, cookieAuthStrategy } from '../../authenticateRequest.js'
+import { Correction } from '../../form/correction.js'
 import { exampleForm } from '../../form/example.form.js'
 import { exampleResponse } from '../../form/example.response.js'
 import { Form } from '../../form/form.js'
@@ -19,9 +20,11 @@ import { ulid } from '../../ulid.js'
 import { addRequestId } from '../addRequestId.js'
 import { HTTPStatusCode } from '../response/HttpStatusCode.js'
 import { respondWithProblem } from '../response/problem.js'
+import { assessmentGetHandler } from '../routes/assessment/assessmentGetHandler.js'
 import { assessmentsExportHandler } from '../routes/assessment/export.js'
 import { assessmentSubmissionHandler } from '../routes/assessment/submit.js'
 import { deleteCookie, renewCookie } from '../routes/cookie.js'
+import { assessmentCorrectionHandler } from '../routes/correction/correct.js'
 import { formCreationHandler } from '../routes/form/create.js'
 import { formGetHandler } from '../routes/form/get.js'
 import login from '../routes/login.js'
@@ -39,6 +42,7 @@ export const backend = ({
 	adminEmails,
 	formStorage,
 	submissionStorage,
+	correctionStorage,
 }: {
 	omnibus: EventEmitter
 	origin: URL
@@ -53,6 +57,7 @@ export const backend = ({
 	generateToken?: () => string
 	formStorage: Store<Form>
 	submissionStorage: Store<Static<typeof Submission>>
+	correctionStorage: Store<Static<typeof Correction>>
 }): Express => {
 	const app = express()
 	/**
@@ -170,6 +175,7 @@ export const backend = ({
 			)
 			.end(),
 	)
+
 	app.post(
 		'/assessment/export',
 		cookieAuth,
@@ -177,6 +183,30 @@ export const backend = ({
 			endpoint,
 			formStorage,
 			submissionStorage,
+			correctionStorage,
+		}),
+	)
+
+	app.get(
+		'/assessment/:id',
+		cookieAuth,
+		assessmentGetHandler({
+			endpoint,
+			submissionStorage,
+			correctionStorage,
+		}),
+	)
+
+	// Corrections
+	app.patch(
+		'/assessment/:id',
+		cookieAuth,
+		assessmentCorrectionHandler({
+			omnibus,
+			endpoint,
+			formStorage,
+			submissionStorage,
+			correctionStorage,
 		}),
 	)
 
