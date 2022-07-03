@@ -11,4 +11,7 @@ export const consoleMailer = (
 	omnibus.on(events.assessment_created, (id: string) => {
 		debug(`Assessment ${id} created.`)
 	})
+	omnibus.on(events.correction_created, (id: string) => {
+		debug(`Correction ${id} created.`)
+	})
 }
