@@ -193,7 +193,7 @@ adminstrators** to provide corrections. These _amend_ responses. All corrections
 are stored in separate files.
 
 ```bash
-http PATCH http://localhost:3000/correction 'Cookie:auth=...' <<< '{"form":"http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043","assessment":"http://localhost:3000/assessment/01G66DFRWRCXJ2T5AZZAHD8D6T","response":{"aboutYou":{"name":"Alex Doe"}}}'
+http POST http://localhost:3000/correction 'Cookie:auth=...' <<< '{"form":"http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043","assessment":"http://localhost:3000/assessment/01G66DFRWRCXJ2T5AZZAHD8D6T","response":{"aboutYou":{"name":"Alex Doe"}}}'
 ```
 
 ## Storage
