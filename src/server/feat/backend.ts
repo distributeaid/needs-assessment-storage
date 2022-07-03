@@ -99,7 +99,7 @@ export const backend = ({
 		cors({
 			origin: `${origin.protocol}//${origin.host}`,
 			credentials: true,
-			exposedHeaders: ['Location'],
+			exposedHeaders: ['Location', 'Etag'],
 		}),
 	)
 
