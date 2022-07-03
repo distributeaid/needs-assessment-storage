@@ -159,6 +159,15 @@ http POST http://localhost:3000/assessment <<< '{"form":"http://localhost:3000/f
 
 If the response is valid, it will be stored locally.
 
+### Read individual responses
+
+Administrator can fetch individual responses (e.g. in order to provide
+corrections):
+
+```bash
+http GET http://localhost:3000/assessment/01G66DFRWRCXJ2T5AZZAHD8D6T 'Cookie:auth=...'
+```
+
 ## Notification about new assessments
 
 Assessments will be sent to the configured admin email addresses, and include a
