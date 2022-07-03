@@ -198,8 +198,8 @@ export const backend = ({
 	)
 
 	// Corrections
-	app.patch(
-		'/assessment/:id',
+	app.post(
+		'/correction',
 		cookieAuth,
 		assessmentCorrectionHandler({
 			omnibus,
