@@ -85,15 +85,18 @@ export const verificationEmail = (token: string): Email => ({
 
 export const adminSubmissionNotificationEmail = (
 	id: string,
+	submission$Id: URL,
 	submission: Static<typeof Submission>,
 	form: Form,
 ): Email => {
 	const formId = ulidRegEx.exec(form.$id)?.[0]
 	return {
 		subject: `[form:${formId}] New submission received (${id})`,
-		text: [`A new needs assessment form was filled.`, `Form: ${form.$id}`].join(
-			'\n',
-		),
+		text: [
+			`A new needs assessment form was filled.`,
+			`Form: ${form.$id}`,
+			`Submission: ${submission$Id.toString()}`,
+		].join('\n'),
 		attachments: [
 			{
 				contentType: 'text/tsv; charset=utf-8',
@@ -172,8 +175,18 @@ export const appMailer = (
 
 	omnibus.on(
 		events.assessment_created,
-		async (id: string, submission: Static<typeof Submission>, form: Form) => {
-			const data = adminSubmissionNotificationEmail(id, submission, form)
+		async (
+			id: string,
+			submission$Id: URL,
+			submission: Static<typeof Submission>,
+			form: Form,
+		) => {
+			const data = adminSubmissionNotificationEmail(
+				id,
+				submission$Id,
+				submission,
+				form,
+			)
 			await Promise.all(adminEmails.map(async (email) => sendMail(email, data)))
 		},
 	)

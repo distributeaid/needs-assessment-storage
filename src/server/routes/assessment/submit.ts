@@ -89,11 +89,21 @@ export const assessmentSubmissionHandler = ({
 
 		const id = ulid()
 		await submissionStorage.persist(id, validBody.value)
+
+		const submission$Id = new URL(`./assessment/${id}`, endpoint).toString()
+
 		response
 			.status(HTTPStatusCode.Created)
-			.header('Location', new URL(`./assessment/${id}`, endpoint).toString())
+			.header('Location', submission$Id)
 			.header('ETag', '1')
 			.end()
-		omnibus.emit(events.assessment_created, id, validBody.value, form)
+
+		omnibus.emit(
+			events.assessment_created,
+			id,
+			submission$Id,
+			validBody.value,
+			form,
+		)
 	}
 }
