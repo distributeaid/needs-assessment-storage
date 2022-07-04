@@ -82,9 +82,13 @@ describe('appMailer', () => {
 				},
 			}
 			const submissionId = ulid()
+			const submission$Id = new URL(
+				`https://example.com/submission/${submissionId}`,
+			).toString()
 			omnibus.emit(
 				events.assessment_created,
 				submissionId,
+				submission$Id,
 				submission,
 				simpleForm,
 			)
@@ -95,6 +99,7 @@ describe('appMailer', () => {
 				text: [
 					'A new needs assessment form was filled.',
 					`Form: ${form$Id}`,
+					`Submission: ${submission$Id}`,
 				].join('\n'),
 				attachments: [
 					{
