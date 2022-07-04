@@ -20,15 +20,12 @@ const storageBaseDir = `${appHome}/${cleverCloudFsBucket.split(':')[0]}`
 const submissionsDir = path.join(storageBaseDir, 'submission')
 const correctionsDir = path.join(storageBaseDir, 'corrections')
 const formsDir = path.join(storageBaseDir, 'forms')
-try {
-	fs.statSync(submissionsDir)
-} catch {
-	fs.mkdirSync(submissionsDir, { recursive: true })
-}
-try {
-	fs.statSync(formsDir)
-} catch {
-	fs.mkdirSync(formsDir, { recursive: true })
+for (const d of [formsDir, submissionsDir, correctionsDir]) {
+	try {
+		fs.statSync(d)
+	} catch {
+		fs.mkdirSync(d, { recursive: true })
+	}
 }
 
 const version = process.env.COMMIT_ID ?? '0.0.0-development'
