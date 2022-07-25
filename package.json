@@ -85,7 +85,7 @@
     "@types/nodemailer": "6.4.4",
     "@types/passport": "1.0.9",
     "@types/supertest": "2.0.12",
-    "@typescript-eslint/eslint-plugin": "5.30.7",
+    "@typescript-eslint/eslint-plugin": "5.31.0",
     "clever-tools": "2.9.1",
     "commander": "9.4.0",
     "eslint": "8.20.0",
