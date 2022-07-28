@@ -34,6 +34,26 @@ export const nonNegativeIntegerQuestionSchema = {
 						type: 'string',
 						minLength: 1,
 					},
+					toBaseUnit: {
+						type: 'object',
+						properties: {
+							baseUnitId: {
+								type: 'string',
+								minLength: 1,
+								description: 'The ID of the base unit.',
+								examples: ['kg', 'epa'],
+							},
+							conversionFactor: {
+								type: 'number',
+								minimum: 0.0000000001,
+								description:
+									'The factor used to convert the value of this unit into the base unit.',
+								examples: [1, 500, 0.2],
+							},
+						},
+						additionalProperties: false,
+						required: ['baseUnitId', 'conversionFactor'],
+					},
 				},
 				additionalProperties: false,
 				required: ['id', 'title'],

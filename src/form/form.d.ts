@@ -30,8 +30,17 @@ export type TextQuestionFormat = {
 	multiLine?: boolean
 }
 
+export type Unit = {
+	id: string
+	title: string
+	toBaseUnit?: {
+		baseUnitId: string
+		conversionFactor: number
+	}
+}
+
 export type IntegerQuestionFormat = {
-	units: Option[]
+	units: Unit[]
 	min?: number
 	max?: number
 }

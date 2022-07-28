@@ -1,0 +1,67 @@
+import { Static } from '@sinclair/typebox'
+import { correctResponse } from '../correction/correctResponse.js'
+import { Correction } from '../form/correction.js'
+import { Form } from '../form/form.js'
+import { Response } from '../form/submission.js'
+
+type Summary = {
+	[key: string]: {
+		[key: string]: Record<string, number>
+	}
+}
+
+export const summarizeResponses = (
+	form: Form,
+	responses: {
+		id: string
+		response: Static<typeof Response>
+		corrections: {
+			id: string
+			data: Static<typeof Correction>
+		}[]
+	}[],
+): Summary => {
+	const summary: Summary = {}
+
+	for (const { response, corrections } of responses) {
+		const correctedResponse = correctResponse({
+			response,
+			corrections: corrections.map(({ data: { response } }) => response),
+		})
+
+		for (const section of form.sections) {
+			for (const question of section.questions) {
+				if (
+					question.format.type !== 'non-negative-integer' &&
+					question.format.type !== 'positive-integer'
+				)
+					continue
+				let [value, unitId] = (correctedResponse[section.id]?.[question.id] ??
+					[]) as [number, string]
+				if (value === undefined || unitId === undefined) continue
+				const unit = question.format.units.find(({ id }) => id === unitId)
+
+				if (unit?.toBaseUnit !== undefined) {
+					value = value * unit.toBaseUnit.conversionFactor
+					unitId = unit.toBaseUnit.baseUnitId
+				}
+
+				if (summary[section.id] === undefined) {
+					summary[section.id] = {}
+				}
+
+				if (summary[section.id][question.id] === undefined) {
+					summary[section.id][question.id] = {}
+				}
+
+				if (summary[section.id][question.id][unitId] === undefined) {
+					summary[section.id][question.id][unitId] = value
+				} else {
+					summary[section.id][question.id][unitId] += value
+				}
+			}
+		}
+	}
+
+	return summary
+}
