@@ -2,6 +2,7 @@ import { emailQuestionSchema } from './question/email.js'
 import { multiSelectQuestionSchema } from './question/multi-select.js'
 import { nonNegativeIntegerQuestionSchema } from './question/non-negative-integer.js'
 import { positiveIntegerQuestionSchema } from './question/positive-integer.js'
+import { regionQuestionSchema } from './question/region.js'
 import { singleSelectQuestionSchema } from './question/single-select.js'
 import { textQuestionSchema } from './question/text.js'
 
@@ -60,6 +61,7 @@ export const questionsSchema = {
 					nonNegativeIntegerQuestionSchema,
 					singleSelectQuestionSchema,
 					multiSelectQuestionSchema,
+					regionQuestionSchema,
 				],
 			},
 		},

@@ -1,4 +1,5 @@
 import { Static } from '@sinclair/typebox'
+import { getCountryByCountryCode } from '../country/getCountryByCountryCode.js'
 import { escapeCellForTSV } from './escapeCellForTSV.js'
 import { Form, MultiSelectQuestionFormat } from './form.js'
 import { Response } from './submission.js'
@@ -36,6 +37,28 @@ export const responseToTSV = (
 						questionText,
 						(v ?? '') as string,
 						question.format.options.find(({ id }) => id === v)?.title ?? '',
+					])
+					return
+				case 'region':
+					pushLine([
+						id,
+						questionText,
+						(v ?? '') as string,
+						(() => {
+							const { locality, countryCode } =
+								question.format.regions.find(({ id }) => id === v) ?? {}
+							let region = 'unknown region'
+							if (locality !== undefined) region = locality
+							let country = 'unknown country'
+							if (countryCode !== undefined) {
+								try {
+									country = getCountryByCountryCode(countryCode).shortName
+								} catch {
+									// pass
+								}
+							}
+							return `${region} (${country})`
+						})(),
 					])
 					return
 				case 'positive-integer':

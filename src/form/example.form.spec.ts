@@ -17,6 +17,7 @@ describe('the example form should be valid', () => {
 		const validForm = validateWithJSONSchema({
 			schema,
 		})(form)
+
 		expect('errors' in validForm).toBe(false)
 	})
 })

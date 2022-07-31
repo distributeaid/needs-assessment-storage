@@ -17,6 +17,7 @@ const answerToString = (question: Question, answer: Answer): string => {
 	switch (question.format.type) {
 		case 'email':
 		case 'text':
+		case 'region':
 			return answer
 	}
 	return JSON.stringify(answer)

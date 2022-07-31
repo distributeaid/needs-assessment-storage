@@ -1,3 +1,5 @@
+import { countries } from '../country/countries'
+
 export type Form = {
 	$schema: string
 	$id: string
@@ -50,6 +52,15 @@ export type PositiveIntegerQuestionFormat = {
 	type: 'positive-integer'
 } & IntegerQuestionFormat
 
+export type RegionQuestionForma = {
+	type: 'region'
+	regions: {
+		id: string
+		locality: string
+		countryCode: keyof typeof countries | '00' // 00 is reserved to provide an "other country" option
+	}[]
+}
+
 export type NonNegativeIntegerQuestionFormat = {
 	type: 'non-negative-integer'
 } & IntegerQuestionFormat
@@ -71,6 +82,7 @@ export type Question = {
 		| NonNegativeIntegerQuestionFormat
 		| SingleSelectQuestionFormat
 		| MultiSelectQuestionFormat
+		| RegionQuestionForma
 }
 
 export type Section = {

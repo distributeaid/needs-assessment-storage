@@ -1,5 +1,6 @@
 import { Static } from '@sinclair/typebox'
 import { correctResponse } from '../correction/correctResponse.js'
+import { getCountryByCountryCode } from '../country/getCountryByCountryCode.js'
 import { Correction } from './correction.js'
 import { escapeCellForTSV } from './escapeCellForTSV.js'
 import { Form } from './form.js'
@@ -33,6 +34,7 @@ export const responsesToTSV = (
 										`${section.id}.${question.id}:unit`,
 									]
 								case 'single-select':
+								case 'region':
 									return [
 										`${section.id}.${question.id}`,
 										`${section.id}.${question.id}:id`,
@@ -67,6 +69,7 @@ export const responsesToTSV = (
 										`${section.title}: ${title} (unit)`,
 									]
 								case 'single-select':
+								case 'region':
 									return [
 										`${section.title}: ${title}`,
 										`${section.title}: ${title} (id)`,
@@ -111,6 +114,25 @@ export const responsesToTSV = (
 												?.title ?? '',
 											answer as string,
 										]
+									case 'region':
+										return (() => {
+											const { locality, countryCode } =
+												question.format.regions.find(
+													({ id }) => id === answer,
+												) ?? {}
+											let region = 'unknown region'
+											if (locality !== undefined) region = locality
+											let country = 'unknown country'
+											if (countryCode !== undefined) {
+												try {
+													country =
+														getCountryByCountryCode(countryCode).shortName
+												} catch {
+													// pass
+												}
+											}
+											return [`${region} (${country})`, answer as string]
+										})()
 									case 'multi-select':
 										return [
 											question.format.options

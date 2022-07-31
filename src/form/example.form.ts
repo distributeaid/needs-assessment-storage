@@ -1,5 +1,96 @@
 import { URL } from 'url'
-import { Form } from './form.js'
+import { Form, Question } from './form.js'
+
+export const region: Question = {
+	id: 'region',
+	title: 'What region to you operate in?',
+	required: true,
+	format: {
+		type: 'region',
+		regions: [
+			{
+				id: 'calais',
+				locality: 'Calais/Dunkirk',
+				countryCode: 'FR',
+			},
+			{
+				id: 'paris',
+				locality: 'Paris',
+				countryCode: 'FR',
+			},
+			{
+				id: 'chios',
+				locality: 'Chios',
+				countryCode: 'GR',
+			},
+			{
+				id: 'samos',
+				locality: 'Samos',
+				countryCode: 'GR',
+			},
+			{
+				id: 'lesvos',
+				locality: 'Lesvos',
+				countryCode: 'GR',
+			},
+			{
+				id: 'northernGreece',
+				locality: 'Thessaloniki/Northern Mainland Greece',
+				countryCode: 'GR',
+			},
+			{
+				id: 'southernGreece',
+				locality: 'Athens/Southern Mainland Greece',
+				countryCode: 'GR',
+			},
+			{
+				id: 'beirut',
+				locality: 'Beirut',
+				countryCode: 'LB',
+			},
+			{
+				id: 'bekka',
+				locality: 'Bekka Valley',
+				countryCode: 'LB',
+			},
+			{
+				id: 'saida',
+				locality: 'Saida',
+				countryCode: 'LB',
+			},
+			{
+				id: 'lebanon',
+				locality: 'Lebanon other',
+				countryCode: 'LB',
+			},
+			{
+				id: 'bosnia',
+				locality: 'Bosnia',
+				countryCode: 'BA',
+			},
+			{
+				id: 'serbia',
+				locality: 'Serbia',
+				countryCode: 'RS',
+			},
+			{
+				id: 'ventimiglia',
+				locality: 'Ventimiglia',
+				countryCode: 'IT',
+			},
+			{
+				id: 'romania',
+				locality: 'Romania',
+				countryCode: 'RO',
+			},
+			{
+				id: 'other',
+				locality: 'Other',
+				countryCode: '00',
+			},
+		],
+	},
+}
 
 export const exampleForm = ({
 	$schema,
@@ -32,80 +123,7 @@ export const exampleForm = ({
 						type: 'text',
 					},
 				},
-				{
-					id: 'region',
-					title: 'What region to you operate in?',
-					required: true,
-					format: {
-						type: 'single-select',
-						options: [
-							{
-								id: 'calais',
-								title: 'Calais/Dunkirk',
-							},
-							{
-								id: 'paris',
-								title: 'Paris',
-							},
-							{
-								id: 'chios',
-								title: 'Chios',
-							},
-							{
-								id: 'samos',
-								title: 'Samos',
-							},
-							{
-								id: 'lesvos',
-								title: 'Lesvos',
-							},
-							{
-								id: 'northernGreece',
-								title: 'Thessaloniki/Northern Mainland Greece',
-							},
-							{
-								id: 'southernGreece',
-								title: 'Athens/Southern Mainland Greece',
-							},
-							{
-								id: 'beirut',
-								title: 'Beirut',
-							},
-							{
-								id: 'bekka',
-								title: 'Bekka Valley',
-							},
-							{
-								id: 'saida',
-								title: 'Saida',
-							},
-							{
-								id: 'lebanon',
-								title: 'Lebanon other',
-							},
-							{
-								id: 'bosnia',
-								title: 'Bosnia',
-							},
-							{
-								id: 'serbia',
-								title: 'Serbia',
-							},
-							{
-								id: 'ventimiglia',
-								title: 'Ventimiglia',
-							},
-							{
-								id: 'romania',
-								title: 'Romania',
-							},
-							{
-								id: 'other',
-								title: 'Other',
-							},
-						],
-					},
-				},
+				region,
 				{
 					id: 'areainfo',
 					title:

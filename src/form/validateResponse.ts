@@ -26,6 +26,10 @@ export const validateQuestion = (
 			return question.format.options
 				.map(({ id }) => id)
 				.includes(answer as string)
+		case 'region':
+			return question.format.regions
+				.map(({ id }) => id)
+				.includes(answer as string)
 		case 'multi-select':
 			return (
 				((answer ?? []) as string[]).length > 0 &&

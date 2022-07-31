@@ -1,6 +1,7 @@
 import { Static } from '@sinclair/typebox'
 import { ulid } from '../ulid'
 import { Correction } from './correction'
+import { region } from './example.form'
 import { Form } from './form'
 import { responsesToTSV } from './responsesToTSV'
 import { Response } from './submission.js'
@@ -36,6 +37,7 @@ const simpleForm: Form = {
 						],
 					},
 				},
+				region,
 			],
 		},
 		{
@@ -167,6 +169,7 @@ const response1: ResponseWithIDAndCorrections = {
 		section1: {
 			question1: 'Answer 1',
 			question2: [1, 'm'],
+			region: 'lesvos',
 		},
 		section2: {
 			question1: 'oranges',
@@ -182,6 +185,7 @@ const response2: ResponseWithIDAndCorrections = {
 		section1: {
 			question1: 'Answer 2',
 			question2: [2, 'm'],
+			region: 'lesvos',
 		},
 		section2: {
 			question1: 'apples',
@@ -198,6 +202,8 @@ const tsv = [
 		`section1.question1`,
 		`section1.question2`,
 		`section1.question2:unit`,
+		`section1.region`,
+		`section1.region:id`,
 		`section2.question1`,
 		`section2.question1:id`,
 		`section2.question2`,
@@ -217,6 +223,8 @@ const tsv = [
 		`Section 1: Question 1`,
 		`Section 1: Question 2`,
 		`Section 1: Question 2 (unit)`,
+		`Section 1: What region to you operate in?`,
+		`Section 1: What region to you operate in? (id)`,
 		`Section 2: Pick one fruit`,
 		`Section 2: Pick one fruit (id)`,
 		`Section 2: Pick multiple fruit`,
@@ -237,6 +245,8 @@ const tsv = [
 		'Answer 1',
 		'1',
 		'm',
+		'Lesvos (Greece)',
+		'lesvos',
 		'Oranges',
 		'oranges',
 		'Apples',
@@ -258,6 +268,8 @@ const tsv = [
 		'Answer 2',
 		'2',
 		'm',
+		'Lesvos (Greece)',
+		'lesvos',
 		'Apples',
 		'apples',
 		'Oranges, Bananas',
