@@ -33,8 +33,9 @@ export type TextQuestionFormat = {
 export type Unit = {
 	id: string
 	title: string
-	toBaseUnit?: {
-		baseUnitId: string
+	baseUnit?: {
+		id: string
+		title: string
 		conversionFactor: number
 	}
 }

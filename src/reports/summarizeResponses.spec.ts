@@ -26,8 +26,9 @@ const form: Form = {
 							{
 								id: 'epal',
 								title: 'Euro pallets',
-								toBaseUnit: {
-									baseUnitId: 'kg',
+								baseUnit: {
+									id: 'kg',
+									title: 'Kilogram',
 									conversionFactor: 760,
 								},
 							},
@@ -47,14 +48,49 @@ const form: Form = {
 							{
 								id: 'epal',
 								title: 'Euro pallets',
-								toBaseUnit: {
-									baseUnitId: 'cans',
+								baseUnit: {
+									id: 'cans',
+									title: 'Cans (#10 kitchen size)',
 									conversionFactor: 384,
 								},
 							},
 							{
 								id: 'cans',
 								title: 'Cans (#10 kitchen size)',
+							},
+						],
+					},
+				},
+			],
+		},
+		{
+			id: 'hygieneItems',
+			title: 'Hygiene items',
+			questions: [
+				{
+					id: 'washingDetergent',
+					title: 'Washing Detergent',
+					format: {
+						type: 'non-negative-integer',
+						units: [
+							// In this definition the two units are converted, however `wash cycles` is not selectable for the response
+							{
+								id: 'bottle1l',
+								title: '1L bottle',
+								baseUnit: {
+									id: 'washCycles',
+									title: 'wash cycles',
+									conversionFactor: 38,
+								},
+							},
+							{
+								id: 'bag5k',
+								title: '5k bag',
+								baseUnit: {
+									id: 'washCycles',
+									title: 'wash cycles',
+									conversionFactor: 90,
+								},
 							},
 						],
 					},
@@ -81,6 +117,9 @@ describe('reports', () => {
 							rice: [2, 'epal'],
 							cannedTomatoes: [100, 'cans'],
 						},
+						hygieneItems: {
+							washingDetergent: [10, 'bottle1l'],
+						},
 					},
 					corrections: [],
 				},
@@ -91,6 +130,9 @@ describe('reports', () => {
 							rice: [200, 'kg'],
 							cannedTomatoes: [3, 'epal'],
 						},
+						hygieneItems: {
+							washingDetergent: [10, 'bag5k'],
+						},
 					},
 					corrections: [],
 				},
@@ -99,6 +141,11 @@ describe('reports', () => {
 			foodItems: {
 				rice: { kg: 2 * 760 + 200 },
 				cannedTomatoes: { cans: 100 + 3 * 384 },
+			},
+			hygieneItems: {
+				washingDetergent: {
+					washCycles: 10 * 38 + 10 * 90,
+				},
 			},
 		}))
 })

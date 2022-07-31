@@ -41,9 +41,9 @@ export const summarizeResponses = (
 				if (value === undefined || unitId === undefined) continue
 				const unit = question.format.units.find(({ id }) => id === unitId)
 
-				if (unit?.toBaseUnit !== undefined) {
-					value = value * unit.toBaseUnit.conversionFactor
-					unitId = unit.toBaseUnit.baseUnitId
+				if (unit?.baseUnit !== undefined) {
+					value = value * unit.baseUnit.conversionFactor
+					unitId = unit.baseUnit.id
 				}
 
 				if (summary[section.id] === undefined) {
