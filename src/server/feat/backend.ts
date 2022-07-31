@@ -29,6 +29,7 @@ import { formCreationHandler } from '../routes/form/create.js'
 import { formGetHandler } from '../routes/form/get.js'
 import login from '../routes/login.js'
 import registerUser from '../routes/register.js'
+import { formSummaryHandler } from '../routes/reports/formSummary.js'
 import { schemaHandler } from '../routes/schema/schema.js'
 
 export const backend = ({
@@ -203,6 +204,17 @@ export const backend = ({
 		cookieAuth,
 		assessmentCorrectionHandler({
 			omnibus,
+			endpoint,
+			formStorage,
+			submissionStorage,
+			correctionStorage,
+		}),
+	)
+
+	// Reports
+	app.get(
+		'/form/:id/summary',
+		formSummaryHandler({
 			endpoint,
 			formStorage,
 			submissionStorage,

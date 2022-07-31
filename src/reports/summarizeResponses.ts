@@ -10,6 +10,13 @@ type Summary = {
 	}
 }
 
+/**
+ * WARNING /!\
+ *
+ * Free text inputs must never be published, this especially includes
+ * identifying information like email addresses and information about
+ * individuals and groups.
+ */
 export const summarizeResponses = (
 	form: Form,
 	responses: {
