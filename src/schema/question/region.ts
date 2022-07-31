@@ -1,4 +1,4 @@
-import { countries } from '../../country/countries'
+import { countries } from '../../country/countries.js'
 
 export const regionQuestionSchema = {
 	type: 'object',

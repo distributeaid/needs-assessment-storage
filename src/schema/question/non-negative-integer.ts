@@ -1,4 +1,4 @@
-import { unit } from './unit'
+import { unit } from './unit.js'
 
 export const nonNegativeIntegerQuestionSchema = {
 	type: 'object',
