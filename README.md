@@ -187,6 +187,40 @@ are stored in separate files.
 http PATCH http://localhost:3000/correction 'Cookie:auth=...' <<< '{"form":"http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043","assessment":"http://localhost:3000/assessment/01G66DFRWRCXJ2T5AZZAHD8D6T","response":{"aboutYou":{"name":"Alex Doe"}}}'
 ```
 
+## Summaries
+
+The numerical questions in a form can be summarized:
+
+```
+http GET http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043/summary
+```
+
+The response will include [unit conversion](./docs/conversions.md).
+
+````json
+{
+  "foodItems": {
+    "rice": {
+      "kg": 1843
+    },
+    "cannedTomatoes": {
+      "cans": 2788
+    }
+  },
+  "hygieneItems": {
+    "washingDetergent": {
+      "washCycles": 2810
+    }
+  }
+}
+```
+
+The summary can further be filtered by answers to any question.
+
+- summarize only assessments for a specific region: `http GET http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043/summary?basicInfo.region=lesvos`
+- summarize only assessments for a specific country: `http GET http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043/summary?basicInfo.region.countryCode=GR` (this depends on the question `basicInfo.region` to use the `region` question type, which is a specialized question type that has a `countryCode` property).
+- create combinations multiple answers `http GET http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043/summary?basicInfo.region=lesvos&timeOfYear.quarter=q2`
+
 ## Storage
 
 Forms and responses are stored on the local filesystem. When using Clever Cloud,
@@ -197,3 +231,4 @@ responses.
 The mount point on the production instance is configured via the
 [`CC_FS_BUCKET` environment variable](https://www.clever-cloud.com/blog/features/2017/09/22/fs-bucket-environment-variable/)
 of the instance.
+````

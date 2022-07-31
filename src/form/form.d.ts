@@ -52,7 +52,7 @@ export type PositiveIntegerQuestionFormat = {
 	type: 'positive-integer'
 } & IntegerQuestionFormat
 
-export type RegionQuestionForma = {
+export type RegionQuestionFormat = {
 	type: 'region'
 	regions: {
 		id: string
@@ -82,7 +82,7 @@ export type Question = {
 		| NonNegativeIntegerQuestionFormat
 		| SingleSelectQuestionFormat
 		| MultiSelectQuestionFormat
-		| RegionQuestionForma
+		| RegionQuestionFormat
 }
 
 export type Section = {
