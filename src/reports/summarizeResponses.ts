@@ -5,8 +5,13 @@ import { Form } from '../form/form.js'
 import { Response } from '../form/submission.js'
 
 type Summary = {
-	[key: string]: {
-		[key: string]: Record<string, number>
+	stats: {
+		count: number
+	}
+	summary: {
+		[key: string]: {
+			[key: string]: Record<string, number>
+		}
 	}
 }
 
@@ -28,7 +33,12 @@ export const summarizeResponses = (
 		}[]
 	}[],
 ): Summary => {
-	const summary: Summary = {}
+	const summary: Summary = {
+		summary: {},
+		stats: {
+			count: 0,
+		},
+	}
 
 	for (const { response, corrections } of responses) {
 		const correctedResponse = correctResponse({
@@ -53,21 +63,23 @@ export const summarizeResponses = (
 					unitId = unit.baseUnit.id
 				}
 
-				if (summary[section.id] === undefined) {
-					summary[section.id] = {}
+				if (summary.summary[section.id] === undefined) {
+					summary.summary[section.id] = {}
 				}
 
-				if (summary[section.id][question.id] === undefined) {
-					summary[section.id][question.id] = {}
+				if (summary.summary[section.id][question.id] === undefined) {
+					summary.summary[section.id][question.id] = {}
 				}
 
-				if (summary[section.id][question.id][unitId] === undefined) {
-					summary[section.id][question.id][unitId] = value
+				if (summary.summary[section.id][question.id][unitId] === undefined) {
+					summary.summary[section.id][question.id][unitId] = value
 				} else {
-					summary[section.id][question.id][unitId] += value
+					summary.summary[section.id][question.id][unitId] += value
 				}
 			}
 		}
+
+		summary.stats.count++
 	}
 
 	return summary

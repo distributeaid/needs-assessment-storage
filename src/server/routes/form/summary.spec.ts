@@ -252,14 +252,19 @@ describe('Summary API', () => {
 				.expect(HTTPStatusCode.OK)
 				.expect('Content-Type', /text\/json; charset=utf-8/)
 			expect(JSON.parse(res.text)).toMatchObject({
-				foodItems: {
-					rice: { kg: 2 * 760 + 200 + 123 },
-					cannedTomatoes: { cans: 100 + 3 * 384 + 4 * 384 },
-				},
-				hygieneItems: {
-					washingDetergent: {
-						washCycles: 10 * 38 + 10 * 90 + 17 * 90,
+				summary: {
+					foodItems: {
+						rice: { kg: 2 * 760 + 200 + 123 },
+						cannedTomatoes: { cans: 100 + 3 * 384 + 4 * 384 },
 					},
+					hygieneItems: {
+						washingDetergent: {
+							washCycles: 10 * 38 + 10 * 90 + 17 * 90,
+						},
+					},
+				},
+				stats: {
+					count: 3,
 				},
 			})
 		})
@@ -275,14 +280,19 @@ describe('Summary API', () => {
 						.expect(HTTPStatusCode.OK)
 						.expect('Content-Type', /text\/json; charset=utf-8/)
 					expect(JSON.parse(res.text)).toMatchObject({
-						foodItems: {
-							rice: { kg: 200 },
-							cannedTomatoes: { cans: 3 * 384 },
-						},
-						hygieneItems: {
-							washingDetergent: {
-								washCycles: 10 * 90,
+						summary: {
+							foodItems: {
+								rice: { kg: 200 },
+								cannedTomatoes: { cans: 3 * 384 },
 							},
+							hygieneItems: {
+								washingDetergent: {
+									washCycles: 10 * 90,
+								},
+							},
+						},
+						stats: {
+							count: 1,
 						},
 					})
 				})
@@ -296,14 +306,19 @@ describe('Summary API', () => {
 						.expect(HTTPStatusCode.OK)
 						.expect('Content-Type', /text\/json; charset=utf-8/)
 					expect(JSON.parse(res.text)).toMatchObject({
-						foodItems: {
-							rice: { kg: 200 + 123 },
-							cannedTomatoes: { cans: 3 * 384 + 4 * 384 },
-						},
-						hygieneItems: {
-							washingDetergent: {
-								washCycles: 10 * 90 + 17 * 90,
+						summary: {
+							foodItems: {
+								rice: { kg: 200 + 123 },
+								cannedTomatoes: { cans: 3 * 384 + 4 * 384 },
 							},
+							hygieneItems: {
+								washingDetergent: {
+									washCycles: 10 * 90 + 17 * 90,
+								},
+							},
+						},
+						stats: {
+							count: 2,
 						},
 					})
 				})
@@ -318,14 +333,19 @@ describe('Summary API', () => {
 					.expect(HTTPStatusCode.OK)
 					.expect('Content-Type', /text\/json; charset=utf-8/)
 				expect(JSON.parse(res.text)).toMatchObject({
-					foodItems: {
-						rice: { kg: 2 * 760 + 200 },
-						cannedTomatoes: { cans: 100 + 3 * 384 },
-					},
-					hygieneItems: {
-						washingDetergent: {
-							washCycles: 10 * 38 + 10 * 90,
+					summary: {
+						foodItems: {
+							rice: { kg: 2 * 760 + 200 },
+							cannedTomatoes: { cans: 100 + 3 * 384 },
 						},
+						hygieneItems: {
+							washingDetergent: {
+								washCycles: 10 * 38 + 10 * 90,
+							},
+						},
+					},
+					stats: {
+						count: 2,
 					},
 				})
 			})
@@ -340,15 +360,18 @@ describe('Summary API', () => {
 					.expect(HTTPStatusCode.OK)
 					.expect('Content-Type', /text\/json; charset=utf-8/)
 				expect(JSON.parse(res.text)).toMatchObject({
-					foodItems: {
-						rice: { kg: 200 },
-						cannedTomatoes: { cans: 3 * 384 },
-					},
-					hygieneItems: {
-						washingDetergent: {
-							washCycles: 10 * 90,
+					summary: {
+						foodItems: {
+							rice: { kg: 200 },
+							cannedTomatoes: { cans: 3 * 384 },
+						},
+						hygieneItems: {
+							washingDetergent: {
+								washCycles: 10 * 90,
+							},
 						},
 					},
+					stats: { count: 1 },
 				})
 			})
 

@@ -138,14 +138,19 @@ describe('reports', () => {
 				},
 			]),
 		).toMatchObject({
-			foodItems: {
-				rice: { kg: 2 * 760 + 200 },
-				cannedTomatoes: { cans: 100 + 3 * 384 },
-			},
-			hygieneItems: {
-				washingDetergent: {
-					washCycles: 10 * 38 + 10 * 90,
+			summary: {
+				foodItems: {
+					rice: { kg: 2 * 760 + 200 },
+					cannedTomatoes: { cans: 100 + 3 * 384 },
 				},
+				hygieneItems: {
+					washingDetergent: {
+						washCycles: 10 * 38 + 10 * 90,
+					},
+				},
+			},
+			stats: {
+				count: 2,
 			},
 		}))
 })
