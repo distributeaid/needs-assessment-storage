@@ -197,29 +197,39 @@ http GET http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043/summary
 
 The response will include [unit conversion](./docs/conversions.md).
 
-````json
+```json
 {
-  "foodItems": {
-    "rice": {
-      "kg": 1843
+  "summary": {
+    "foodItems": {
+      "rice": {
+        "kg": 1843
+      },
+      "cannedTomatoes": {
+        "cans": 2788
+      }
     },
-    "cannedTomatoes": {
-      "cans": 2788
+    "hygieneItems": {
+      "washingDetergent": {
+        "washCycles": 2810
+      }
     }
   },
-  "hygieneItems": {
-    "washingDetergent": {
-      "washCycles": 2810
-    }
+  "stats": {
+    "count": 3
   }
 }
 ```
 
 The summary can further be filtered by answers to any question.
 
-- summarize only assessments for a specific region: `http GET http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043/summary?basicInfo.region=lesvos`
-- summarize only assessments for a specific country: `http GET http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043/summary?basicInfo.region.countryCode=GR` (this depends on the question `basicInfo.region` to use the `region` question type, which is a specialized question type that has a `countryCode` property).
-- create combinations multiple answers `http GET http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043/summary?basicInfo.region=lesvos&timeOfYear.quarter=q2`
+- summarize only assessments for a specific region:
+  `http GET http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043/summary?basicInfo.region=lesvos`
+- summarize only assessments for a specific country:
+  `http GET http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043/summary?basicInfo.region.countryCode=GR`
+  (this depends on the question `basicInfo.region` to use the `region` question
+  type, which is a specialized question type that has a `countryCode` property).
+- create combinations multiple answers
+  `http GET http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043/summary?basicInfo.region=lesvos&timeOfYear.quarter=q2`
 
 ## Storage
 
@@ -231,4 +241,3 @@ responses.
 The mount point on the production instance is configured via the
 [`CC_FS_BUCKET` environment variable](https://www.clever-cloud.com/blog/features/2017/09/22/fs-bucket-environment-variable/)
 of the instance.
-````
