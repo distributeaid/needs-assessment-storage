@@ -225,7 +225,7 @@ The summary can further be filtered by answers to any question.
 - summarize only assessments for a specific region:
   `http GET http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043/summary?basicInfo.region=lesvos`
 - summarize only assessments for a specific country:
-  `http GET http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043/summary?basicInfo.region.countryCode=GR`
+  `http GET http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043/summary?basicInfo.region=countryCode:GR`
   (this depends on the question `basicInfo.region` to use the `region` question
   type, which is a specialized question type that has a `countryCode` property).
 - create combinations multiple answers
