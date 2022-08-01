@@ -39,7 +39,12 @@ export const assessmentGetHandler =
 				errorsToProblemDetail(valid.errors),
 			)
 		}
-		const submission = await submissionStorage.get(valid.value.id)
+		let submission: Static<typeof Submission> | undefined = undefined
+		try {
+			submission = (await submissionStorage.get(valid.value.id))?.data
+		} catch (error) {
+			console.error(`Failed to get submission`, valid.value.id, error)
+		}
 		if (submission === undefined) {
 			return respondWithProblem(request, response, {
 				title: `Submission ${valid.value.id} not found!`,
@@ -55,12 +60,12 @@ export const assessmentGetHandler =
 		})
 
 		const correctedResponse = correctResponse({
-			response: submission.data.response,
+			response: submission.response,
 			corrections: corrections.map(({ data: { response } }) => response),
 		})
 
 		const correctedSubmission: Static<typeof Submission> = {
-			...submission.data,
+			...submission,
 			response: correctedResponse,
 		}
 

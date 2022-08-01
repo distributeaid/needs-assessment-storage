@@ -31,13 +31,21 @@ export const formCreationHandler =
 				errorsToProblemDetail(validForm.errors),
 			)
 		}
-		const id = ulid()
-		await storage.persist(id, {
-			...formBody,
-			$id: new URL(`./form/${id}`, endpoint),
-		})
-		response
-			.status(HTTPStatusCode.Created)
-			.header('Location', new URL(`./form/${id}`, endpoint).toString())
-			.end()
+		try {
+			const id = ulid()
+			await storage.persist(id, {
+				...formBody,
+				$id: new URL(`./form/${id}`, endpoint),
+			})
+			response
+				.status(HTTPStatusCode.Created)
+				.header('Location', new URL(`./form/${id}`, endpoint).toString())
+				.end()
+		} catch (error) {
+			console.error(`Failed to persist form`, error)
+			return respondWithProblem(request, response, {
+				title: `Failed to persist form: ${(error as Error).message}`,
+				status: HTTPStatusCode.InternalError,
+			})
+		}
 	}

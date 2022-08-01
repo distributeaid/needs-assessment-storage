@@ -82,9 +82,14 @@ export const assessmentCorrectionHandler = ({
 			})
 
 		// Load submission
-		const submission =
-			submissionCache[submissionId] ??
-			(await submissionStorage.get(submissionId))?.data
+		let submission: Static<typeof Submission> | undefined = undefined
+		try {
+			submission =
+				submissionCache[submissionId] ??
+				(await submissionStorage.get(submissionId))?.data
+		} catch (error) {
+			console.error(`Failed to get submission`, submissionId, error)
+		}
 		if (submission === undefined) {
 			return respondWithProblem(request, response, {
 				title: `Invalid submission.`,
@@ -113,7 +118,12 @@ export const assessmentCorrectionHandler = ({
 				status: HTTPStatusCode.InternalError,
 				title: `Invalid form ID "${formId}" retrieved from submission "${submissionId}".`,
 			})
-		const form = formCache[formId] ?? (await formStorage.get(formId))?.data
+		let form: Form | undefined = undefined
+		try {
+			form = formCache[formId] ?? (await formStorage.get(formId))?.data
+		} catch (error) {
+			console.error(`Failed to get form`, formId, error)
+		}
 		if (form === undefined)
 			return respondWithProblem(request, response, {
 				title: `Invalid form.`,
@@ -133,20 +143,27 @@ export const assessmentCorrectionHandler = ({
 				status: HTTPStatusCode.BadRequest,
 			})
 		}
-
-		const id = ulid()
-		await correctionStorage.persist(id, validBody.value)
-		response
-			.status(HTTPStatusCode.Created)
-			.header('Location', new URL(`./correction/${id}`, endpoint).toString())
-			.end()
-		omnibus.emit(
-			events.correction_created,
-			id,
-			validBody.value,
-			form,
-			new URL(validBody.value.submission),
-			submission,
-		)
+		try {
+			const id = ulid()
+			await correctionStorage.persist(id, validBody.value)
+			response
+				.status(HTTPStatusCode.Created)
+				.header('Location', new URL(`./correction/${id}`, endpoint).toString())
+				.end()
+			omnibus.emit(
+				events.correction_created,
+				id,
+				validBody.value,
+				form,
+				new URL(validBody.value.submission),
+				submission,
+			)
+		} catch (error) {
+			console.error(`Failed to persist correction`, error)
+			return respondWithProblem(request, response, {
+				title: `Failed to persist correction: ${(error as Error).message}`,
+				status: HTTPStatusCode.InternalError,
+			})
+		}
 	}
 }

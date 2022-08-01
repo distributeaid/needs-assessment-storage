@@ -72,7 +72,12 @@ export const assessmentsExportHandler = ({
 			})
 
 		// Load form
-		const form = formCache[formId] ?? (await formStorage.get(formId))?.data
+		let form: Form | undefined = undefined
+		try {
+			form = formCache[formId] ?? (await formStorage.get(formId))?.data
+		} catch (error) {
+			console.error(`Failed to get form`, formId, error)
+		}
 		if (form === undefined)
 			return respondWithProblem(request, response, {
 				title: `Invalid form.`,

@@ -20,7 +20,12 @@ export const formGetHandler =
 				errorsToProblemDetail(valid.errors),
 			)
 		}
-		const form = await storage.get(valid.value.id)
+		let form: Form | undefined = undefined
+		try {
+			form = (await storage.get(valid.value.id))?.data
+		} catch (error) {
+			console.error(`Failed to get form`, valid.value.id, error)
+		}
 		if (form === undefined) {
 			return respondWithProblem(request, response, {
 				title: `Form ${valid.value.id} not found!`,
@@ -30,6 +35,6 @@ export const formGetHandler =
 		response
 			.status(HTTPStatusCode.OK)
 			.header('Content-Type', 'application/json; charset=utf-8')
-			.send(JSON.stringify(form.data, null, 2))
+			.send(JSON.stringify(form, null, 2))
 			.end()
 	}

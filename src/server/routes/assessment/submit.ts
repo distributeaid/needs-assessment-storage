@@ -58,7 +58,12 @@ export const assessmentSubmissionHandler = ({
 			})
 
 		// Load form
-		const form = formCache[formId] ?? (await formStorage.get(formId))?.data
+		let form: Form | undefined = undefined
+		try {
+			form = formCache[formId] ?? (await formStorage.get(formId))?.data
+		} catch (error) {
+			console.error(`Failed to get form`, formId, error)
+		}
 		if (form === undefined)
 			return respondWithProblem(request, response, {
 				title: `Invalid form.`,
@@ -87,23 +92,31 @@ export const assessmentSubmissionHandler = ({
 			})
 		}
 
-		const id = ulid()
-		await submissionStorage.persist(id, validBody.value)
+		try {
+			const id = ulid()
+			await submissionStorage.persist(id, validBody.value)
 
-		const submission$Id = new URL(`./assessment/${id}`, endpoint).toString()
+			const submission$Id = new URL(`./assessment/${id}`, endpoint).toString()
 
-		response
-			.status(HTTPStatusCode.Created)
-			.header('Location', submission$Id)
-			.header('ETag', '1')
-			.end()
+			response
+				.status(HTTPStatusCode.Created)
+				.header('Location', submission$Id)
+				.header('ETag', '1')
+				.end()
 
-		omnibus.emit(
-			events.assessment_created,
-			id,
-			submission$Id,
-			validBody.value,
-			form,
-		)
+			omnibus.emit(
+				events.assessment_created,
+				id,
+				submission$Id,
+				validBody.value,
+				form,
+			)
+		} catch (error) {
+			console.error(`Failed to persist assessment`, error)
+			return respondWithProblem(request, response, {
+				title: `Failed to persist assessment: ${(error as Error).message}`,
+				status: HTTPStatusCode.InternalError,
+			})
+		}
 	}
 }

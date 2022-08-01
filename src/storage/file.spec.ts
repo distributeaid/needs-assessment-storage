@@ -35,7 +35,7 @@ describe('File store', () => {
 	})
 
 	describe('findAll()', () => {
-		it('should find all matchin files', async () => {
+		it('should find all matching files', async () => {
 			const someValue = ulid()
 			await store.persist(ulid(), { foo: someValue })
 			await store.persist(ulid(), { foo: someValue })
