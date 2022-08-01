@@ -50,7 +50,9 @@ export const summaryHandler =
 			eq: (v: string | string[] | [number, string]) => boolean
 		}[] = []
 
-		for (const [key, value] of Object.entries(request.query)) {
+		for (const [key, value] of Object.entries(request.query).filter(
+			([k]) => k !== 'ts',
+		)) {
 			const [sectionId, questionId] = key.split('.')
 			const section = form.sections.find(({ id }) => id === sectionId)
 			if (section === undefined) {
@@ -135,6 +137,7 @@ export const summaryHandler =
 		response
 			.status(HTTPStatusCode.OK)
 			.header('Content-Type', 'text/json; charset=utf-8')
+			.header('Access-Control-Allow-Origin', '*')
 			.send(
 				summarizeResponses(
 					form,
