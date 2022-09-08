@@ -70,7 +70,7 @@
     "passport-cookie": "1.0.9"
   },
   "devDependencies": {
-    "@nordicsemiconductor/asset-tracker-cloud-code-style": "11.0.122",
+    "@nordicsemiconductor/asset-tracker-cloud-code-style": "11.0.123",
     "@nordicsemiconductor/eslint-config-asset-tracker-cloud-typescript": "10.0.41",
     "@swc/core": "1.2.249",
     "@swc/jest": "0.2.22",
