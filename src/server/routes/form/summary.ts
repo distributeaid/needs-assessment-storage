@@ -5,10 +5,59 @@ import { getCountryByCountryCode } from '../../../country/getCountryByCountryCod
 import { Correction } from '../../../form/correction.js'
 import { Form, RegionQuestionFormat } from '../../../form/form.js'
 import { Submission } from '../../../form/submission.js'
-import { summarizeResponses } from '../../../reports/summarizeResponses.js'
+import {
+	Grouping,
+	summarizeResponses,
+} from '../../../reports/summarizeResponses.js'
 import { Store } from '../../../storage/store.js'
 import { HTTPStatusCode } from '../../response/HttpStatusCode.js'
 import { respondWithProblem } from '../../response/problem.js'
+
+type Filter = {
+	sectionId: string
+	questionId: string
+	eq: (v: string | string[] | [number, string]) => boolean
+}[]
+
+const loadSubmissions = async ({
+	submissionStorage,
+	correctionStorage,
+	$formId,
+	endpoint,
+	filter,
+}: {
+	submissionStorage: Store<Static<typeof Submission>>
+	correctionStorage: Store<Static<typeof Correction>>
+	$formId: URL
+	endpoint: URL
+	filter: Filter
+}) => {
+	// Load submissions and corrections
+	const submissions = (
+		await submissionStorage.findAll({
+			form: $formId.toString(),
+		})
+	)
+		// and optionally filter
+		.filter((submission) => {
+			for (const { sectionId, questionId, eq } of filter) {
+				if (!eq(submission.data.response[sectionId]?.[questionId])) return false
+			}
+			return true
+		})
+	const corrections: Record<
+		string,
+		{ id: string; data: Static<typeof Correction> }[]
+	> = {}
+	await Promise.all(
+		submissions.map(async ({ id }) => {
+			corrections[id] = await correctionStorage.findAll({
+				submission: new URL(`./assessment/${id}`, endpoint).toString(),
+			})
+		}),
+	)
+	return { submissions, corrections }
+}
 
 const formCache: Record<string, Form> = {}
 
@@ -44,15 +93,13 @@ export const summaryHandler =
 		const $formId = new URL(`./form/${formId}`, endpoint)
 
 		// Option: filter submissions
-		const filter: {
-			sectionId: string
-			questionId: string
-			eq: (v: string | string[] | [number, string]) => boolean
-		}[] = []
+		const filter: Filter = []
 
-		for (const [key, value] of Object.entries(request.query).filter(
-			([k]) => k !== 'ts',
-		)) {
+		for (const [key, value] of Object.entries(request.query)
+			// Allow cache busting
+			.filter(([k]) => k !== 'ts')
+			// Allow grouping
+			.filter(([k]) => k !== 'groupBy')) {
 			const [sectionId, questionId] = key.split('.')
 			const section = form.sections.find(({ id }) => id === sectionId)
 			if (section === undefined) {
@@ -108,32 +155,39 @@ export const summaryHandler =
 			}
 		}
 
-		// Load submissions and corrections
-		const submissions = (
-			await submissionStorage.findAll({
-				form: $formId.toString(),
-			})
-		)
-			// and optionally filter
-			.filter((submission) => {
-				for (const { sectionId, questionId, eq } of filter) {
-					if (!eq(submission.data.response[sectionId]?.[questionId]))
-						return false
+		// Option: group submissions
+		const groupBy: Grouping[] = []
+		if (request.query.groupBy !== undefined) {
+			if (typeof request.query.groupBy === 'string') {
+				for (const sectionQuestionId of request.query.groupBy.split(',')) {
+					const [sectionId, questionId] = sectionQuestionId.split('.')
+					if (sectionId === undefined || questionId === undefined)
+						return respondWithProblem(request, response, {
+							title: `Must provide section ID and question ID separated by a dot, got "${sectionQuestionId}".`,
+							status: HTTPStatusCode.BadRequest,
+						})
+					const q = form.sections
+						.find(({ id }) => id === sectionId)
+						?.questions.find(({ id }) => id === questionId)
+					if (q === undefined)
+						return respondWithProblem(request, response, {
+							title: `Unknown question id "${sectionQuestionId}" used in groupBy.`,
+							status: HTTPStatusCode.BadRequest,
+						})
+					groupBy.push([sectionId, questionId])
 				}
-				return true
-			})
-		const corrections: Record<
-			string,
-			{ id: string; data: Static<typeof Correction> }[]
-		> = {}
-		await Promise.all(
-			submissions.map(async ({ id }) => {
-				corrections[id] = await correctionStorage.findAll({
-					submission: new URL(`./assessment/${id}`, endpoint).toString(),
-				})
-			}),
-		)
+			}
+		}
 
+		const { submissions, corrections } = await loadSubmissions({
+			submissionStorage,
+			correctionStorage,
+			$formId,
+			endpoint,
+			filter,
+		})
+
+		// Build top-level summary
 		response
 			.status(HTTPStatusCode.OK)
 			.header('Content-Type', 'text/json; charset=utf-8')
@@ -146,6 +200,7 @@ export const summaryHandler =
 						response: submission.data.response,
 						corrections: corrections[submission.id],
 					})),
+					groupBy,
 				),
 			)
 			.end()

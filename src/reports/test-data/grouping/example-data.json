@@ -1,0 +1,18 @@
+[
+  { "id": "NO-Q1-001-2022", "country": "NO", "year": "2022", "quarter": "Q1" },
+  { "id": "NO-Q1-002-2022", "country": "NO", "year": "2022", "quarter": "Q1" },
+  { "id": "NO-Q2-001-2022", "country": "NO", "year": "2022", "quarter": "Q2" },
+  { "id": "NO-Q2-002-2022", "country": "NO", "year": "2022", "quarter": "Q2" },
+  { "id": "DE-Q1-001-2022", "country": "DE", "year": "2022", "quarter": "Q1" },
+  { "id": "DE-Q1-002-2022", "country": "DE", "year": "2022", "quarter": "Q1" },
+  { "id": "DE-Q2-001-2022", "country": "DE", "year": "2022", "quarter": "Q2" },
+  { "id": "DE-Q2-002-2022", "country": "DE", "year": "2022", "quarter": "Q2" },
+  { "id": "NO-Q1-001-2023", "country": "NO", "year": "2023", "quarter": "Q1" },
+  { "id": "NO-Q1-002-2023", "country": "NO", "year": "2023", "quarter": "Q1" },
+  { "id": "NO-Q2-001-2023", "country": "NO", "year": "2023", "quarter": "Q2" },
+  { "id": "NO-Q2-002-2023", "country": "NO", "year": "2023", "quarter": "Q2" },
+  { "id": "DE-Q1-001-2023", "country": "DE", "year": "2023", "quarter": "Q1" },
+  { "id": "DE-Q1-002-2023", "country": "DE", "year": "2023", "quarter": "Q1" },
+  { "id": "DE-Q2-001-2023", "country": "DE", "year": "2023", "quarter": "Q2" },
+  { "id": "DE-Q2-002-2023", "country": "DE", "year": "2023", "quarter": "Q2" }
+]

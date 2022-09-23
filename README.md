@@ -231,6 +231,85 @@ The summary can further be filtered by answers to any question.
 - create combinations multiple answers
   `http GET http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043/summary?basicInfo.region=lesvos&timeOfYear.quarter=q2`
 
+### Grouping
+
+Summaries can be grouped, by multiple answers, i.e. by quarter and by region
+using
+`http GET http://localhost:3000/form/01FVZQH3NRPW38JSMD63KCM043/summary?groupBy=timeOfYear.quarter,basicInfo.region`
+will group all answers first by time of year, and further group them by region.
+
+Given these responses
+
+```json
+[
+  {
+    "id": "01GDP4JXFDGAWAH36HZKBMSF2N",
+    "response": {
+      "basicInfo": { "region": "samos" },
+      "foodItems": { "rice": [2, "epal"], "cannedTomatoes": [100, "cans"] },
+      "hygieneItems": { "washingDetergent": [10, "bottle1l"] },
+      "timeOfYear": { "quarter": "q1" }
+    },
+    "corrections": []
+  },
+  {
+    "id": "01GDP4JXFDTYH42VYWTNME67BA",
+    "response": {
+      "basicInfo": { "region": "lesvos" },
+      "foodItems": { "rice": [200, "kg"], "cannedTomatoes": [3, "epal"] },
+      "hygieneItems": { "washingDetergent": [10, "bag5k"] },
+      "timeOfYear": { "quarter": "q2" }
+    },
+    "corrections": []
+  },
+  {
+    "id": "01GDP4JXFEK65RF33CHAB0TABD",
+    "response": {
+      "basicInfo": { "region": "calais" },
+      "foodItems": { "rice": [123, "kg"], "cannedTomatoes": [4, "epal"] },
+      "hygieneItems": { "washingDetergent": [17, "bag5k"] },
+      "timeOfYear": { "quarter": "q2" }
+    },
+    "corrections": []
+  }
+]
+```
+
+using the grouping definition from above, the result will be:
+
+```json
+{
+  "summary": {
+    "q1": {
+      "samos": {
+        "foodItems": {
+          "rice": { "kg": 1520 },
+          "cannedTomatoes": { "cans": 100 }
+        },
+        "hygieneItems": { "washingDetergent": { "washCycles": 380 } }
+      }
+    },
+    "q2": {
+      "lesvos": {
+        "foodItems": {
+          "rice": { "kg": 200 },
+          "cannedTomatoes": { "cans": 1152 }
+        },
+        "hygieneItems": { "washingDetergent": { "washCycles": 900 } }
+      },
+      "calais": {
+        "foodItems": {
+          "rice": { "kg": 123 },
+          "cannedTomatoes": { "cans": 1536 }
+        },
+        "hygieneItems": { "washingDetergent": { "washCycles": 1530 } }
+      }
+    }
+  },
+  "stats": { "count": 3 }
+}
+```
+
 ## Storage
 
 Forms and responses are stored on the local filesystem. When using Clever Cloud,

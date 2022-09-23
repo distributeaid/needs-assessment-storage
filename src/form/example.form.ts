@@ -1,7 +1,7 @@
 import { URL } from 'url'
-import { Form, Question } from './form.js'
+import { Form, Question, Section } from './form.js'
 
-export const region: Question = {
+export const regionQuestion: Question = {
 	id: 'region',
 	title: 'What region to you operate in?',
 	required: true,
@@ -92,6 +92,39 @@ export const region: Question = {
 	},
 }
 
+export const timeOfYearSection: Section = {
+	id: 'timeOfYear',
+	title: 'Time of year',
+	questions: [
+		{
+			id: 'quarter',
+			title: 'Which quarter is this needs assessment for?',
+			required: true,
+			format: {
+				type: 'single-select',
+				options: [
+					{
+						id: 'q1',
+						title: 'Q1: January, February, March',
+					},
+					{
+						id: 'q2',
+						title: 'Q2: April, May, June',
+					},
+					{
+						id: 'q3',
+						title: 'Q3: July, August, September',
+					},
+					{
+						id: 'q4',
+						title: 'Q4: October, November, December',
+					},
+				],
+			},
+		},
+	],
+}
+
 export const exampleForm = ({
 	$schema,
 	$id,
@@ -123,7 +156,7 @@ export const exampleForm = ({
 						type: 'text',
 					},
 				},
-				region,
+				regionQuestion,
 				{
 					id: 'areainfo',
 					title:
@@ -135,38 +168,7 @@ export const exampleForm = ({
 				},
 			],
 		},
-		{
-			id: 'timeOfYear',
-			title: 'Time of year',
-			questions: [
-				{
-					id: 'quarter',
-					title: 'Which quarter is this needs assessment for?',
-					required: true,
-					format: {
-						type: 'single-select',
-						options: [
-							{
-								id: 'q1',
-								title: 'Q1: January, February, March',
-							},
-							{
-								id: 'q2',
-								title: 'Q2: April, May, June',
-							},
-							{
-								id: 'q3',
-								title: 'Q3: July, August, September',
-							},
-							{
-								id: 'q4',
-								title: 'Q4: October, November, December',
-							},
-						],
-					},
-				},
-			],
-		},
+		timeOfYearSection,
 		{
 			id: 'whomYouServe',
 			title: 'Whom you serve',

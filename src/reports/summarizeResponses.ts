@@ -3,17 +3,28 @@ import { correctResponse } from '../correction/correctResponse.js'
 import { Correction } from '../form/correction.js'
 import { Form } from '../form/form.js'
 import { Response } from '../form/submission.js'
+import { groupData } from './groupData.js'
 
-type Summary = {
+export type Summary = {
+	[key: string]: {
+		[key: string]: Record<string, number>
+	}
+}
+export type SummaryReport = {
 	stats: {
 		count: number
 	}
-	summary: {
-		[key: string]: {
-			[key: string]: Record<string, number>
-		}
-	}
+	summary: Summary
 }
+
+type Responses = {
+	id: string
+	response: Static<typeof Response>
+	corrections: {
+		id: string
+		data: Static<typeof Correction>
+	}[]
+}[]
 
 /**
  * WARNING /!\
@@ -24,63 +35,81 @@ type Summary = {
  */
 export const summarizeResponses = (
 	form: Form,
-	responses: {
-		id: string
-		response: Static<typeof Response>
-		corrections: {
-			id: string
-			data: Static<typeof Correction>
-		}[]
-	}[],
-): Summary => {
-	const summary: Summary = {
-		summary: {},
-		stats: {
-			count: 0,
-		},
+	responses: Responses,
+	groupBy: Grouping[] = [],
+): SummaryReport => {
+	const responseSummary = summarize(form)(responses)
+
+	const groupedSummary = groupData(
+		responses,
+		groupBy.map(
+			([sectionId, questionId]) =>
+				(item) =>
+					item.response[sectionId]?.[questionId] as string,
+		),
+		(items) => summarize(form)(items).summary,
+	)
+
+	return {
+		...responseSummary,
+		summary: groupedSummary as unknown as SummaryReport['summary'],
 	}
+}
 
-	for (const { response, corrections } of responses) {
-		const correctedResponse = correctResponse({
-			response,
-			corrections: corrections.map(({ data: { response } }) => response),
-		})
+export type GroupSummary = Record<string, Summary>
+export type Grouping = [sectionId: string, questionId: string]
 
-		for (const section of form.sections) {
-			for (const question of section.questions) {
-				if (
-					question.format.type !== 'non-negative-integer' &&
-					question.format.type !== 'positive-integer'
-				)
-					continue
-				let [value, unitId] = (correctedResponse[section.id]?.[question.id] ??
-					[]) as [number, string]
-				if (value === undefined || unitId === undefined) continue
-				const unit = question.format.units.find(({ id }) => id === unitId)
-
-				if (unit?.baseUnit !== undefined) {
-					value = value * unit.baseUnit.conversionFactor
-					unitId = unit.baseUnit.id
-				}
-
-				if (summary.summary[section.id] === undefined) {
-					summary.summary[section.id] = {}
-				}
-
-				if (summary.summary[section.id][question.id] === undefined) {
-					summary.summary[section.id][question.id] = {}
-				}
-
-				if (summary.summary[section.id][question.id][unitId] === undefined) {
-					summary.summary[section.id][question.id][unitId] = value
-				} else {
-					summary.summary[section.id][question.id][unitId] += value
-				}
-			}
+const summarize =
+	(form: Form) =>
+	(responses: Responses): SummaryReport => {
+		const summary: SummaryReport = {
+			summary: {},
+			stats: {
+				count: 0,
+			},
 		}
 
-		summary.stats.count++
-	}
+		for (const { response, corrections } of responses) {
+			const correctedResponse = correctResponse({
+				response,
+				corrections: corrections.map(({ data: { response } }) => response),
+			})
 
-	return summary
-}
+			for (const section of form.sections) {
+				for (const question of section.questions) {
+					if (
+						question.format.type !== 'non-negative-integer' &&
+						question.format.type !== 'positive-integer'
+					)
+						continue
+					let [value, unitId] = (correctedResponse[section.id]?.[question.id] ??
+						[]) as [number, string]
+					if (value === undefined || unitId === undefined) continue
+					const unit = question.format.units.find(({ id }) => id === unitId)
+
+					if (unit?.baseUnit !== undefined) {
+						value = value * unit.baseUnit.conversionFactor
+						unitId = unit.baseUnit.id
+					}
+
+					if (summary.summary[section.id] === undefined) {
+						summary.summary[section.id] = {}
+					}
+
+					if (summary.summary[section.id][question.id] === undefined) {
+						summary.summary[section.id][question.id] = {}
+					}
+
+					if (summary.summary[section.id][question.id][unitId] === undefined) {
+						summary.summary[section.id][question.id][unitId] = value
+					} else {
+						summary.summary[section.id][question.id][unitId] += value
+					}
+				}
+			}
+
+			summary.stats.count++
+		}
+
+		return summary
+	}

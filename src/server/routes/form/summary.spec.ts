@@ -3,7 +3,10 @@ import express, { Express } from 'express'
 import { createServer, Server } from 'http'
 import request, { SuperTest, Test } from 'supertest'
 import { Correction } from '../../../form/correction.js'
-import { region } from '../../../form/example.form.js'
+import {
+	regionQuestion,
+	timeOfYearSection,
+} from '../../../form/example.form.js'
 import { Form } from '../../../form/form.js'
 import { Submission } from '../../../form/submission.js'
 import { formSchema } from '../../../schema/form.js'
@@ -29,40 +32,9 @@ const formWithConversions: Form = {
 		{
 			id: 'basicInfo',
 			title: 'Basic Info',
-			questions: [region],
+			questions: [regionQuestion],
 		},
-		{
-			id: 'timeOfYear',
-			title: 'Time of year',
-			questions: [
-				{
-					id: 'quarter',
-					title: 'Which quarter is this needs assessment for?',
-					required: true,
-					format: {
-						type: 'single-select',
-						options: [
-							{
-								id: 'q1',
-								title: 'Q1: January, February, March',
-							},
-							{
-								id: 'q2',
-								title: 'Q2: April, May, June',
-							},
-							{
-								id: 'q3',
-								title: 'Q3: July, August, September',
-							},
-							{
-								id: 'q4',
-								title: 'Q4: October, November, December',
-							},
-						],
-					},
-				},
-			],
-		},
+		timeOfYearSection,
 		{
 			id: 'foodItems',
 			title: 'Food items',
@@ -387,6 +359,84 @@ describe('Summary API', () => {
 						.set('Content-type', 'application/json; charset=utf-8')
 						.expect(HTTPStatusCode.BadRequest),
 			)
+		})
+
+		describe('summaries can be grouped', () => {
+			test('group a summary', async () => {
+				const props = new URLSearchParams()
+				props.set('groupBy', 'timeOfYear.quarter,basicInfo.region')
+				const res = await r
+					.get(`/form/${formId}/summary?${props.toString()}`)
+					.set('Content-type', 'application/json; charset=utf-8')
+					.expect(HTTPStatusCode.OK)
+					.expect('Content-Type', /text\/json; charset=utf-8/)
+				expect(JSON.parse(res.text)).toMatchObject({
+					summary: {
+						q1: {
+							samos: {
+								foodItems: {
+									rice: { kg: 2 * 760 },
+									cannedTomatoes: { cans: 100 },
+								},
+								hygieneItems: {
+									washingDetergent: {
+										washCycles: 10 * 38,
+									},
+								},
+							},
+						},
+						q2: {
+							lesvos: {
+								foodItems: {
+									rice: { kg: 200 },
+									cannedTomatoes: { cans: 3 * 384 },
+								},
+								hygieneItems: {
+									washingDetergent: {
+										washCycles: 10 * 90,
+									},
+								},
+							},
+							calais: {
+								foodItems: {
+									rice: { kg: 123 },
+									cannedTomatoes: { cans: 4 * 384 },
+								},
+								hygieneItems: {
+									washingDetergent: {
+										washCycles: 17 * 90,
+									},
+								},
+							},
+						},
+					},
+					stats: {
+						count: 3,
+					},
+				})
+			})
+
+			test('invalid group format', async () => {
+				const props = new URLSearchParams()
+				props.set('groupBy', 'foo')
+				await r
+					.get(`/form/${formId}/summary?${props.toString()}`)
+					.expect(HTTPStatusCode.BadRequest)
+					.expect('Content-Type', /application\/problem\+json/)
+					.expect(
+						/Must provide section ID and question ID separated by a dot, got \\"foo\\"./,
+					)
+			})
+
+			test('unknown groups', async () => {
+				const props = new URLSearchParams()
+				props.set('groupBy', 'foo.bar')
+				await r
+					.get(`/form/${formId}/summary?${props.toString()}`)
+					.expect(HTTPStatusCode.BadRequest)
+					.expect('Content-Type', /application\/problem\+json/)
+					.expect(/Unknown question id \\"foo.bar\\" used in groupBy./)
+			})
 		})
 	})
 })

@@ -1,7 +1,7 @@
 import { Static } from '@sinclair/typebox'
 import { ulid } from '../ulid'
 import { Correction } from './correction'
-import { region } from './example.form'
+import { regionQuestion } from './example.form'
 import { Form } from './form'
 import { responsesToTSV } from './responsesToTSV'
 import { Response } from './submission.js'
@@ -37,7 +37,7 @@ const simpleForm: Form = {
 						],
 					},
 				},
-				region,
+				regionQuestion,
 			],
 		},
 		{
