@@ -8,7 +8,7 @@ Cookies are sent
 when users log in using email and a verification token.
 
 Cookies expire after 30 minutes and the client is responsible for renewing
-cookies by calling the `GET /me/cookie` endpoint before they expire.
+cookies by calling the `POST /cookie` endpoint before they expire.
 
 Renewing cookies is possible as long as the user's cookie is valid.
 

@@ -110,7 +110,7 @@ export const backend = ({
 	// Auth
 	app.post('/register', registerUser(omnibus, generateToken))
 	app.post('/login', login(getAuthCookie))
-	app.get('/cookie', cookieAuth, renewCookie(getAuthCookie))
+	app.post('/cookie', cookieAuth, renewCookie(getAuthCookie))
 	app.delete('/cookie', cookieAuth, deleteCookie)
 
 	// Schemas

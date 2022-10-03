@@ -67,7 +67,7 @@ describe('Authentication API', () => {
 			registerUser(omnibus, () => '123456'),
 		)
 		app.post('/login', login(getExpressCookie))
-		app.get('/cookie', cookieAuth, renewCookie(getExpressCookie))
+		app.post('/cookie', cookieAuth, renewCookie(getExpressCookie))
 		app.delete('/cookie', cookieAuth, deleteCookie)
 		httpServer = createServer(app)
 		await new Promise<void>((resolve) =>
@@ -210,12 +210,12 @@ describe('Authentication API', () => {
 	describe('/cookie', () => {
 		it('should send a new cookie', async () =>
 			r
-				.get('/cookie')
+				.post('/cookie')
 				.set('Cookie', [`${authCookieName}=${authCookie}`])
 				.expect(HTTPStatusCode.NoContent))
 		it('should send cookie expiry time in the expires header', async () => {
 			const res = await r
-				.get('/cookie')
+				.post('/cookie')
 				.set('Cookie', [`${authCookieName}=${authCookie}`])
 				.expect(HTTPStatusCode.NoContent)
 			const expiresIn = new Date(res.headers['expires']).getTime() - Date.now()
