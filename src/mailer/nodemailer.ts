@@ -83,12 +83,12 @@ export const verificationEmail = (token: string): Email => ({
 	text: `Hey 👋,\n\nPlease use the token ${token} to verify your email address.\n\nPlease do not reply to this email.\n\nIf you need support, please contact help@distributeaid.org.`,
 })
 
-export const adminSubmissionNotificationEmail = (
+export const adminSubmissionNotificationEmail = async (
 	id: string,
 	submission$Id: URL,
 	submission: Static<typeof Submission>,
 	form: Form,
-): Email => {
+): Promise<Email> => {
 	const formId = ulidRegEx.exec(form.$id)?.[0]
 	return {
 		subject: `[form:${formId}] New submission received (${id})`,
@@ -101,19 +101,19 @@ export const adminSubmissionNotificationEmail = (
 			{
 				contentType: 'text/tsv; charset=utf-8',
 				filename: `form-${formId}-submission-${id}.tsv`,
-				content: responseToTSV(submission.response, form),
+				content: await responseToTSV(submission.response, form),
 			},
 		],
 	}
 }
 
-export const adminCorrectionNotificationEmail = (
+export const adminCorrectionNotificationEmail = async (
 	id: string,
 	correction: Static<typeof Correction>,
 	submission$Id: URL,
 	submission: Static<typeof Submission>,
 	form: Form,
-): Email => {
+): Promise<Email> => {
 	const formId = ulidRegEx.exec(form.$id)?.[0]
 	const submissionId = ulidRegEx.exec(submission$Id.toString())?.[0]
 	return {
@@ -133,7 +133,7 @@ export const adminCorrectionNotificationEmail = (
 			{
 				contentType: 'text/tsv; charset=utf-8',
 				filename: `form-${formId}-submission-${submissionId}-correction-${id}.tsv`,
-				content: responseToTSV(submission.response, form),
+				content: await responseToTSV(submission.response, form),
 			},
 		],
 	}
@@ -181,7 +181,7 @@ export const appMailer = (
 			submission: Static<typeof Submission>,
 			form: Form,
 		) => {
-			const data = adminSubmissionNotificationEmail(
+			const data = await adminSubmissionNotificationEmail(
 				id,
 				submission$Id,
 				submission,
@@ -200,7 +200,7 @@ export const appMailer = (
 			submissionId: URL,
 			submission: Static<typeof Submission>,
 		) => {
-			const data = adminCorrectionNotificationEmail(
+			const data = await adminCorrectionNotificationEmail(
 				id,
 				correction,
 				submissionId,

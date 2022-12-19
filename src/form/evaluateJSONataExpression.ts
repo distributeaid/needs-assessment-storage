@@ -2,7 +2,7 @@ import { Static } from '@sinclair/typebox'
 import jsonata from 'jsonata'
 import { Response } from './submission.js'
 
-export const evaluateJSONataExpression = ({
+export const evaluateJSONataExpression = async ({
 	expression,
 	response,
 	debug,
@@ -12,11 +12,11 @@ export const evaluateJSONataExpression = ({
 	response: Static<typeof Response>
 	debug?: typeof console.debug
 	error?: typeof console.error
-}): boolean => {
+}): Promise<boolean> => {
 	let result: boolean
 	try {
 		const compileExpression = jsonata(expression)
-		result = compileExpression.evaluate(response)
+		result = await compileExpression.evaluate(response)
 	} catch (err) {
 		error?.(`[jsonata]`, `failed to evaluate expression`, err)
 		return false

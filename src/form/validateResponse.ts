@@ -5,12 +5,12 @@ import { Response } from './submission.js'
 
 export type Answer = string | string[] | [number, string]
 
-export const validateQuestion = (
+export const validateQuestion = async (
 	answer: Answer,
 	question: Question,
 	response: Static<typeof Response>,
-): boolean => {
-	const required = isRequired(question, response)
+): Promise<boolean> => {
+	const required = await isRequired(question, response)
 	const isBlank = answer === undefined || answer.length === 0
 	if (isBlank && !required) return true
 	switch (question.format.type) {
@@ -49,31 +49,31 @@ export const validateQuestion = (
 	}
 }
 
-export const validateResponse = ({
+export const validateResponse = async ({
 	response,
 	form,
 }: {
 	response: Static<typeof Response>
 	form: Form
-}): {
+}): Promise<{
 	valid: boolean
 	validation: Record<string, Record<string, boolean>>
 	sectionValidation: Record<string, boolean>
-} => {
+}> => {
 	let valid = true
 	const sectionValidation: Record<string, boolean> = {}
 	const validation: Record<string, Record<string, boolean>> = {}
 
 	for (const section of form.sections) {
-		if (isHidden(section, response)) continue
+		if (await isHidden(section, response)) continue
 		if (validation[section.id] === undefined) {
 			validation[section.id] = {}
 			sectionValidation[section.id] = true
 		}
 		for (const question of section.questions) {
-			if (isHidden(question, response)) continue
+			if (await isHidden(question, response)) continue
 			const questionResponse = response[section.id]?.[question.id]
-			validation[section.id][question.id] = validateQuestion(
+			validation[section.id][question.id] = await validateQuestion(
 				questionResponse,
 				question,
 				response,
@@ -92,14 +92,14 @@ export const validateResponse = ({
 	}
 }
 
-export const isHidden = (
+export const isHidden = async (
 	{
 		hidden,
 	}: {
 		hidden?: boolean | string
 	},
 	response: Static<typeof Response>,
-): boolean => {
+): Promise<boolean> => {
 	if (hidden === undefined) return false
 	if (typeof hidden === 'boolean') {
 		return hidden
@@ -111,14 +111,14 @@ export const isHidden = (
 	})
 }
 
-export const isRequired = (
+export const isRequired = async (
 	{
 		required,
 	}: {
 		required?: boolean | string
 	},
 	response: Static<typeof Response>,
-): boolean => {
+): Promise<boolean> => {
 	if (required === undefined) return false
 	if (typeof required === 'boolean') {
 		return required

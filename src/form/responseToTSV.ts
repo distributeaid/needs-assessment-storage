@@ -5,10 +5,10 @@ import { Form, MultiSelectQuestionFormat } from './form.js'
 import { Response } from './submission.js'
 import { isHidden } from './validateResponse.js'
 
-export const responseToTSV = (
+export const responseToTSV = async (
 	response: Static<typeof Response>,
 	form: Form,
-): string => {
+): Promise<string> => {
 	const tsv: string[][] = []
 	const pushLine = (line: string[]) => tsv.push(line.map(escapeCellForTSV))
 	pushLine([
@@ -19,10 +19,10 @@ export const responseToTSV = (
 		'Unit',
 		'Unit Title',
 	])
-	form.sections.forEach((section) => {
-		if (isHidden(section, response)) return
-		section.questions.forEach((question) => {
-			if (isHidden(question, response)) return
+	for (const section of form.sections) {
+		if (await isHidden(section, response)) continue
+		for (const question of section.questions) {
+			if (await isHidden(question, response)) continue
 			const id = `${section.id}.${question.id}`
 			const questionText = question.title
 			const v = response[section.id]?.[question.id]
@@ -30,7 +30,7 @@ export const responseToTSV = (
 				case 'text':
 				case 'email':
 					pushLine([id, questionText, (v ?? '') as string])
-					return
+					continue
 				case 'single-select':
 					pushLine([
 						id,
@@ -38,7 +38,7 @@ export const responseToTSV = (
 						(v ?? '') as string,
 						question.format.options.find(({ id }) => id === v)?.title ?? '',
 					])
-					return
+					continue
 				case 'region':
 					pushLine([
 						id,
@@ -60,7 +60,7 @@ export const responseToTSV = (
 							return `${region} (${country})`
 						})(),
 					])
-					return
+					continue
 				case 'positive-integer':
 				case 'non-negative-integer':
 					pushLine([
@@ -71,7 +71,7 @@ export const responseToTSV = (
 						v?.[1],
 						question.format.units.find(({ id }) => id === v?.[1])?.title ?? '',
 					])
-					return
+					continue
 				case 'multi-select':
 					pushLine([
 						id,
@@ -86,13 +86,13 @@ export const responseToTSV = (
 							)
 							.join(', '),
 					])
-					return
+					continue
 				default:
 					pushLine([id, questionText, JSON.stringify(v)])
-					return
+					continue
 			}
-		})
-	})
+		}
+	}
 
 	return tsv.map((line) => line.join('\t')).join('\n')
 }

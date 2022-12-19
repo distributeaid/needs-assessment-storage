@@ -113,7 +113,7 @@ additional.other	Is there anything else you would like to communicate with us at
 additional.logoUsage	Thank you for your time! If you'd like, we'll be highlighting some of the organisations that filled out the needs assessment in recognition of the important work being done by grassroots organisations. Your data will not be tied to you publicly. Instead we may, for example, put your organisation's name and logo on the report. If you do not opt in, we will not do this.  If you are the only organisation to respond from your region, we will not do this.  Do you give us permission to highlight your contribution by putting your name and logo on the report?	no	no`
 
 describe('responseToTSV()', () => {
-	it('should convert the response to TSV', () => {
+	it('should convert the response to TSV', async () =>
 		expect(
 			responseToTSV(
 				response,
@@ -122,9 +122,8 @@ describe('responseToTSV()', () => {
 					$id: new URL(`https://example.com/form/${ulid()}`),
 				}),
 			),
-		).toEqual(tsv)
-	})
-	it('should convert a response with line breaks to CSV (#48)', () =>
+		).resolves.toEqual(tsv))
+	it('should convert a response with line breaks to CSV (#48)', async () =>
 		expect(
 			responseToTSV(
 				{
@@ -156,7 +155,7 @@ describe('responseToTSV()', () => {
 					],
 				},
 			),
-		).toEqual(
+		).resolves.toEqual(
 			[
 				[
 					'Question',

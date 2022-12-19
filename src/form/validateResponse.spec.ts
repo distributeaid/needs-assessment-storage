@@ -43,7 +43,7 @@ describe('validateResponse()', () => {
 			],
 		}
 
-		it('should validate a submission', () =>
+		it('should validate a submission', async () =>
 			expect(
 				validateResponse({
 					form: simpleForm,
@@ -54,7 +54,7 @@ describe('validateResponse()', () => {
 						},
 					},
 				}),
-			).toMatchObject({
+			).resolves.toMatchObject({
 				valid: true,
 				validation: {
 					section1: {
@@ -65,7 +65,7 @@ describe('validateResponse()', () => {
 					section1: true,
 				},
 			}))
-		it('should return information about an invalid submisstion', () =>
+		it('should return information about an invalid submission', async () =>
 			expect(
 				validateResponse({
 					form: simpleForm,
@@ -76,7 +76,7 @@ describe('validateResponse()', () => {
 						},
 					},
 				}),
-			).toMatchObject({
+			).resolves.toMatchObject({
 				valid: false,
 				validation: {
 					section1: {
@@ -91,7 +91,7 @@ describe('validateResponse()', () => {
 	})
 
 	describe('full example', () => {
-		it('should validate the full example', () =>
+		it('should validate the full example', async () =>
 			expect(
 				validateResponse({
 					form: exampleForm({
@@ -100,7 +100,7 @@ describe('validateResponse()', () => {
 					}),
 					response: exampleResponse,
 				}),
-			).toMatchObject({
+			).resolves.toMatchObject({
 				valid: true,
 				validation: {
 					basicInfo: {

@@ -10,4 +10,5 @@ export const addRequestId = (
 	next()
 }
 
-export const getRequestId = (res: Response): string => res.get('X-Request-Id')
+export const getRequestId = (res: Response): string | undefined =>
+	res.get('X-Request-Id')

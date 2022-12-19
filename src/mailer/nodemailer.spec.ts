@@ -14,10 +14,16 @@ import { appMailer } from './nodemailer.js'
 describe('appMailer', () => {
 	describe('should send an email with a token', () => {
 		let sendMailMock: jest.Mock
+		let sendMailCallPromise: Promise<void>
 		const omnibus = new EventEmitter()
 		beforeEach(() => {
 			sendMailMock = jest.fn()
-			sendMailMock.mockImplementationOnce(async () => Promise.resolve())
+			sendMailCallPromise = new Promise((resolve) => {
+				sendMailMock.mockImplementationOnce(async () => {
+					resolve()
+					return Promise.resolve()
+				})
+			})
 			appMailer(
 				omnibus,
 				{
@@ -30,8 +36,9 @@ describe('appMailer', () => {
 			)
 		})
 
-		test(events.user_registered, () => {
+		test(events.user_registered, async () => {
 			omnibus.emit(events.user_registered, 'alex@example.com', '123456')
+			await sendMailCallPromise
 			expect(sendMailMock).toHaveBeenCalledWith({
 				from: `"Distribute Aid Needs Assessment" <no-reply@distributeaid.org>`,
 				to: 'alex@example.com',
@@ -48,7 +55,7 @@ describe('appMailer', () => {
 			})
 		})
 
-		test(events.assessment_created, () => {
+		test(events.assessment_created, async () => {
 			const formId = ulid()
 			const form$Id = new URL(`https://example.com/form/${formId}`).toString()
 			const simpleForm: Form = {
@@ -92,6 +99,7 @@ describe('appMailer', () => {
 				submission,
 				simpleForm,
 			)
+			await sendMailCallPromise
 			expect(sendMailMock).toHaveBeenCalledWith({
 				from: `"Distribute Aid Needs Assessment" <no-reply@distributeaid.org>`,
 				to: 'needs@distributeaid.org',
@@ -103,7 +111,7 @@ describe('appMailer', () => {
 				].join('\n'),
 				attachments: [
 					{
-						content: responseToTSV(submission.response, simpleForm),
+						content: await responseToTSV(submission.response, simpleForm),
 						contentType: 'text/tsv; charset=utf-8',
 						filename: `form-${formId}-submission-${submissionId}.tsv`,
 					},
@@ -112,7 +120,7 @@ describe('appMailer', () => {
 			expect(sendMailMock).toHaveBeenCalledTimes(1)
 		})
 
-		test(events.correction_created, () => {
+		test(events.correction_created, async () => {
 			const authContext: AuthContext = {
 				email: 'admin@example.com',
 				isAdmin: true,
@@ -214,6 +222,8 @@ describe('appMailer', () => {
 				new URL(submission$Id),
 				submission,
 			)
+
+			await sendMailCallPromise
 			expect(sendMailMock).toHaveBeenCalledWith({
 				from: `"Distribute Aid Needs Assessment" <no-reply@distributeaid.org>`,
 				to: 'needs@distributeaid.org',
@@ -231,7 +241,7 @@ describe('appMailer', () => {
 				].join('\n'),
 				attachments: [
 					{
-						content: responseToTSV(submission.response, simpleForm),
+						content: await responseToTSV(submission.response, simpleForm),
 						contentType: 'text/tsv; charset=utf-8',
 						filename: `form-${formId}-submission-${submissionId}-correction-${correctionId}.tsv`,
 					},

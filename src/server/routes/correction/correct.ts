@@ -132,7 +132,7 @@ export const assessmentCorrectionHandler = ({
 		formCache[submissionId] = form
 
 		// Validate corrected response against form
-		const validResponse = validateResponse({
+		const validResponse = await validateResponse({
 			form,
 			response: validBody.value.response,
 		})
