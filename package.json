@@ -86,7 +86,7 @@
     "@types/passport": "1.0.12",
     "@types/supertest": "2.0.12",
     "@typescript-eslint/eslint-plugin": "5.52.0",
-    "clever-tools": "2.10.0",
+    "clever-tools": "2.10.1",
     "commander": "9.5.0",
     "eslint": "8.34.0",
     "eslint-plugin-unicorn": "45.0.2",
