@@ -65,7 +65,7 @@
     "id128": "1.6.6",
     "jsonata": "2.0.2",
     "nodemailer": "6.9.1",
-    "nodemon": "2.0.20",
+    "nodemon": "2.0.21",
     "passport": "0.6.0",
     "passport-cookie": "1.0.9"
   },
