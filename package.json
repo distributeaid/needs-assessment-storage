@@ -87,7 +87,7 @@
     "@types/supertest": "2.0.12",
     "@typescript-eslint/eslint-plugin": "5.55.0",
     "clever-tools": "2.10.1",
-    "commander": "9.5.0",
+    "commander": "10.0.1",
     "eslint": "8.36.0",
     "eslint-plugin-unicorn": "45.0.2",
     "husky": "8.0.3",
