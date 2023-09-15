@@ -61,7 +61,7 @@
     "cookie-parser": "1.4.6",
     "cors": "2.8.5",
     "express": "4.18.2",
-    "fast-equals": "4.0.3",
+    "fast-equals": "5.0.1",
     "id128": "1.6.6",
     "jsonata": "2.0.3",
     "nodemailer": "6.9.3",
