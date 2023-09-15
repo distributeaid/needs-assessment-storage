@@ -16,7 +16,7 @@ describe('Schema API', () => {
 
 	beforeAll(async () => {
 		app = express()
-		app.use(bodyParser.json({ strict: true }))
+		app.use(bodyParser.json({ strict: true, limit: '250kb' }))
 		app.get(
 			'/schema/0.0.0-development/form',
 			schemaHandler(

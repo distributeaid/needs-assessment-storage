@@ -60,7 +60,7 @@ describe('Authentication API', () => {
 	beforeAll(async () => {
 		app = express()
 		app.use(cookieParser('cookie-secret'))
-		app.use(bodyParser.json({ strict: true }))
+		app.use(bodyParser.json({ strict: true, limit: '250kb' }))
 		app.use(passport.initialize())
 		app.post(
 			'/register',

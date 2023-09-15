@@ -31,7 +31,7 @@ describe('Form API', () => {
 		cleanups.push(cleanupFormStorage)
 
 		app = express()
-		app.use(bodyParser.json({ strict: true }))
+		app.use(bodyParser.json({ strict: true, limit: '250kb' }))
 		app.get('/form/:id', formGetHandler({ storage: formStorage }))
 		app.post(
 			'/form',

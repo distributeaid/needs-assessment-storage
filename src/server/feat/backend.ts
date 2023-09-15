@@ -74,7 +74,7 @@ export const backend = ({
 	adminEmails.map((e) => console.log(` - ${e}`))
 	const getAuthCookie = authCookie(cookieLifetimeSeconds ?? 1800, adminEmails)
 	app.use(cookieParser(cookieSecret ?? ulid()))
-	app.use(bodyParser.json({ strict: true }))
+	app.use(bodyParser.json({ strict: true, limit: '250kb' }))
 	app.use(
 		(
 			err: Error | undefined,

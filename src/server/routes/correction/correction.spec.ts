@@ -92,7 +92,7 @@ describe('Correction API', () => {
 
 		app = express()
 		app.use(cookieParser('cookie-secret'))
-		app.use(bodyParser.json({ strict: true }))
+		app.use(bodyParser.json({ strict: true, limit: '250kb' }))
 		app.use(passport.initialize())
 		const cookieAuth = passport.authenticate('cookie', { session: false })
 		passport.use(cookieAuthStrategy)
